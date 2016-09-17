@@ -17,7 +17,6 @@
 
             <!-- Table Headings -->
             <thead>
-                <th>#</th>
                 <th>Titre du sondage</th>
                 <th class="text-right">Date</th>
                 <th class="text-right">Répondre</th>
@@ -28,11 +27,6 @@
             <tbody>
                 @foreach ($sondages as $sondage)
                 <tr>
-                    <!-- Sondage Id -->
-                    <th class="row">
-                        <div>{{ $sondage->id }}</div>
-                    </th>
-                    
                     <!-- Sondage Name -->
                     <td>
                         <div>{{ $sondage->title }}</div>
@@ -40,7 +34,7 @@
                     
                     <!-- Sondage Date -->
                     <td class="row text-right">
-                        <div>date</div>
+                        <div>{{ date("j-m-Y", $sondage->date ) }}</div>
                     </td>
                     
                     <!-- Edit button Sondage -->

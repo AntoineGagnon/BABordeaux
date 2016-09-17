@@ -38,8 +38,10 @@ Route::post('/sondage', function (Request $request) {
     }
 
     $sondage = new Sondage;
-    $sondage->name = $request->title;
-    $sondage-> save();
+    $sondage->title = $request->title;
+    $sondage->date = time();
+    $sondage->mdp = uniqid();
+    $sondage->save();
 });
 
 /**
