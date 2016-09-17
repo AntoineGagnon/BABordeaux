@@ -17,7 +17,7 @@
                 <label for="sondage" class="col-sm-3 control-label">Sondage</label>
 
                 <div class="col-sm-6">
-                    <input type="text" name="name" id="sondage-name" class="form-control">
+                    <input type="text" name="title" id="sondage-title" class="form-control">
                 </div>
             </div>
 
