@@ -14,7 +14,7 @@ use App\Sondage;
 
 Route::get('/', function () {
 
-	$sondages = Sondage::orderBy('title','asc')->get();
+	$sondages = Sondage::orderBy('date','asc')->get();
 
     return view('sondage_list_view',[
     	'sondages' => $sondages]);
@@ -59,5 +59,21 @@ Route::delete('/sondage/delete/{id}', function ($id) {
 Route::post('/sondage/edit/{id}',function($id){
 	//TODO
 });
+
+/**
+ * Answer An Existing Task
+ */
+Route::get('/sondage/answer/{id}',function($id){
+	//TODO
+});
+
+/**
+ * Create a Task
+ */
+Route::get('/sondage/create',function(){
+    //TODO
+	 return view('sondage_creator');
+});
+
 
 
