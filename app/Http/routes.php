@@ -1,5 +1,6 @@
 <?php
 
+use App\Sondage;
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -50,7 +51,7 @@ Route::delete('/sondage/delete/{id}', function ($id) {
     return redirect('/');
 });
 
-Route::edit('/sondage/edit/{id}',function($id){
+Route::post('/sondage/edit/{id}',function($id){
 	//TODO
 });
 
