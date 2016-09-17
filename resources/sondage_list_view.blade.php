@@ -10,7 +10,7 @@
     </div>
 
     <div class="panel-body">
-        <table class="table table-striped task-table">
+        <table class="table table-striped sondage-table">
 
             <!-- Table Headings -->
             <thead>
@@ -28,12 +28,11 @@
                     </td>
 
                     <td>
-                        <form action="/task/{{ $task->id }}" method="POST">
-                            <input type="hidden" name="_method" value="EDIT">
+                        <form action="/sondage/edit/{{ $sondage->id }}" method="POST">
                             {{ csrf_field() }}
                             {{ method_field('EDIT') }}
 
-                            <button>Edit Task</button>
+                            <button>Edit Sondage</button>
                         </form>
                     </td>
                 </tr>

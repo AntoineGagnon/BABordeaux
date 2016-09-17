@@ -15,7 +15,7 @@ Route::get('/', function () {
 
 	$sondages = Sondage::orderBy('title','asc')->get();
 
-    return view('sondage_creator',[
+    return view('sondage_list_view',[
     	'sondages' => $sondages]);
 });
 
@@ -50,7 +50,7 @@ Route::delete('/sondage/delete/{id}', function ($id) {
     return redirect('/');
 });
 
-Route::edit('sondage/edit/{id}',function($id){
+Route::edit('/sondage/edit/{id}',function($id){
 	//TODO
 });
 
