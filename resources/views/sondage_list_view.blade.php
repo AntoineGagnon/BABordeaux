@@ -14,8 +14,10 @@
 
             <!-- Table Headings -->
             <thead>
-                <th>Sondage</th>
-                <th>&nbsp;</th>
+                <th>Titre du sondage</th>
+                <th>Date</th>
+                <th>Répondre</th>
+                <th>Editer</th>
             </thead>
 
             <!-- Table Body -->
@@ -28,13 +30,27 @@
                     </td>
 
                     <td>
+                        <div>date</div>
+                    </td>
+                    
+                    <td>
                         <form action="/sondage/edit/{{ $sondage->id }}" method="POST">
                             {{ csrf_field() }}
                             {{ method_field('EDIT') }}
 
-                            <button>Edit Sondage</button>
+                            <button>Répondre</button>
                         </form>
                     </td>
+                    
+                    <td>
+                        <form action="/sondage/edit/{{ $sondage->id }}" method="POST">
+                            {{ csrf_field() }}
+                            {{ method_field('EDIT') }}
+
+                            <button>Edit</button>
+                        </form>
+                    </td>
+                    
                 </tr>
                 @endforeach
             </tbody>
