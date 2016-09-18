@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+use App\Sondage;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
@@ -50,10 +52,11 @@ class SondageController extends Controller
         }
 
         $sondage = new Sondage;
-        $sondage->title = $request->title;
-        $sondage->date = time();
+        $sondage->titre = $request->title;
         $sondage->mdp = Hash::make($request->mdp);
         $sondage->save();
+
+        echo "Sondage avec le titre $request->title sauvegardé !";
     }
 
     /**

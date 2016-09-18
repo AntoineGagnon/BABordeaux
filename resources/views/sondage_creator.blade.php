@@ -25,7 +25,7 @@
         @include('common.errors')
 
         <!-- Formulaire de création de sondage -->
-        <form action="/sondage/store" method="POST" class="form-horizontal">
+        <form action="/sondage" method="POST" class="form-horizontal">
             {{ csrf_field() }}
 
             <!-- Nom du sondage -->
@@ -33,7 +33,7 @@
                 <label for="sondage-title" class="col-sm-3 control-label">Titre sondage</label>
 
                 <div class="col-sm-6">
-                    <input type="text" name="title" id="sondage-title" class="form-control">
+                    <input type="text" name="titre" id="sondage-titre" class="form-control">
                 </div>
             </div>
 
