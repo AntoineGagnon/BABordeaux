@@ -42,7 +42,7 @@ class SondageController extends Controller
 
         //This is used to make sure the name is filled and < 255 char
         $validator = Validator::make($request->all(), [
-            'title' => 'required|max:255',
+            'titre' => 'required|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -52,11 +52,11 @@ class SondageController extends Controller
         }
 
         $sondage = new Sondage;
-        $sondage->titre = $request->title;
+        $sondage->titre = $request->titre;
         $sondage->mdp = Hash::make($request->mdp);
         $sondage->save();
 
-        echo "Sondage avec le titre $request->title sauvegardé !";
+        echo "Sondage avec le titre $request->titre sauvegardé !";
     }
 
     /**

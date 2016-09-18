@@ -14,7 +14,7 @@ use App\Sondage;
 
 Route::get('/', function () {
 
-	$sondages = Sondage::orderBy('date','asc')->get();
+    $sondages = Sondage::orderBy('created_at','asc')->get();
 
     return view('sondage_list_view',[
     	'sondages' => $sondages]);
