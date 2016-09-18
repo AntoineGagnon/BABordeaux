@@ -2,8 +2,11 @@
 
 @section('content')
 
-    <!-- Bootstrap Boilerplate... -->
-
+<!-- Bootstrap Boilerplate... -->
+<div class="panel panel-default">
+    <div class="panel-heading">
+        New sondage
+    </div>
     <div class="panel-body">
         <!-- Display Validation Errors -->
         @include('common.errors')
@@ -31,6 +34,7 @@
             </div>
         </form>
     </div>
+</div>
 
-    <!-- TODO: Current Sondages -->
+<!-- TODO: Current Sondages -->
 @endsection
