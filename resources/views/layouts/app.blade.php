@@ -15,7 +15,7 @@
                     </div>
                     <ul class="nav navbar-nav">
                         <li class="active"><a href="/">Accueil</a></li>
-                        <li><a href="/sondage/create">Création de sondage</a></li>
+                        <li><a href="sondage/create">Création de sondage</a></li>
                     </ul>
                 </div>
             </nav>

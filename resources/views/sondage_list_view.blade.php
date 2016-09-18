@@ -16,7 +16,8 @@
                     <thead>
                     <tr>
                         <th>Titre du sondage</th>
-                        <th class="text-right">Date</th>
+                        <th class="text-right">Création</th>
+                        <th class="text-right">Modification</th>
                         <th class="text-right">Répondre</th>
                         <th class="text-right">Editer</th>
                     </tr>
@@ -33,7 +34,12 @@
 
                             <!-- Date de création du sondage -->
                             <td class="row text-right">
-                                <div>{{ date("j-m-Y", $sondage->date ) }}</div>
+                                <div>{{ date_format($sondage->created_at, 'd-m-Y')  }}</div>
+                            </td>
+                            
+                            <!-- Date de création du sondage -->
+                            <td class="row text-right">
+                                <div>{{ date_format($sondage->updated_at, 'd-m-Y') }}</div>
                             </td>
 
                             <!-- Bouton pour répondre -->

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Sondage;
+use App\Question;
+use App\Choix;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
@@ -67,7 +69,15 @@ class SondageController extends Controller
      */
     public function show($id)
     {
-        echo "<br> Answering sondage $id";
+        $sondage = Sondage::find($id);
+        $questions = Question::where('Sondage_id','=',$id)->get();
+        
+        $choices = array();
+        foreach($questions as $question){
+            $choices[$question->$id]= Choix::where('Question_id','=',$id)->orderBy('id','asc')->get();
+        }
+
+        return view('sondage_answer',['sondage' => $sondage, 'questions' => $questions]);
     }
 
     /**
