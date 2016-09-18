@@ -27,24 +27,24 @@
             <tbody>
                 @foreach ($sondages as $sondage)
                 <tr>
-                    <!-- Sondage Name -->
+                    <!-- Titre du sondage -->
                     <td>
                         <div>{{ $sondage->title }}</div>
                     </td>
                     
-                    <!-- Sondage Date -->
+                    <!-- Date de création du sondage -->
                     <td class="row text-right">
                         <div>{{ date("j-m-Y", $sondage->date ) }}</div>
                     </td>
                     
-                    <!-- Answer button Sondage -->
+                    <!-- Bouton pour répondre -->
                     <td class="row text-right">
-                        <a href="sondage/answer/{{ $sondage->id }}" class="btn btn-primary btn-sm">Répondre</a>
+                        <a href="sondage/{{ $sondage->id }}" class="btn btn-primary btn-sm">Répondre</a>
                     </td>
                     
-                    <!-- Edit button Sondage -->
+                    <!-- Bouton pour éditer -->
                     <td class="row text-right">
-                        <a href="sondage/edit/{{ $sondage->id }}" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="sondage/{{ $sondage->id }}/edit" class="btn btn-primary btn-sm">Editer</a>
                     </td>
                     
                 </tr>

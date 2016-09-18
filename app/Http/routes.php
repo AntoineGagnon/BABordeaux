@@ -21,59 +21,10 @@ Route::get('/', function () {
 });
 
 
-/**
- * Add A New Sondage
- */
-Route::post('/sondage', function (Request $request) {
+// Récupère toutes les requêtes du type /sondage/... et les redirige vers SondageController
 
-	//This is used to make sure the name is filled and < 255 char
-    $validator = Validator::make($request->all(), [
-        'title' => 'required|max:255',
-    ]);
+Route::resource('sondage','SondageController');
 
-    if ($validator->fails()) {
-        return redirect('/')
-            ->withInput()
-            ->withErrors($validator);
-    }
-
-    $sondage = new Sondage;
-    $sondage->title = $request->title;
-    $sondage->date = time();
-    $sondage->mdp = uniqid();
-    $sondage->save();
-});
-
-/**
- * Delete An Existing Task
- */
-Route::delete('/sondage/delete/{id}', function ($id) {
-    Sondage::findOrFail($id)->delete();
-
-    return redirect('/');
-});
-
-/**
- * Edit An Existing Task
- */
-Route::get('/sondage/edit/{id}',function($id){
-	//TODO
-});
-
-/**
- * Answer An Existing Task
- */
-Route::get('/sondage/answer/{id}',function($id){
-	//TODO
-});
-
-/**
- * Create a Task
- */
-Route::get('/sondage/create',function(){
-    //TODO
-	 return view('sondage_creator');
-});
 
 
 

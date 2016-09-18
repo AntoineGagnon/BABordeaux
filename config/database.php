@@ -58,7 +58,7 @@ return [
             'database'  => env('DB_DATABASE', 'GoogSondage'),
             'username'  => env('DB_USERNAME', ''),
             'password'  => env('DB_PASSWORD', ''),
-            'port'      => env('DB_PORT','80'),
+            'port'      => env('DB_PORT','8080'),
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',

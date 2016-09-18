@@ -24,21 +24,29 @@
         <!-- Display Validation Errors -->
         @include('common.errors')
 
-        <!-- New Sondage Form -->
-        <form action="/sondage" method="POST" class="form-horizontal">
+        <!-- Formulaire de création de sondage -->
+        <form action="/sondage/store" method="POST" class="form-horizontal">
             {{ csrf_field() }}
 
             <!-- Nom du sondage -->
             <div class="form-group">
-                <label for="sondage" class="col-sm-3 control-label">Titre sondage</label>
+                <label for="sondage-title" class="col-sm-3 control-label">Titre sondage</label>
 
                 <div class="col-sm-6">
                     <input type="text" name="title" id="sondage-title" class="form-control">
                 </div>
             </div>
 
+                <div class="form-group">
+                    <label for="sondage-mdp" class="col-sm-3 control-label">Mot de passe</label>
+
+                    <div class="col-sm-6">
+                        <input type="password" name="mdp" id="sondage-mdp" class="form-control">
+                    </div>
+                </div>
+
             <!-- Questions -->
-            <div id="questions">
+            <div class="form-group" id="questions">
                 
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -46,7 +54,7 @@
                     </div>
 
                     <div class="panel-body" id="choices">
-                        <button type="button" class="btn btn-default" onclick="addChoice();">Add Choice</button>
+                        <button type="button" class="btn btn-default" onclick="addChoice();">Ajouter un choix</button>
                     </div>
                 </div>
             
@@ -55,7 +63,7 @@
             <!-- Add Question Button -->
             <div class="form-group">
                 <div class="col-sm-offset-3 col-sm-6">
-                    <button type="button" class="btn btn-default" onclick="addQuestion();">Add Question</button>
+                    <button type="button" class="btn btn-default" onclick="addQuestion();">Ajouter une question</button>
                 </div>
             </div>
 
@@ -63,7 +71,7 @@
             <div class="form-group">
                 <div class="col-sm-offset-3 col-sm-6">
                     <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fa fa-plus">Add Sondage</i>
+                        <i class="fa fa-plus">Créer le sondage</i>
                     </button>
                 </div>
             </div>
