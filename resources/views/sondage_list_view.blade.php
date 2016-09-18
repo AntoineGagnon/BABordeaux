@@ -2,7 +2,7 @@
 
 @section('content')
 <div style="margin-bottom:20px;">
-    <a href="/sondage/create" class="btn btn-primary btn-lg">Créer sondage</a>
+    <a href="sondage/create" class="btn btn-primary btn-lg">Créer sondage</a>
 </div>
 
 <!-- Current Sondages -->
@@ -37,23 +37,14 @@
                         <div>{{ date("j-m-Y", $sondage->date ) }}</div>
                     </td>
                     
-                    <!-- Edit button Sondage -->
+                    <!-- Answer button Sondage -->
                     <td class="row text-right">
-                        <form action="/sondage/answer/{{ $sondage->id }}" method="POST">
-                            {{ csrf_field() }}
-                            {{ method_field('EDIT') }}
-
-                            <button class="btn btn-primary btn-sm">Répondre</button>
-                        </form>
+                        <a href="sondage/answer/{{ $sondage->id }}" class="btn btn-primary btn-sm">Répondre</a>
                     </td>
                     
+                    <!-- Edit button Sondage -->
                     <td class="row text-right">
-                        <form action="/sondage/edit/{{ $sondage->id }}" method="POST">
-                            {{ csrf_field() }}
-                            {{ method_field('EDIT') }}
-
-                            <button class="btn btn-primary btn-sm">Edit</button>
-                        </form>
+                        <a href="sondage/edit/{{ $sondage->id }}" class="btn btn-primary btn-sm">Edit</a>
                     </td>
                     
                 </tr>

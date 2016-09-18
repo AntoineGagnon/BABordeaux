@@ -14,7 +14,7 @@
 
             <!-- Nom du sondage -->
             <div class="form-group">
-                <label for="sondage" class="col-sm-3 control-label">Sondage</label>
+                <label for="sondage" class="col-sm-3 control-label">Titre sondage</label>
 
                 <div class="col-sm-6">
                     <input type="text" name="title" id="sondage-title" class="form-control">

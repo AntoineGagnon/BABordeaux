@@ -56,7 +56,7 @@ Route::delete('/sondage/delete/{id}', function ($id) {
 /**
  * Edit An Existing Task
  */
-Route::post('/sondage/edit/{id}',function($id){
+Route::get('/sondage/edit/{id}',function($id){
 	//TODO
 });
 

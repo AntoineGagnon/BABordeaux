@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Laravel Quickstart - Basic</title>
+        <title>GoogSondage</title>
          <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
         <!-- CSS And JavaScript -->
     </head>
