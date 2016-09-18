@@ -1,9 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    <div style="margin-bottom:20px;">
-        <a href="sondage/create" class="btn btn-primary btn-lg">Créer sondage</a>
-    </div>
 
     <!-- Current Sondages -->
     @if (count($sondages) > 0)
