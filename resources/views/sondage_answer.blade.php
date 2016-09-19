@@ -12,9 +12,9 @@
         @include('common.errors')
 
         <!-- Formulaire de création de sondage -->
-        <form action="/sondage" method="POST" class="form-horizontal">
+        <form action="sondage" method="PUT" class="form-horizontal">
             {{ csrf_field() }}
-            
+            <input type="hidden" name="idSondage" value="{{ $sondage->id }}">
             @foreach ($questions as $question)
             
             <div class="form-group">
