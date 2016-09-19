@@ -73,10 +73,13 @@ class SondageController extends Controller
         $questions = Question::where('Sondage_id','=',$id)->get();
         
         $choices = array();
+        $i=0;
         foreach($questions as $question){
-            $choices[$question->$id]= Choix::where('Question_id','=',$id)->orderBy('id','asc')->get();
+            $question['choices']=Choix::where('Question_id','=',$question->id)->orderBy('id','asc')->get();
+            $i++;
         }
-
+        
+        //var_dump($choices);
         return view('sondage_answer',['sondage' => $sondage, 'questions' => $questions]);
     }
 
