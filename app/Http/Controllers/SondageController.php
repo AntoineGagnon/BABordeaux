@@ -58,6 +58,41 @@ class SondageController extends Controller
         $sondage->mdp = Hash::make($request->mdp);
         $sondage->save();
 
+        $question1 = new Question;
+        $question1->Sondage_Id =$sondage->id;
+        $question1->ordre = 1;
+        $question1->label = $request->q_label1;
+        $question1->save();
+
+        $choix1_1 = new Choix;
+        $choix1_1->Question_Id = $question1->id;
+        $choix1_1->label = $request->choice1_1;
+        $choix1_1->save();
+
+        $choix1_2 = new Choix;
+        $choix1_2->Question_Id = $question1->id;
+        $choix1_2->label = $request->choice1_2;
+        $choix1_2->save();
+
+
+
+        $question2 = new Question;
+        $question2->Sondage_Id =$sondage->id;
+        $question2->ordre = 2;
+        $question2->label = $request->q_label2;
+        $question2->save();
+
+        $choix2_1 = new Choix;
+        $choix2_1->Question_Id = $question2->id;
+        $choix2_1->label = $request->choice2_1;
+        $choix2_1->save();
+
+        $choix2_2 = new Choix;
+        $choix2_2->Question_Id = $question2->id;
+        $choix2_2->label = $request->choice2_2;
+        $choix2_2->save();
+
+
         echo "Sondage avec le titre $request->titre sauvegardé !";
     }
 
