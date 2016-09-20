@@ -19,6 +19,7 @@
                         <th class="text-right">Création</th>
                         <th class="text-right">Modification</th>
                         <th class="text-right">Répondre</th>
+                        <th class="text-right">Résultats</th>
                         <th class="text-right">Editer</th>
                     </tr>
                     </thead>
@@ -45,6 +46,11 @@
                             <!-- Bouton pour répondre -->
                             <td class="row text-right">
                                 <a href="sondage/{{ $sondage->id }}" class="btn btn-primary btn-sm">Répondre</a>
+                            </td>
+
+                             <!-- Bouton pour afficher les résultats -->
+                            <td class="row text-right">
+                                <a href="sondage/{{ $sondage->id }}/results" class="btn btn-primary btn-sm">Résultats</a>
                             </td>
 
                             <!-- Bouton pour éditer -->

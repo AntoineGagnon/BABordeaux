@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Sondage;
 use App\Question;
 use App\Choix;
+use App\Reponse;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
@@ -164,5 +165,49 @@ class SondageController extends Controller
     {
         Sondage::findOrFail($id)->delete();
         return redirect('/');
+    }
+
+      public function results($id)
+    {
+        $sondage = Sondage::find($id);
+        $questions = Question::where('Sondage_id','=',$id)->get();
+
+        $choices = array();
+        $i=0;
+        foreach($questions as $question){
+            $question['choices']=Choix::where('Question_id','=',$question->id)->orderBy('id','asc')->get();
+            $i++;
+        }
+        
+        $responses = array();
+        $j=0;
+        foreach($questions as $question){
+            $question['responses']=Reponse::where('Question_id','=',$question->id)->orderBy('id','asc')->get();
+            $j++;
+        }
+
+        //TABLEAU AVEC NOMBRE DE VOTE POUR CHAQUE CHOIX DE CHAQUE QUESTION
+        $results = array();
+
+        foreach($questions as $question){
+            foreach ($question->choices as $choice){
+                foreach($question->responses as $response){
+                       $results[$choice->label] = 0;
+                }
+            }
+        }  
+        
+        foreach($questions as $question){
+            foreach ($question->choices as $choice){
+                foreach($question->responses as $response){
+                    if($choice->label == $response->label){
+                       $results[$choice->label] += 1;
+                    }
+                }
+            }
+        }
+
+        //var_dump($choices);
+        return view('sondage_results',['sondage' => $sondage, 'questions' => $questions, 'results' => $results]);
     }
 }

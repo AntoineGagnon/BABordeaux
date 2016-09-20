@@ -25,6 +25,7 @@ Route::get('/', function () {
 
 Route::resource('sondage','SondageController');
 
+Route::get('sondage/{id}/results', 'SondageController@results');
 
 
 
