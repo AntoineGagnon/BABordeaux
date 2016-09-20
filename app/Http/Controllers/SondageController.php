@@ -152,7 +152,11 @@ class SondageController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        
+        $response = new Reponse;
+        $response->Question_Id = $request->id;
+        $response->reponse = $request->id;
+        $response->save();
     }
 
     /**
