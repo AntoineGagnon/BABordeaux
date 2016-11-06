@@ -77,7 +77,7 @@ class SessionManager extends Manager
 
         $lifetime = $this->app['config']['session.lifetime'];
 
-        return $this->buildSession(new DatabaseSessionHandler($connection, $table, $lifetime));
+        return $this->buildSession(new DatabaseSessionHandler($connection, $table, $lifetime, $this->app));
     }
 
     /**
@@ -155,9 +155,11 @@ class SessionManager extends Manager
      */
     protected function createCacheHandler($driver)
     {
+        $store = $this->app['config']->get('session.store') ?: $driver;
+
         $minutes = $this->app['config']['session.lifetime'];
 
-        return new CacheBasedSessionHandler(clone $this->app['cache']->driver($driver), $minutes);
+        return new CacheBasedSessionHandler(clone $this->app['cache']->store($store), $minutes);
     }
 
     /**
