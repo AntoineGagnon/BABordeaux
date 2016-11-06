@@ -26,7 +26,7 @@
                             <div class="panel-body">
 
                                 @foreach ($question->answers as $answer)
-                                    <INPUT class="radio-inline" type="radio" name="{{ $question->id }}" value= "{{ $answer->label }}" > {{ $choice->label }}
+                                    <INPUT class="radio-inline" type="radio" name="{{ $question->id }}" value= "{{ $answer->label }}" > {{ $answer->label }}
                                     <br>
                                 @endforeach
                             </div>
