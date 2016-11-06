@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\answer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -76,10 +77,10 @@ class PollController extends Controller
      */
     public function index()
     {
-        $questions = Question::all();
+        $questions = question::all();
         $answers = array();
         foreach($questions as $question){
-            $question['answers']=Answer::where('Question_id','=',$question->id)->orderBy('id','asc')->get();
+            $question['answers']=answer::where('Question_id','=',$question->id)->orderBy('id','asc')->get();
         }
 
         //var_dump($choices);
