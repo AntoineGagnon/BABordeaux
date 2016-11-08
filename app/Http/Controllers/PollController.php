@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Sondage;
-use App\Question;
+use App\question;
 use App\Choix;
 use App\Reponse;
 use App\Http\Requests;
@@ -85,6 +85,42 @@ class PollController extends Controller
 
         //var_dump($choices);
         return view('poll_view',['questions' => $questions]);
+    }
+
+    /**
+     * ADMIN: Edit a poll
+     *
+     * @param int $idPoll The poll to edit
+     * @return \Illuminate\Http\Response
+     */
+    public function adminEditPoll($idPoll)
+    {
+        $this->middleware('auth');
+        return view('admin_poll_edit_view', []);
+    }
+
+    /**
+     * ADMIN: Display a poll
+     *
+     * @param int $idPoll The poll to display
+     * @return \Illuminate\Http\Response
+     */
+    public function adminDisplayPoll($idPoll)
+    {
+        $this->middleware('auth');
+        return view('admin_poll_display', []);
+    }
+
+    /**
+     * ADMIN: Display the results of a poll
+     *
+     * @param int $idPoll The poll
+     * @return \Illuminate\Http\Response
+     */
+    public function adminDisplayPollResults($idPoll)
+    {
+        $this->middleware('auth');
+        return view('admin_poll_display_results', []);
     }
 
 }

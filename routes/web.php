@@ -11,8 +11,14 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
+Route::resource('/', 'PollController');
 Route::resource('poll','PollController');
+Route::resource('admin', 'AdminController');
+Route::resource('admin/editpoll', 'PollController@adminEditPoll');
+Route::resource('admin/viewpoll', 'PollController@adminDisplayPoll');
+Route::resource('admin/resultpoll', 'PollController@adminDisplayPollResults');
+
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index');
