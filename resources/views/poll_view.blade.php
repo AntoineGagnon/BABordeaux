@@ -24,18 +24,32 @@
                             </div>
 
                             <div class="panel-body">
-
-                                @foreach ($question->answers as $answer)
-                                    <INPUT class="radio-inline" type="radio" name="{{ $question->id }}" value= "{{ $answer->label }}" > {{ $answer->label }}
+                                @if($question->questionType == "openAnswer")
+                                    <INPUT class="form-control" type="text" name="{{ $question->id }}">
                                     <br>
-                                @endforeach
+                                @else
+
+                                    @foreach ($question->answers as $answer)
+
+                                        @if($question->questionType == "singleChoice")
+                                            <INPUT class="radio-inline" type="radio" name="{{ $question->id }}"
+                                                   value="{{ $answer->label }}"> {{ $answer->label }}
+                                            <br>
+                                        @elseif($question->questionType == "multipleChoice")
+                                            <INPUT class="checkbox-inline" type="checkbox" name="{{ $question->id }}"
+                                                   value="{{ $answer->label }}"> {{ $answer->label }}
+                                            <br>
+                                        @endif
+                                    @endforeach
+
+                                @endif
                             </div>
                         </div>
 
                     </div>
 
                 @endforeach
-                <button type="submit" class="btn btn-primary pull-right btn-lg" >Valider</button>
+                <button type="submit" class="btn btn-primary pull-right btn-lg">Valider</button>
 
             </form>
         </div>
