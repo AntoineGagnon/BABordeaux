@@ -28,7 +28,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `answers` (
   `id` int(11) NOT NULL,
-  `questions_id` int(11) NOT NULL,
+  `question_id` int(11) NOT NULL,
   `answerOrder` int(11) NOT NULL,
   `label` varchar(128) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -37,7 +37,7 @@ CREATE TABLE `answers` (
 -- Contenu de la table `answers`
 --
 
-INSERT INTO `answers` (`id`, `questions_id`, `answerOrder`, `label`) VALUES
+INSERT INTO `answers` (`id`, `question_id`, `answerOrder`, `label`) VALUES
 (1, 1, 0, '0-25 ans'),
 (2, 1, 1, '25-50 ans'),
 (3, 1, 2, '50+ ans'),
@@ -55,7 +55,7 @@ INSERT INTO `answers` (`id`, `questions_id`, `answerOrder`, `label`) VALUES
 
 CREATE TABLE `choices` (
   `id` int(11) NOT NULL,
-  `questions_id` int(11) NOT NULL,
+  `question_id` int(11) NOT NULL,
   `answers_id` int(11) NOT NULL,
   `submissions_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
