@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="panel panel-primary">
+    <div class="panel panel-default panel-primary">
         <div class="panel-heading">
             <h1>Livre d'or</h1>
         </div>
@@ -12,22 +12,20 @@
         @include('common.errors')
 
         <!-- Formulaire de d'ajout a livre d'or -->
-            <form action="/guestbook" method="POST" class="form-horizontal">
+            <form action="/guestbook" method="POST" >
                 {{ csrf_field() }}
-                    <div class="form-group">
+                <div class="form-group">
+                    <label for="username">Nom</label>
+                    <INPUT class="form-control" type="text" name="username" placeholder="Anonymous">
+                </div>
 
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h3><INPUT class="form-control" type="text" name="username" placeholder="Anonymous"></h3>
-                            </div>
+                <div class="form-group">
+                    <label for="text">Votre avis</label>
 
-                            <div class="panel-body">
-                                    <INPUT class="form-control" type="text" name="text">
-                                    <br>
-                            </div>
-                        </div>
+                    <textarea class="form-control" type="text" name="text"></textarea>
+                    <br>
+                </div>
 
-                    </div>
 
                 <button type="submit" class="btn btn-primary pull-right btn-lg">Valider</button>
 

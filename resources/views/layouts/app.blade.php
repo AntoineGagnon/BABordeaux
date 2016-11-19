@@ -15,9 +15,9 @@
                 <a class="navbar-brand" href="#">Musée des Beaux Arts</a>
             </div>
             <ul class="nav navbar-nav">
-                <li class="active"><a href="/">Accueil</a></li>
-                <li><a href="admin">Accès administrateur</a></li>
-                <li><a href="guestbook">Livre d'or</a></li>
+                <li class="@if(URL::current() == URL::to('/')) active @endif"><a href="/">Accueil</a></li>
+                <li class="@if(URL::current() == URL::to('/admin')) active @endif"><a href="admin">Accès administrateur</a></li>
+                <li class="@if(URL::current() == URL::to('/guestbook')) active @endif"><a href="guestbook">Livre d'or</a></li>
             </ul>
         </div>
     </nav>

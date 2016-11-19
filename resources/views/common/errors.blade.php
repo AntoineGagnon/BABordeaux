@@ -7,7 +7,7 @@
 
         <ul>
             @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
+                <li class="panel-danger">{{ $error }}</li>
             @endforeach
         </ul>
     </div>

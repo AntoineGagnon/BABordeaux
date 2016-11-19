@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 class GuestbookController extends Controller
@@ -19,7 +20,7 @@ class GuestbookController extends Controller
             'text' => 'required|max:2048'
         ]);
         if ($validator->fails()) {
-            return redirect('/')
+            return redirect('/guestbook')
                 ->withInput()
                 ->withErrors($validator);
         }
@@ -34,8 +35,6 @@ class GuestbookController extends Controller
      */
     public function index()
     {
-
-        //var_dump($choices);
         return view('guestbook_view');
     }
 }
