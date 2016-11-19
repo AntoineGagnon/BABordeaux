@@ -29,7 +29,7 @@
                 <div class="form-group">
                     <label for="text">Votre avis</label>
 
-                    <textarea class="form-control" type="text" name="text"></textarea>
+                    <textarea class="form-control" style="resize:none ; min-height:20em" type="text" name="text"></textarea>
                     <br>
                 </div>
 

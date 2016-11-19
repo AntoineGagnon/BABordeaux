@@ -13,10 +13,15 @@
 
 Route::resource('/', 'PollController');
 Route::resource('poll','PollController');
-Route::resource('admin', 'AdminController');
+
+// Fonctions spécifiques à l'admin
 Route::resource('admin/editpoll', 'PollController@adminEditPoll');
 Route::resource('admin/viewpoll', 'PollController@adminDisplayPoll');
 Route::resource('admin/resultpoll', 'PollController@adminDisplayPollResults');
+Route::resource('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults');
+
+// Pour les autres fonctions en rapport avec admin
+Route::resource('admin', 'AdminController');
 Route::resource('guestbook','GuestbookController');
 
 

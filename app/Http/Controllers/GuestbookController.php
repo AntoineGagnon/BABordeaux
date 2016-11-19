@@ -32,6 +32,7 @@ class GuestbookController extends Controller
 
         $guestsm->save();
         $worked = true;
+
         return view('guestbook_view',['submissionWorked' => $worked]);
     }
     /**
@@ -40,6 +41,21 @@ class GuestbookController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {        return view('guestbook_view');
+    {
+        return view('guestbook_view');
+    }
+
+    public function adminDisplayGBResults()
+    {
+        //TODO Add auth verification
+        $guestbook_submissions = guestbook_submission::all();
+
+        return view('admin_guestbook_results',['guestbook_submissions' => $guestbook_submissions]);
+    }
+
+    public function destroy($id){
+
+        //TODO Add auth verification
+        guestbook_submission::findOrFail($id)->delete();
     }
 }

@@ -93,7 +93,7 @@ class PollController extends Controller
      * @param int $idPoll The poll to edit
      * @return \Illuminate\Http\Response
      */
-    public function adminEditPoll($idPoll)
+    public function adminEditPoll()
     {
         $this->middleware('auth');
         return view('admin_poll_edit_view', []);

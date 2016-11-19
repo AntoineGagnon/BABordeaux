@@ -52,6 +52,15 @@
                 <button type="submit" class="btn btn-primary pull-right btn-lg">Valider</button>
 
             </form>
+
+
+        </div>
+
+    </div>
+
+    <div class="panel progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+            60%
         </div>
     </div>
 
