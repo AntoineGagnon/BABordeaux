@@ -17,6 +17,7 @@
             <ul class="nav navbar-nav">
                 <li class="active"><a href="/">Accueil</a></li>
                 <li><a href="admin">Accès administrateur</a></li>
+                <li><a href="guestbook">Livre d'or</a></li>
             </ul>
         </div>
     </nav>

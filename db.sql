@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  127.0.0.1
--- Généré le :  Dim 06 Novembre 2016 à 16:41
+-- Généré le :  Sam 19 Novembre 2016 à 16:37
 -- Version du serveur :  10.1.16-MariaDB
 -- Version de PHP :  5.6.24
 
@@ -56,9 +56,28 @@ INSERT INTO `answers` (`id`, `question_id`, `answerOrder`, `label`) VALUES
 CREATE TABLE `choices` (
   `id` int(11) NOT NULL,
   `question_id` int(11) NOT NULL,
-  `answers_id` int(11) NOT NULL,
-  `submissions_id` int(11) NOT NULL
+  `answer_id` int(11) NOT NULL,
+  `submission_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `guestbook_submissions`
+--
+
+CREATE TABLE `guestbook_submissions` (
+  `id` int(11) NOT NULL,
+  `username` varchar(250) NOT NULL,
+  `text` varchar(2048) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Contenu de la table `guestbook_submissions`
+--
+
+INSERT INTO `guestbook_submissions` (`id`, `username`, `text`) VALUES
+(1, 'Antoine', 'texte de test');
 
 -- --------------------------------------------------------
 
@@ -69,6 +88,7 @@ CREATE TABLE `choices` (
 CREATE TABLE `questions` (
   `id` int(11) NOT NULL,
   `questionOrder` int(11) NOT NULL,
+  `question_group_id` int(11) NOT NULL,
   `isVisible` tinyint(1) NOT NULL DEFAULT '1',
   `questionType` enum('singleChoice','multipleChoice','openAnswer') NOT NULL,
   `label` varchar(512) NOT NULL,
@@ -79,11 +99,29 @@ CREATE TABLE `questions` (
 -- Contenu de la table `questions`
 --
 
-INSERT INTO `questions` (`id`, `questionOrder`, `isVisible`, `questionType`, `label`, `isConditional`) VALUES
-(1, 0, 1, 'singleChoice', 'Quel âge avez vous ?', 0),
-(2, 1, 1, 'multipleChoice', 'Quels sont vos types d''oeuvres préférés ?', 0),
-(3, 3, 1, 'openAnswer', 'Que souhaiteriez vous améliorer dans le musée ?', 0),
-(4, 2, 0, 'singleChoice', 'Pensez vous que cette question doit exister ?', 0);
+INSERT INTO `questions` (`id`, `questionOrder`, `question_group_id`, `isVisible`, `questionType`, `label`, `isConditional`) VALUES
+(1, 0, 1, 1, 'singleChoice', 'Quel âge avez vous ?', 0),
+(2, 1, 2, 1, 'multipleChoice', 'Quels sont vos types d''oeuvres préférés ?', 0),
+(3, 3, 1, 1, 'openAnswer', 'Que souhaiteriez vous améliorer dans le musé ?', 0),
+(4, 2, 2, 0, 'singleChoice', 'Pensez vous que cette question doit exister ?', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `question_groups`
+--
+
+CREATE TABLE `question_groups` (
+  `id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Contenu de la table `question_groups`
+--
+
+INSERT INTO `question_groups` (`id`) VALUES
+(1),
+(2);
 
 -- --------------------------------------------------------
 
@@ -113,11 +151,23 @@ ALTER TABLE `choices`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Index pour la table `guestbook_submissions`
+--
+ALTER TABLE `guestbook_submissions`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Index pour la table `questions`
 --
 ALTER TABLE `questions`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `questionOrder` (`questionOrder`);
+
+--
+-- Index pour la table `question_groups`
+--
+ALTER TABLE `question_groups`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Index pour la table `submissions`
@@ -140,10 +190,20 @@ ALTER TABLE `answers`
 ALTER TABLE `choices`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT pour la table `guestbook_submissions`
+--
+ALTER TABLE `guestbook_submissions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
 -- AUTO_INCREMENT pour la table `questions`
 --
 ALTER TABLE `questions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT pour la table `question_groups`
+--
+ALTER TABLE `question_groups`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT pour la table `submissions`
 --
@@ -152,10 +212,3 @@ ALTER TABLE `submissions`
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
-
-CREATE TABLE `users` (
-    idUser INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    username VARCHAR(30) NOT NULL,
-    passwordHash VARCHAR(60) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;

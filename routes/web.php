@@ -17,6 +17,7 @@ Route::resource('admin', 'AdminController');
 Route::resource('admin/editpoll', 'PollController@adminEditPoll');
 Route::resource('admin/viewpoll', 'PollController@adminDisplayPoll');
 Route::resource('admin/resultpoll', 'PollController@adminDisplayPollResults');
+Route::resource('guestbook','GuestbookController');
 
 
 Auth::routes();
