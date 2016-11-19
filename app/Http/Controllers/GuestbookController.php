@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\guestbook_submission;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,7 @@ class GuestbookController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -33,8 +34,9 @@ class GuestbookController extends Controller
         $guestsm->save();
         $worked = true;
 
-        return view('guestbook_view',['submissionWorked' => $worked]);
+        return view('guestbook_view', ['submissionWorked' => $worked]);
     }
+
     /**
      * Display the specified resource.
      *
@@ -50,12 +52,16 @@ class GuestbookController extends Controller
         //TODO Add auth verification
         $guestbook_submissions = guestbook_submission::all();
 
-        return view('admin_guestbook_results',['guestbook_submissions' => $guestbook_submissions]);
+        return view('admin_guestbook_results', ['guestbook_submissions' => $guestbook_submissions]);
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
 
         //TODO Add auth verification
-        guestbook_submission::findOrFail($id)->delete();
+        guestbook_submission::destroy($id);
+
+        return redirect('/admin/resultguestbook');
+
     }
 }
