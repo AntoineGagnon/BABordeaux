@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\guestbook_submission;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
@@ -25,8 +26,13 @@ class GuestbookController extends Controller
                 ->withErrors($validator);
         }
 
-        // Si le nom est nul -> Anonymous
+        $guestsm = new guestbook_submission();
+        $guestsm->username = $request->username;
+        $guestsm->text = empty($request->text) ? "Anonymous" : $request->text;
 
+        $guestsm->save();
+        $worked = true;
+        return view('guestbook_view',['submissionWorked' => $worked]);
     }
     /**
      * Display the specified resource.
@@ -34,7 +40,6 @@ class GuestbookController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        return view('guestbook_view');
+    {        return view('guestbook_view');
     }
 }

@@ -2,6 +2,13 @@
 
 @section('content')
 
+    @if (!empty($submissionWorked))
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                Avis ajouté au livre d'or !
+            </div>
+        </div>
+    @endif
     <div class="panel panel-default panel-primary">
         <div class="panel-heading">
             <h1>Livre d'or</h1>
@@ -12,7 +19,7 @@
         @include('common.errors')
 
         <!-- Formulaire de d'ajout a livre d'or -->
-            <form action="/guestbook" method="POST" >
+            <form action="/guestbook" method="POST">
                 {{ csrf_field() }}
                 <div class="form-group">
                     <label for="username">Nom</label>
