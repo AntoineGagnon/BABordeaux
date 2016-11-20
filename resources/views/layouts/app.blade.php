@@ -25,6 +25,7 @@
 
 <div class="container">
     @yield('content')
+    @yield('page-script')
 </div>
 
 </body>
