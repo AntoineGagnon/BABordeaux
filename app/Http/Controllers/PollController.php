@@ -105,7 +105,7 @@ class PollController extends Controller
      * @param int $idPoll The poll to display
      * @return \Illuminate\Http\Response
      */
-    public function adminDisplayPoll($idPoll)
+    public function adminDisplayPoll()
     {
         $this->middleware('auth');
         return view('admin_poll_display', []);
@@ -117,7 +117,7 @@ class PollController extends Controller
      * @param int $idPoll The poll
      * @return \Illuminate\Http\Response
      */
-    public function adminDisplayPollResults($idPoll)
+    public function adminDisplayPollResults()
     {
         $this->middleware('auth');
         return view('admin_poll_display_results', []);
