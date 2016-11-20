@@ -10,18 +10,17 @@
         <div class="panel-body">
             <!-- Display Validation Errors -->
             @include('common.errors')
-
-
             @foreach ($guestbook_submissions as $submission)
                 <div class="panel panel-group panel-default">
                     <div class="panel-heading clearfix">
-                        <form action="/guestbook/{{$submission->id}}" class="pull-right" method="POST" >
+                        <form action="/guestbook/{{$submission->id}}" class="pull-right" method="POST">
                             {{csrf_field()}}
-                            <button type="submit" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-remove" ></span></button>
+                            <button type="submit" class="btn btn-danger btn-sm"><span
+                                        class="glyphicon glyphicon-remove"></span></button>
                             {{method_field('DELETE')}}
                         </form>
                         <div class="pull-left">
-                        {{$submission->username}}</div>
+                            {{$submission->username}}</div>
 
                     </div>
                     <div class="panel-body">{{$submission->text}}</div>
