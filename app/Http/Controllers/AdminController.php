@@ -8,4 +8,6 @@ class AdminController extends Controller
 	{
 		return view('admin_view',[]);
 	}
+
+
 }
