@@ -3,10 +3,9 @@
 @section('content')
 
     @if (!empty($submissionWorked))
-        <div class="panel panel-success">
-            <div class="panel-heading">
-                Avis ajouté au livre d'or !
-            </div>
+        <div class="alert alert-success alert-dismissable fade in">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            Avis ajouté au livre d'or !
         </div>
     @endif
     <div class="panel panel-default panel-primary">
@@ -29,7 +28,8 @@
                 <div class="form-group">
                     <label for="text">Votre avis</label>
 
-                    <textarea class="form-control" style="resize:none ; min-height:20em" type="text" name="text"></textarea>
+                    <textarea class="form-control" style="resize:none ; min-height:20em" type="text"
+                              name="text"></textarea>
                     <br>
                 </div>
 

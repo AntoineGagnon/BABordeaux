@@ -15,10 +15,10 @@ Route::resource('/', 'PollController');
 Route::resource('poll','PollController');
 
 // Fonctions spécifiques à l'admin
-Route::resource('admin/editpoll', 'PollController@adminEditPoll');
-Route::resource('admin/viewpoll', 'PollController@adminDisplayPoll');
-Route::resource('admin/resultpoll', 'PollController@adminDisplayPollResults');
-Route::resource('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults');
+Route::get('admin/editpoll', 'PollController@adminEditPoll');
+Route::get('admin/viewpoll', 'PollController@adminDisplayPoll');
+Route::get('admin/resultpoll', 'PollController@adminDisplayPollResults');
+Route::get('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults')->name('admin.resultguestbook');
 
 // Pour les autres fonctions en rapport avec admin
 Route::resource('admin', 'AdminController');

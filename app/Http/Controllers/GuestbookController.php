@@ -28,8 +28,8 @@ class GuestbookController extends Controller
         }
 
         $guestsm = new guestbook_submission();
-        $guestsm->username = $request->username;
-        $guestsm->text = empty($request->text) ? "Anonymous" : $request->text;
+        $guestsm->username = empty($request->username) ? "Anonymous" : $request->username;
+        $guestsm->text = $request->text;
 
         $guestsm->save();
         $worked = true;
@@ -52,16 +52,15 @@ class GuestbookController extends Controller
         //TODO Add auth verification
         $guestbook_submissions = guestbook_submission::all();
 
-        return view('admin_guestbook_results', ['guestbook_submissions' => $guestbook_submissions]);
+        return view('admin_guestbook_results', ['guestbook_submissions' => $guestbook_submissions ]);
     }
 
     public function destroy($id)
     {
-
         //TODO Add auth verification
         guestbook_submission::destroy($id);
 
-        return redirect('/admin/resultguestbook');
+        return redirect('admin/resultguestbook');
 
     }
 }

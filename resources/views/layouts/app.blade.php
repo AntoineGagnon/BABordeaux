@@ -5,6 +5,10 @@
     <title>Musée des Beaux Arts</title>
     <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <!-- CSS And JavaScript -->
+    <script type="text/javascript" src="{{ asset('js/app.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/jquery-3.1.1.slim.min.js') }}"></script>
+
+
 </head>
 
 <body>
@@ -25,8 +29,9 @@
 
 <div class="container">
     @yield('content')
-    @yield('page-script')
+    @yield('post-js')
 </div>
 
 </body>
 </html>
+
