@@ -102,7 +102,7 @@ CREATE TABLE `questions` (
 INSERT INTO `questions` (`id`, `questionOrder`, `question_group_id`, `isVisible`, `questionType`, `label`, `isConditional`) VALUES
 (1, 0, 1, 1, 'singleChoice', 'Quel âge avez vous ?', 0),
 (2, 1, 2, 1, 'multipleChoice', 'Quels sont vos types d''oeuvres préférés ?', 0),
-(3, 3, 1, 1, 'openAnswer', 'Que souhaiteriez vous améliorer dans le musé ?', 0),
+(3, 3, 1, 1, 'openAnswer', 'Que souhaiteriez vous améliorer dans le musée ?', 0),
 (4, 2, 2, 0, 'singleChoice', 'Pensez vous que cette question doit exister ?', 0);
 
 -- --------------------------------------------------------
