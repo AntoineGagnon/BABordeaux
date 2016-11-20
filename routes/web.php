@@ -23,6 +23,7 @@ Route::resource('admin/resultguestbook', 'GuestbookController@adminDisplayGBResu
 // Pour les autres fonctions en rapport avec admin
 Route::resource('admin', 'AdminController');
 Route::resource('guestbook','GuestbookController');
+Route::resource('question','QuestionController');
 
 
 Auth::routes();
