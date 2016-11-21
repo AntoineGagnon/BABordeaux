@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  127.0.0.1
--- Généré le :  Sam 19 Novembre 2016 à 16:37
+-- Généré le :  Lun 21 Novembre 2016 à 19:04
 -- Version du serveur :  10.1.16-MariaDB
 -- Version de PHP :  5.6.24
 
@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `answers` (
   `id` int(11) NOT NULL,
   `question_id` int(11) NOT NULL,
-  `answerOrder` int(11) NOT NULL,
+  `answer_order` int(11) NOT NULL,
   `label` varchar(128) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -37,7 +37,7 @@ CREATE TABLE `answers` (
 -- Contenu de la table `answers`
 --
 
-INSERT INTO `answers` (`id`, `question_id`, `answerOrder`, `label`) VALUES
+INSERT INTO `answers` (`id`, `question_id`, `answer_order`, `label`) VALUES
 (1, 1, 0, '0-25 ans'),
 (2, 1, 1, '25-50 ans'),
 (3, 1, 2, '50+ ans'),
@@ -60,6 +60,14 @@ CREATE TABLE `choices` (
   `submission_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Contenu de la table `choices`
+--
+
+INSERT INTO `choices` (`id`, `question_id`, `answer_id`, `submission_id`) VALUES
+(1, 1, 2, 1),
+(2, 2, 4, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -69,15 +77,26 @@ CREATE TABLE `choices` (
 CREATE TABLE `guestbook_submissions` (
   `id` int(11) NOT NULL,
   `username` varchar(250) NOT NULL,
-  `text` varchar(2048) NOT NULL
+  `text` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Contenu de la table `guestbook_submissions`
 --
 
-INSERT INTO `guestbook_submissions` (`id`, `username`, `text`) VALUES
-(1, 'Antoine', 'texte de test');
+INSERT INTO `guestbook_submissions` (`id`, `username`, `text`, `created_at`, `updated_at`) VALUES
+(36, 'Anonymous', 'jrjyrejyerzjrz', '2016-11-19 23:00:00', '2016-11-19 23:00:00'),
+(37, 'Anonymous', 'zjhterzjyrtzk', '2016-11-19 23:00:00', '2016-11-19 23:00:00'),
+(38, 'Anonymous', 'thzkyrkyrz', '2016-11-19 23:00:00', '2016-11-19 23:00:00'),
+(39, 'hjyrzkyruzk', 'jykrzjkyrzkyrzkry', '2016-11-19 23:00:00', '2016-11-19 23:00:00'),
+(40, 'qgrhrzqhzq', 'hteshtesht', '2016-11-19 23:00:00', '2016-11-19 23:00:00'),
+(41, 'jysj', 'jyrsjryskyrskry', '2016-11-20 18:43:57', '2016-11-20 18:43:57'),
+(42, '', 'jytrjyerykykeky', '2016-11-21 16:39:28', '2016-11-21 16:39:28'),
+(43, '', 'jterzjtjtzjtjz', '2016-11-21 16:41:08', '2016-11-21 16:41:08'),
+(44, '', 'jytrjyrejyejyjyrjye', '2016-11-21 16:41:13', '2016-11-21 16:41:13'),
+(45, 'Anonymous', 'rtk,urtkutkutrkurt', '2016-11-21 16:41:30', '2016-11-21 16:41:30');
 
 -- --------------------------------------------------------
 
@@ -87,23 +106,24 @@ INSERT INTO `guestbook_submissions` (`id`, `username`, `text`) VALUES
 
 CREATE TABLE `questions` (
   `id` int(11) NOT NULL,
-  `questionOrder` int(11) NOT NULL,
+  `question_order` int(11) NOT NULL,
   `question_group_id` int(11) NOT NULL,
   `isVisible` tinyint(1) NOT NULL DEFAULT '1',
   `questionType` enum('singleChoice','multipleChoice','openAnswer') NOT NULL,
   `label` varchar(512) NOT NULL,
-  `isConditional` tinyint(1) DEFAULT '0'
+  `isConditional` tinyint(1) DEFAULT '0',
+  `isRequired` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Contenu de la table `questions`
 --
 
-INSERT INTO `questions` (`id`, `questionOrder`, `question_group_id`, `isVisible`, `questionType`, `label`, `isConditional`) VALUES
-(1, 0, 1, 1, 'singleChoice', 'Quel âge avez vous ?', 0),
-(2, 1, 2, 1, 'multipleChoice', 'Quels sont vos types d''oeuvres préférés ?', 0),
-(3, 3, 1, 1, 'openAnswer', 'Que souhaiteriez vous améliorer dans le musée ?', 0),
-(4, 2, 2, 0, 'singleChoice', 'Pensez vous que cette question doit exister ?', 0);
+INSERT INTO `questions` (`id`, `question_order`, `question_group_id`, `isVisible`, `questionType`, `label`, `isConditional`, `isRequired`) VALUES
+(1, 0, 1, 1, 'singleChoice', 'Quel âge avez vous ?', 0, 1),
+(2, 1, 2, 1, 'multipleChoice', 'Quels sont vos types d''oeuvres préférés ?', 0, 1),
+(3, 3, 1, 1, 'openAnswer', 'Que souhaiteriez vous améliorer dans le musé ?', 0, 0),
+(4, 2, 2, 0, 'singleChoice', 'Pensez vous que cette question doit exister ?', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -112,16 +132,17 @@ INSERT INTO `questions` (`id`, `questionOrder`, `question_group_id`, `isVisible`
 --
 
 CREATE TABLE `question_groups` (
-  `id` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  `group_order` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Contenu de la table `question_groups`
 --
 
-INSERT INTO `question_groups` (`id`) VALUES
-(1),
-(2);
+INSERT INTO `question_groups` (`id`, `group_order`) VALUES
+(1, 0),
+(2, 1);
 
 -- --------------------------------------------------------
 
@@ -131,8 +152,16 @@ INSERT INTO `question_groups` (`id`) VALUES
 
 CREATE TABLE `submissions` (
   `id` int(11) NOT NULL,
-  `created_at` date NOT NULL
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Contenu de la table `submissions`
+--
+
+INSERT INTO `submissions` (`id`, `created_at`, `updated_at`) VALUES
+(1, '2016-11-21 18:02:10', '2016-11-21 18:02:10');
 
 --
 -- Index pour les tables exportées
@@ -161,13 +190,14 @@ ALTER TABLE `guestbook_submissions`
 --
 ALTER TABLE `questions`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `questionOrder` (`questionOrder`);
+  ADD UNIQUE KEY `questionOrder` (`question_order`);
 
 --
 -- Index pour la table `question_groups`
 --
 ALTER TABLE `question_groups`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `group_order` (`group_order`);
 
 --
 -- Index pour la table `submissions`
@@ -188,12 +218,12 @@ ALTER TABLE `answers`
 -- AUTO_INCREMENT pour la table `choices`
 --
 ALTER TABLE `choices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT pour la table `guestbook_submissions`
 --
 ALTER TABLE `guestbook_submissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 --
 -- AUTO_INCREMENT pour la table `questions`
 --
@@ -208,7 +238,7 @@ ALTER TABLE `question_groups`
 -- AUTO_INCREMENT pour la table `submissions`
 --
 ALTER TABLE `submissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
