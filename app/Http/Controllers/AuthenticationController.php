@@ -14,5 +14,4 @@ class AuthenticationController extends Controller
 		}
 	}
 
-	public function 
 }
