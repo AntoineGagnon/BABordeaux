@@ -4,7 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class guestbook_submission extends Model
+class question_group extends Model
 {
+    public $timestamps = false;
 
 }

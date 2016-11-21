@@ -18,7 +18,7 @@ Route::resource('poll','PollController');
 Route::get('admin/editpoll', 'PollController@adminEditPoll');
 Route::get('admin/viewpoll', 'PollController@adminDisplayPoll');
 Route::get('admin/resultpoll', 'PollController@adminDisplayPollResults');
-Route::get('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults')->name('admin.resultguestbook');
+Route::get('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults');
 
 // Pour les autres fonctions en rapport avec admin
 Route::resource('admin', 'AdminController');

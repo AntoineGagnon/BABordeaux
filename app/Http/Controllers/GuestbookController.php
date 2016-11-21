@@ -19,7 +19,7 @@ class GuestbookController extends Controller
     {
         //This is used to make sure the name is filled and < 255 char
         $validator = Validator::make($request->all(), [
-            'text' => 'required|max:2048'
+            'text' => 'required'
         ]);
         if ($validator->fails()) {
             return redirect('/guestbook')
@@ -28,7 +28,7 @@ class GuestbookController extends Controller
         }
 
         $guestsm = new guestbook_submission();
-        $guestsm->username = empty($request->username) ? "Anonymous" : $request->username;
+        $guestsm->username = $request->has('username') ? $request->username : "Anonymous" ;
         $guestsm->text = $request->text;
 
         $guestsm->save();
