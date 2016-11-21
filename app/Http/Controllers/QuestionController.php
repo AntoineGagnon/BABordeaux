@@ -28,13 +28,12 @@ class QuestionController extends Controller
     //TODO Add auth verification
     public function store(Request $request)
     {
+
         $question = new question();
         $question->questionOrder = $request->order_num;
         $question->question_group_id = $request->group_id;
-        $question->label = $request->question_label;
+        $question->label = $request->choix;
         $question->questionType = $request->question_type;
-
-
         $question->save();
         $worked = true;
 
