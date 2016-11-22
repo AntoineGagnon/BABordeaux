@@ -81,13 +81,13 @@
                         @endforeach
 
                         @if(!($questionGroup == $questionGroups->first()))
-                            <button type="button" id="prev-button"
-                                    class="btn btn-info glyphicon glyphicon-arrow-left "></button>
+                            <button type="button"
+                                    class="btn btn-info glyphicon glyphicon-arrow-left prev-button"></button>
                         @endif
 
                         @if(! ($questionGroup == $questionGroups->last()))
-                            <button type="button" id="next-button"
-                                    class="btn btn-info pull-right glyphicon glyphicon-arrow-right"></button>
+                            <button type="button"
+                                    class="btn btn-info pull-right glyphicon glyphicon-arrow-right next-button"></button>
                         @else
                             <button type="submit" class="btn btn-primary pull-right btn-lg" id="submitBtn">Valider
                             </button>
@@ -136,10 +136,10 @@
 
         $(document).ready(function () {
             // Clic sur #prev-button
-            $('#prev-button').click(onPrevButtonClick);
+            $('.prev-button').click(onPrevButtonClick);
 
             // Clic sur #next-button
-            $('#next-button').click(onNextButtonClick);
+            $('.next-button').click(onNextButtonClick);
 
         });
 
@@ -147,7 +147,11 @@
             console.log("PrevButtonClicked");
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             currentQuestionGroup.addClass('hidden');
+            console.log(page);
+
             page--;
+            console.log(page);
+
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             $(currentQuestionGroup).removeClass('hidden');
 
@@ -157,7 +161,11 @@
             console.log("NextButtonClicked");
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             currentQuestionGroup.addClass('hidden');
+            console.log(page);
+
             page++;
+            console.log(page);
+
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             $(currentQuestionGroup).removeClass('hidden');
 
