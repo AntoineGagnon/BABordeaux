@@ -27,7 +27,7 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
         $question = new question();
-        $question->questionOrder = $request->order_num;
+        $question->question_order = $request->order_num;
         $question->question_group_id = $request->group_id;
         $question->label = $request->question_label;
         $question->questionType = $request->question_type;
@@ -38,7 +38,7 @@ class QuestionController extends Controller
             for($x = 0; $x <= $nbchoices; $x++) {
                 $answer = new answer();
                 $answer->question_id = $question->id;
-                $answer->answerOrder = $x;
+                $answer->answer_order = $x;
                 $answer->label = $request->input("choice".$x);
                 $answer->save();
             }
