@@ -50,6 +50,8 @@ class PollController extends Controller
                 }
             }
         }
+
+        return redirect('/');
     }
 
     /**
