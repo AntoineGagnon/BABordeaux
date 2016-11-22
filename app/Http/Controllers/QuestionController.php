@@ -9,9 +9,8 @@
 
 namespace App\Http\Controllers;
 
+use App\answer;
 use App\question;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 class QuestionController extends Controller
@@ -25,16 +24,28 @@ class QuestionController extends Controller
      */
 
 
-    //TODO Add auth verification
     public function store(Request $request)
     {
 
         $question = new question();
         $question->questionOrder = $request->order_num;
         $question->question_group_id = $request->group_id;
-        $question->label = $request->choix;
+        $question->label = $request->question_label;
         $question->questionType = $request->question_type;
         $question->save();
+
+        if($question->questionType == "singleChoice" || $question->questionType == "multipleChoice"){
+            $nbchoices = $request->nb_choices;
+            for($x = 0; $x <= $nbchoices; $x++) {
+                $answer = new answer();
+                $answer->question_id = $question->id;
+                $answer->answerOrder = $x;
+                $answer->label = $request->input("choice".$x);
+                $answer->save();
+            }
+        }
+
+
         $worked = true;
 
         return view('admin_poll_edit_view', ['questionAdded' => $worked]);

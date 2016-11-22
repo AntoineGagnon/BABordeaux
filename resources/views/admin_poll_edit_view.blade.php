@@ -57,8 +57,7 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label for="order_num">
-                                                        Numéro d'ordre dans le groupe</label>
+                                                    <label for="order_num">Numéro d'ordre dans le groupe</label>
                                                     <input type="number" class="form-control" id="order_num" name="order_num" placeholder="N°" required />
                                                 </div>
                                             </div>
@@ -69,7 +68,7 @@
                                                     <input id="question_label" type="text" name="question_label" class="form-control" placeholder="Titre" required />
                                                 </div>
                                                 <div id="choices-group" class="form-group">
-                                                    <textarea class="form-control choice" name="choix" placeholder="choix" rows="1" style="display:none" ></textarea>
+                                                    <input type="text" class="form-control choice" name="choice0" placeholder="choix" style="display:none" />
                                                 </div>
                                                 <button id="btnAddChoice" type="button" class="btn btn-info btn-sm" style="display: none;">
                                                     <span class="glyphicon glyphicon-plus"></span> Choix
@@ -84,7 +83,7 @@
                                     </div>
 
                                 </div>
-
+                                <input value="0" type="number" class="form-control" id="nb_choices" name="nb_choices" style="display: none"/>
 
                             </form>
                         </div>
@@ -114,25 +113,38 @@
 @section('post-js')
     @parent
     <script>
+        var countChoice = 0;
+
         $('select').on('change', function() {
             if (this.value == "openAnswer") {
                 $(".choice").css("display", "none");
                 $("#btnAddChoice").css("display", "none");
                 $("#btnRemoveChoice").css("display", "none");
+                $("#choices-group :text").attr('required', false);
             }
             if (this.value == "singleChoice" || this.value =="multipleChoice") {
                 $(".choice").css("display", "inline");
                 $("#btnAddChoice").css("display", "inline");
                 $("#btnRemoveChoice").css("display", "inline");
+                $("#choices-group :text").attr('required', true);
             }
 
         });
         $("#btnAddChoice").click(function(){
-            $("#choices-group").append( "<textarea class=\"form-control choice\" name=\"choix\" placeholder=\"choix\" rows=\"1\" ></textarea>" );
+            $('#nb_choices').val( function(i, oldval) {
+                return ++oldval;
+            });
+            countChoice++;
+            $("#choices-group").append("<input type='text' class='form-control choice' name='choice" + countChoice + "' placeholder='choix' required/>" );
+
         });
 
         $("#btnRemoveChoice").click(function(){
-            $("#choices-group textarea:last-child").remove();
+            $("#choices-group input:last-child").remove();
+            countChoice--;
+            $('#nb_choices').val( function(i, oldval) {
+                return --oldval;
+            });
         });
     </script>
 @endsection
