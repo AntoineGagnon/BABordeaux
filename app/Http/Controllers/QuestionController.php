@@ -26,7 +26,6 @@ class QuestionController extends Controller
 
     public function store(Request $request)
     {
-
         $question = new question();
         $question->questionOrder = $request->order_num;
         $question->question_group_id = $request->group_id;
