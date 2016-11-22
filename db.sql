@@ -210,8 +210,6 @@ ALTER TABLE `guestbook_submissions`
 --
 ALTER TABLE `questions`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `questionOrder` (`question_order`);
-
 --
 -- Index pour la table `question_groups`
 --
@@ -268,3 +266,9 @@ ALTER TABLE `submissions`
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- Contraintes pour la table `questions`
+--
+ALTER TABLE `questions`
+  ADD CONSTRAINT `FOREIGN_KEY_QUESTIONS_QUESTION_GROUPS` FOREIGN KEY (`question_group_id`) REFERENCES `question_groups` (`id`);
+
