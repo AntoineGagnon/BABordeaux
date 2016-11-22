@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\guestbook_submission;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class GuestbookController extends Controller
@@ -49,7 +50,9 @@ class GuestbookController extends Controller
 
     public function adminDisplayGBResults()
     {
-        //TODO Add auth verification
+        if(!Auth::check())
+            return redirect()->intended('login');
+
         $guestbook_submissions = guestbook_submission::all();
 
         return view('admin_guestbook_results', ['guestbook_submissions' => $guestbook_submissions ]);
@@ -57,7 +60,9 @@ class GuestbookController extends Controller
 
     public function destroy($id)
     {
-        //TODO Add auth verification
+        if(!Auth::check())
+            return redirect()->intended('login');
+
         guestbook_submission::destroy($id);
 
         return redirect('admin/resultguestbook');
