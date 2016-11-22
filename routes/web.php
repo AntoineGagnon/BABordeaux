@@ -20,6 +20,8 @@ Route::get('admin/editpoll', 'PollController@adminEditPoll');
 Route::get('admin/viewpoll', 'PollController@adminDisplayPoll');
 Route::get('admin/resultpoll', 'PollController@adminDisplayPollResults');
 Route::get('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults');
+Route::get('admin/change_password', 'AdminController@changePassword');
+Route::post('admin/postPasswordChange', 'AdminController@postPasswordChange');
 
 // Pour les autres fonctions en rapport avec admin
 Route::resource('login', 'LoginController');
