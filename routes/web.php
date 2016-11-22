@@ -15,17 +15,16 @@ Route::resource('/', 'PollController');
 Route::resource('poll','PollController');
 
 // Fonctions spécifiques à l'admin
+Route::post('login/authenticate', 'LoginController@authenticate');
 Route::get('admin/editpoll', 'PollController@adminEditPoll');
 Route::get('admin/viewpoll', 'PollController@adminDisplayPoll');
 Route::get('admin/resultpoll', 'PollController@adminDisplayPollResults');
 Route::get('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults');
 
 // Pour les autres fonctions en rapport avec admin
+Route::resource('login', 'LoginController');
+Route::get('logout', 'LoginController@logout');
+Route::post('login/authenticate', 'LoginController@authenticate');
 Route::resource('admin', 'AdminController');
 Route::resource('guestbook','GuestbookController');
 Route::resource('question','QuestionController');
-
-
-Auth::routes();
-
-Route::get('/home', 'HomeController@index');

@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.5.1
--- http://www.phpmyadmin.net
+-- version 4.6.4
+-- https://www.phpmyadmin.net/
 --
--- Client :  127.0.0.1
--- Généré le :  Lun 21 Novembre 2016 à 19:04
--- Version du serveur :  10.1.16-MariaDB
--- Version de PHP :  5.6.24
+-- Client :  localhost
+-- Généré le :  Mar 22 Novembre 2016 à 15:45
+-- Version du serveur :  10.1.19-MariaDB
+-- Version de PHP :  7.0.13
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données :  `babordeaux`
+-- Base de données :  `BABordeaux`
 --
 
 -- --------------------------------------------------------
@@ -121,7 +121,7 @@ CREATE TABLE `questions` (
 
 INSERT INTO `questions` (`id`, `question_order`, `question_group_id`, `isVisible`, `questionType`, `label`, `isConditional`, `isRequired`) VALUES
 (1, 0, 1, 1, 'singleChoice', 'Quel âge avez vous ?', 0, 1),
-(2, 1, 2, 1, 'multipleChoice', 'Quels sont vos types d''oeuvres préférés ?', 0, 1),
+(2, 1, 2, 1, 'multipleChoice', 'Quels sont vos types d\'oeuvres préférés ?', 0, 1),
 (3, 3, 1, 1, 'openAnswer', 'Que souhaiteriez vous améliorer dans le musé ?', 0, 0),
 (4, 2, 2, 0, 'singleChoice', 'Pensez vous que cette question doit exister ?', 0, 1);
 
@@ -163,6 +163,26 @@ CREATE TABLE `submissions` (
 INSERT INTO `submissions` (`id`, `created_at`, `updated_at`) VALUES
 (1, '2016-11-21 18:02:10', '2016-11-21 18:02:10');
 
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `password` binary(60) NOT NULL,
+  `remember_token` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Contenu de la table `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `password`, `remember_token`) VALUES
+(0, 'admin', 0x24327924313024723777554674594e616d4a75543033433655456878757157394f4f362e4c77734b555039566e454b45765138704349794867436b61, 'mCu6TH7FLdZE5dmITTyBxoNL2BUvPfod7uiA48d7lyzcWsMOXUd4s3sI0m1U');
+
 --
 -- Index pour les tables exportées
 --
@@ -203,6 +223,12 @@ ALTER TABLE `question_groups`
 -- Index pour la table `submissions`
 --
 ALTER TABLE `submissions`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `users`
+--
+ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --

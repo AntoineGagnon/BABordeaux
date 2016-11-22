@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use App\Sondage;
 use App\question;
 use App\Choix;
@@ -78,7 +79,9 @@ class PollController extends Controller
      */
     public function adminEditPoll()
     {
-        $this->middleware('auth');
+        if(!Auth::check())
+            return redirect()->intended('login');
+
         return view('admin_poll_edit_view', []);
     }
 
@@ -90,7 +93,9 @@ class PollController extends Controller
      */
     public function adminDisplayPoll()
     {
-        $this->middleware('auth');
+        if(!Auth::check())
+            return redirect()->intended('login');
+
         return view('admin_poll_display', []);
     }
 
@@ -102,7 +107,9 @@ class PollController extends Controller
      */
     public function adminDisplayPollResults()
     {
-        $this->middleware('auth');
+        if(!Auth::check())
+            return redirect()->intended('login');
+
         return view('admin_poll_display_results', []);
     }
 

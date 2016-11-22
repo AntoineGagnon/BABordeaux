@@ -21,7 +21,7 @@
                     questionnaire</a>
                 <a href="/admin/resultguestbook" type="button" class="btn btn-default btn-warning btn-block">Visualiser
                     le Livre d'or</a>
-
+                <a href="/logout" type="button" class="btn btn-default btn-warning btn-block">Déconnexion</a>
             </div>
 
         </div>

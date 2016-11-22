@@ -5,6 +5,7 @@
     <title>Musée des Beaux Arts</title>
     <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <!-- CSS And JavaScript -->
+    <link rel="stylesheet" href="{{asset('css/style.css')}}">
     <script type="text/javascript" src="{{ asset('js/app.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/jquery-3.1.1.slim.min.js') }}"></script>
 
@@ -34,4 +35,3 @@
 
 </body>
 </html>
-
