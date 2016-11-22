@@ -14,42 +14,79 @@
         <!-- Formulaire de création de sondage -->
             <form action="/poll" method="POST">
                 {{ csrf_field() }}
-                @foreach ($questions as $question)
 
-                    <div class="form-group">
+                @foreach($questionGroups as $questionGroup)
+                    @foreach ($questionGroup->questions as $question)
+                        @if($question->isVisible == 1)
 
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <h3>{{ $question->label }}</h3>
-                            </div>
+                            <div class="form-group">
 
-                            <div class="panel-body">
-                                @if($question->questionType == "openAnswer")
-                                    <INPUT class="form-control" type="text" name="{{ $question->id }}">
-                                    <br>
-                                @else
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3>{{ $question->label }}@if($question->isRequired)<span
+                                                    style="color: #DA4453;"> *</span>
 
-                                    @foreach ($question->answers as $answer)
+                                            @endif
 
-                                        @if($question->questionType == "singleChoice")
-                                            <INPUT class="radio-inline" type="radio" name="{{ $question->id }}"
-                                                   value="{{ $answer->label }}"> {{ $answer->label }}
+                                        </h3>
+                                    </div>
+
+                                    <div class="panel-body">
+                                        @if($question->questionType == "openAnswer")
+                                            <textarea class="form-control" style="resize: none" rows="5"
+                                                      @if($question->isRequired)
+                                                      required
+                                                      @endif
+                                                      name="question_{{ $question->id }}"></textarea>
                                             <br>
-                                        @elseif($question->questionType == "multipleChoice")
-                                            <INPUT class="checkbox-inline" type="checkbox" name="{{ $question->id }}"
-                                                   value="{{ $answer->label }}"> {{ $answer->label }}
-                                            <br>
+                                        @else
+
+                                            @foreach ($question->answers as $answer)
+
+                                                @if($question->questionType == "singleChoice")
+                                                    <div class="form-check">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio"
+                                                                   @if($question->isRequired)
+                                                                   required
+                                                                   @endif
+                                                                   name="question_{{ $question->id }}"
+                                                                   value="{{ $answer->id }}"> {{ $answer->label }}
+                                                        </label>
+                                                    </div>
+                                                @elseif($question->questionType == "multipleChoice")
+                                                    <div class="form-check">
+                                                        <label class="form-check-label">
+
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   name="question_{{ $question->id }}"
+                                                                   value="{{ $answer->id }}"> {{ $answer->label }}
+                                                        </label>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+
                                         @endif
-                                    @endforeach
-
-                                @endif
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                    </div>
+                        @endif
+
+                    @endforeach
+
+                    @if(!($questionGroup == $questionGroups->first()))
+                        <button type="button" class="btn btn-info glyphicon glyphicon-arrow-left "></button>
+                    @endif
+
+                    @if(! ($questionGroup == $questionGroups->last()))
+                        <button type="button" class="btn btn-info pull-right glyphicon glyphicon-arrow-right"></button>
+                    @endif
+                    <br>
 
                 @endforeach
-                <button type="submit" class="btn btn-primary pull-right btn-lg">Valider</button>
+
+                <button type="submit" class="btn btn-primary pull-right btn-lg" id="submitBtn">Valider</button>
 
             </form>
 
@@ -74,10 +111,57 @@
 
 @section('post-js')
     @parent
-
     <script>
-        $('#test').click(function () {
-            alert('Coucou');
-        });
+                /*
+
+         var questionCount =
+         $(document).ready(function () {
+         // Clic sur #prev-button
+         $('#prev-button').unbind('click').click(onPrevButtonClick);
+
+         // Clic sur #next-button
+         $('#next-button').unbind('click').click(onNextButtonClick);
+
+         // Clic sur #ok-button
+         $('#ok-button').unbind('click').click(onNextButtonClick);
+         });
+
+         function onPrevButtonClick() {
+         var currentQuestion = $('.question.current');
+         var newQuestion = $(currentQuestion).prev('.question');
+
+         $(currentQuestion).removeClass('current').addClass('hidden');
+         $(newQuestion).removeClass('hidden').addClass('current');
+
+         updateButtons(newQuestion);
+         }
+
+         function onNextButtonClick() {
+         var currentQuestion = $('.question.current');
+         var newQuestion = $(currentQuestion).next('.question');
+         if ($(newQuestion).length == 0)
+         return;
+
+         $(currentQuestion).removeClass('current').addClass('hidden');
+         $(newQuestion).removeClass('hidden').addClass('current');
+
+         updateButtons(newQuestion);
+         }
+
+         function updateButtons(currentQuestion) {
+         if ($(currentQuestion).next('.question').length == 0) {
+         $('#next-button').addClass('hidden');
+         }
+         else if ($('#next-button').hasClass('hidden')) {
+         $('#next-button').removeClass('hidden');
+         }
+
+         if ($(currentQuestion).prev('.question').length == 0) {
+         $('#prev-button').addClass('hidden');
+         }
+         else if ($('#prev-button').hasClass('hidden')) {
+         $('#prev-button').removeClass('hidden');
+         }
+         }*/
     </script>
 @endsection

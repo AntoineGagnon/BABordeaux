@@ -20,7 +20,7 @@
                             {{method_field('DELETE')}}
                         </form>
                         <div class="pull-left">
-                            {{$submission->username}}</div>
+                            {{$submission->username}} le {{$submission->created_at->format('d-m-Y à H:i')}}</div>
 
                     </div>
                     <div class="panel-body">{{$submission->text}}</div>
