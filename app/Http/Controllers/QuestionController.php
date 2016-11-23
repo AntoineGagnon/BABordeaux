@@ -15,6 +15,7 @@ use App\question_group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+
 class QuestionController extends Controller
 {
 
@@ -26,8 +27,11 @@ class QuestionController extends Controller
      */
 
 
+    //TODO SELECT EXISTED GROUP OR CREATE NEW ONE
+
     public function store(Request $request)
     {
+
         $question = new question();
         empty(question::where('question_group_id', $request->group_id)
                         ->where('question_order', $request->order_num)->get()) ? $question->question_order = $request->order_num
