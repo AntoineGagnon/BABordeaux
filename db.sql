@@ -209,7 +209,7 @@ ALTER TABLE `guestbook_submissions`
 -- Index pour la table `questions`
 --
 ALTER TABLE `questions`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id`);
 --
 -- Index pour la table `question_groups`
 --
