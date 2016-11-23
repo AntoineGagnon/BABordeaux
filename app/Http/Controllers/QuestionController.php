@@ -11,7 +11,9 @@ namespace App\Http\Controllers;
 
 use App\answer;
 use App\question;
+use App\question_group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class QuestionController extends Controller
 {
@@ -27,10 +29,28 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
         $question = new question();
-        $question->questionOrder = $request->order_num;
-        $question->question_group_id = $request->group_id;
+        empty(question::where('question_group_id', $request->group_id)
+                        ->where('question_order', $request->order_num)->get()) ? $question->question_order = $request->order_num
+                                                                                : $question->question_order = $request->order_num+1;
+
         $question->label = $request->question_label;
         $question->questionType = $request->question_type;
+
+
+        if(question_group::find($request->group_id) == null):
+        {
+            $question_group = new question_group();
+            //$question_group->id = $request->group_id;
+            $max_questionGroup_groupOrder = question_group::all()->max("group_order");
+            $question_group->group_order = $max_questionGroup_groupOrder+1;
+            $question_group->save();
+            $question->question_group_id = $question_group->id;
+        }else:
+        {
+            $question->question_group_id = $request->group_id;
+        }
+        endif;
+
         $question->save();
 
         if($question->questionType == "singleChoice" || $question->questionType == "multipleChoice"){
@@ -38,12 +58,11 @@ class QuestionController extends Controller
             for($x = 0; $x <= $nbchoices; $x++) {
                 $answer = new answer();
                 $answer->question_id = $question->id;
-                $answer->answerOrder = $x;
+                $answer->answer_order = $x;
                 $answer->label = $request->input("choice".$x);
                 $answer->save();
             }
         }
-
 
         $worked = true;
 
