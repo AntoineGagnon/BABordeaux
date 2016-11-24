@@ -78,6 +78,14 @@
                                                 </button>
                                             </div>
                                         </div>
+                                        </br>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="form-check-label">Question obligatoire: </label>
+                                                    <label for="is_required_true"> Oui </label><input type="radio" name="is_required" required value="1" />
+                                                    <label for="is_required_false"> Non </label><input type="radio" name="is_required" value="0" />
+                                            </div>
                                         <button type="submit" class="btn btn-success pull-right btn-lg" style="margin-top: 1%">Valider</button>
 
                                     </div>

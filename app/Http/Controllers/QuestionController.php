@@ -6,14 +6,12 @@
  * Time: 5:02 PM
  */
 
-
 namespace App\Http\Controllers;
 
 use App\answer;
 use App\question;
 use App\question_group;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 
 class QuestionController extends Controller
@@ -27,7 +25,9 @@ class QuestionController extends Controller
      */
 
 
-    //TODO SELECT EXISTED GROUP OR CREATE NEW ONE
+    //TODO SELECT EXISTING GROUP OR CREATE NEW ONE
+    //TODO isVISIBLE QUESTION
+    //TODO conditionnal QUESTION
 
     public function store(Request $request)
     {
@@ -39,6 +39,7 @@ class QuestionController extends Controller
 
         $question->label = $request->question_label;
         $question->questionType = $request->question_type;
+        $question->isRequired = $request->is_required;
 
 
         if(question_group::find($request->group_id) == null):
