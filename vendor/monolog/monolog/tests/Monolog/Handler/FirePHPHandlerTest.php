@@ -84,13 +84,13 @@ class TestFirePHPHandler extends FirePHPHandler
         self::$messageIndex = 1;
     }
 
-    protected function sendHeader($header, $content)
-    {
-        $this->headers[$header] = $content;
-    }
-
     public function getHeaders()
     {
         return $this->headers;
+    }
+
+    protected function sendHeader($header, $content)
+    {
+        $this->headers[$header] = $content;
     }
 }

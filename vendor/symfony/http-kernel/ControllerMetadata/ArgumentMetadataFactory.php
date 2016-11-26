@@ -65,6 +65,33 @@ final class ArgumentMetadataFactory implements ArgumentMetadataFactoryInterface
     }
 
     /**
+     * Returns an associated type to the given parameter if available.
+     *
+     * @param \ReflectionParameter $parameter
+     *
+     * @return null|string
+     */
+    private function getType(\ReflectionParameter $parameter)
+    {
+        if ($this->supportsParameterType) {
+            if (!$type = $parameter->getType()) {
+                return;
+            }
+            $typeName = $type instanceof \ReflectionNamedType ? $type->getName() : $type->__toString();
+            if ('array' === $typeName && !$type->isBuiltin()) {
+                // Special case for HHVM with variadics
+                return;
+            }
+
+            return $typeName;
+        }
+
+        if (preg_match('/^(?:[^ ]++ ){4}([a-zA-Z_\x7F-\xFF][^ ]++)/', $parameter, $info)) {
+            return $info[1];
+        }
+    }
+
+    /**
      * Returns whether an argument is variadic.
      *
      * @param \ReflectionParameter $parameter
@@ -98,32 +125,5 @@ final class ArgumentMetadataFactory implements ArgumentMetadataFactoryInterface
     private function getDefaultValue(\ReflectionParameter $parameter)
     {
         return $this->hasDefaultValue($parameter) ? $parameter->getDefaultValue() : null;
-    }
-
-    /**
-     * Returns an associated type to the given parameter if available.
-     *
-     * @param \ReflectionParameter $parameter
-     *
-     * @return null|string
-     */
-    private function getType(\ReflectionParameter $parameter)
-    {
-        if ($this->supportsParameterType) {
-            if (!$type = $parameter->getType()) {
-                return;
-            }
-            $typeName = $type instanceof \ReflectionNamedType ? $type->getName() : $type->__toString();
-            if ('array' === $typeName && !$type->isBuiltin()) {
-                // Special case for HHVM with variadics
-                return;
-            }
-
-            return $typeName;
-        }
-
-        if (preg_match('/^(?:[^ ]++ ){4}([a-zA-Z_\x7F-\xFF][^ ]++)/', $parameter, $info)) {
-            return $info[1];
-        }
     }
 }

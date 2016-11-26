@@ -143,6 +143,16 @@ class NewRelicHandler extends AbstractProcessingHandler
     }
 
     /**
+     * Sets the NewRelic application that should receive this log.
+     *
+     * @param string $appName
+     */
+    protected function setNewRelicAppName($appName)
+    {
+        newrelic_set_appname($appName);
+    }
+
+    /**
      * Returns the name of the current transaction. Each log can override the default transaction name, set in this
      * handler's constructor, by providing the transaction_name in it's context
      *
@@ -157,16 +167,6 @@ class NewRelicHandler extends AbstractProcessingHandler
         }
 
         return $this->transactionName;
-    }
-
-    /**
-     * Sets the NewRelic application that should receive this log.
-     *
-     * @param string $appName
-     */
-    protected function setNewRelicAppName($appName)
-    {
-        newrelic_set_appname($appName);
     }
 
     /**

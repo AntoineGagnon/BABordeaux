@@ -16,13 +16,6 @@ use Monolog\Logger;
 
 class DoctrineCouchDBHandlerTest extends TestCase
 {
-    protected function setup()
-    {
-        if (!class_exists('Doctrine\CouchDB\CouchDBClient')) {
-            $this->markTestSkipped('The "doctrine/couchdb" package is not installed');
-        }
-    }
-
     public function testHandle()
     {
         $client = $this->getMockBuilder('Doctrine\\CouchDB\\CouchDBClient')
@@ -48,5 +41,12 @@ class DoctrineCouchDBHandlerTest extends TestCase
 
         $handler = new DoctrineCouchDBHandler($client);
         $handler->handle($record);
+    }
+
+    protected function setup()
+    {
+        if (!class_exists('Doctrine\CouchDB\CouchDBClient')) {
+            $this->markTestSkipped('The "doctrine/couchdb" package is not installed');
+        }
     }
 }

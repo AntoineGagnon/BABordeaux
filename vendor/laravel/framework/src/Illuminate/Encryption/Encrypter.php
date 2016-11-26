@@ -91,6 +91,18 @@ class Encrypter implements EncrypterContract
     }
 
     /**
+     * Create a MAC for the given value.
+     *
+     * @param  string $iv
+     * @param  string $value
+     * @return string
+     */
+    protected function hash($iv, $value)
+    {
+        return hash_hmac('sha256', $iv . $value, $this->key);
+    }
+
+    /**
      * Decrypt the given value.
      *
      * @param  string  $payload
@@ -111,18 +123,6 @@ class Encrypter implements EncrypterContract
         }
 
         return unserialize($decrypted);
-    }
-
-    /**
-     * Create a MAC for the given value.
-     *
-     * @param  string  $iv
-     * @param  string  $value
-     * @return string
-     */
-    protected function hash($iv, $value)
-    {
-        return hash_hmac('sha256', $iv.$value, $this->key);
     }
 
     /**

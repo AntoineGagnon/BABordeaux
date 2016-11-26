@@ -72,6 +72,18 @@ class View implements ArrayAccess, ViewContract
     }
 
     /**
+     * Get the sections of the rendered view.
+     *
+     * @return array
+     */
+    public function renderSections()
+    {
+        return $this->render(function () {
+            return $this->factory->getSections();
+        });
+    }
+
+    /**
      * Get the string contents of the view.
      *
      * @param  callable|null  $callback
@@ -128,18 +140,6 @@ class View implements ArrayAccess, ViewContract
     }
 
     /**
-     * Get the sections of the rendered view.
-     *
-     * @return array
-     */
-    public function renderSections()
-    {
-        return $this->render(function () {
-            return $this->factory->getSections();
-        });
-    }
-
-    /**
      * Get the evaluated contents of the view.
      *
      * @return string
@@ -168,6 +168,19 @@ class View implements ArrayAccess, ViewContract
     }
 
     /**
+     * Add a view instance to the view data.
+     *
+     * @param  string $key
+     * @param  string $view
+     * @param  array $data
+     * @return $this
+     */
+    public function nest($key, $view, array $data = [])
+    {
+        return $this->with($key, $this->factory->make($view, $data));
+    }
+
+    /**
      * Add a piece of data to the view.
      *
      * @param  string|array  $key
@@ -183,19 +196,6 @@ class View implements ArrayAccess, ViewContract
         }
 
         return $this;
-    }
-
-    /**
-     * Add a view instance to the view data.
-     *
-     * @param  string  $key
-     * @param  string  $view
-     * @param  array   $data
-     * @return $this
-     */
-    public function nest($key, $view, array $data = [])
-    {
-        return $this->with($key, $this->factory->make($view, $data));
     }
 
     /**

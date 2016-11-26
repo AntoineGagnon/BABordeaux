@@ -200,6 +200,11 @@ class FlattenExceptionTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('*DEEP NESTED ARRAY*', serialize($trace));
     }
 
+    private function createException($foo)
+    {
+        return new \Exception();
+    }
+
     public function testTooBigArray()
     {
         $a = array();
@@ -220,11 +225,6 @@ class FlattenExceptionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertContains('*SKIPPED over 10000 entries*', $serializeTrace);
         $this->assertNotContains('*value1*', $serializeTrace);
-    }
-
-    private function createException($foo)
-    {
-        return new \Exception();
     }
 
     public function testSetTraceIncompleteClass()

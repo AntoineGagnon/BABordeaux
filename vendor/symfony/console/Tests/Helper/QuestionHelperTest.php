@@ -85,6 +85,30 @@ class QuestionHelperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('Superman', 'Batman'), $questionHelper->ask($this->createInputInterfaceMock(), $this->createOutputInterface(), $question));
     }
 
+    protected function getInputStream($input)
+    {
+        $stream = fopen('php://memory', 'r+', false);
+        fwrite($stream, $input);
+        rewind($stream);
+
+        return $stream;
+    }
+
+    protected function createInputInterfaceMock($interactive = true)
+    {
+        $mock = $this->getMock('Symfony\Component\Console\Input\InputInterface');
+        $mock->expects($this->any())
+            ->method('isInteractive')
+            ->will($this->returnValue($interactive));
+
+        return $mock;
+    }
+
+    protected function createOutputInterface()
+    {
+        return new StreamOutput(fopen('php://memory', 'r+', false));
+    }
+
     public function testAsk()
     {
         $dialog = new QuestionHelper();
@@ -133,6 +157,13 @@ class QuestionHelperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('AcmeDemoBundle', $dialog->ask($this->createInputInterfaceMock(), $this->createOutputInterface(), $question));
         $this->assertEquals('AsseticBundle', $dialog->ask($this->createInputInterfaceMock(), $this->createOutputInterface(), $question));
         $this->assertEquals('FooBundle', $dialog->ask($this->createInputInterfaceMock(), $this->createOutputInterface(), $question));
+    }
+
+    private function hasSttyAvailable()
+    {
+        exec('stty 2>&1', $output, $exitcode);
+
+        return $exitcode === 0;
     }
 
     public function testAskWithAutocompleteWithNonSequentialKeys()
@@ -402,34 +433,34 @@ class QuestionHelperTest extends \PHPUnit_Framework_TestCase
         $dialog->ask($this->createInputInterfaceMock(), $output, $question);
     }
 
-    protected function getInputStream($input)
+    /**
+     * @expectedException        \Symfony\Component\Console\Exception\RuntimeException
+     * @expectedExceptionMessage Aborted
+     */
+    public function testAskThrowsExceptionOnMissingInput()
     {
-        $stream = fopen('php://memory', 'r+', false);
-        fwrite($stream, $input);
-        rewind($stream);
+        $dialog = new QuestionHelper();
+        $dialog->setInputStream($this->getInputStream(''));
 
-        return $stream;
+        $dialog->ask($this->createInputInterfaceMock(), $this->createOutputInterface(), new Question('What\'s your name?'));
     }
 
-    protected function createOutputInterface()
+    /**
+     * @expectedException        \Symfony\Component\Console\Exception\RuntimeException
+     * @expectedExceptionMessage Aborted
+     */
+    public function testAskThrowsExceptionOnMissingInputWithValidator()
     {
-        return new StreamOutput(fopen('php://memory', 'r+', false));
-    }
+        $dialog = new QuestionHelper();
+        $dialog->setInputStream($this->getInputStream(''));
 
-    protected function createInputInterfaceMock($interactive = true)
-    {
-        $mock = $this->getMock('Symfony\Component\Console\Input\InputInterface');
-        $mock->expects($this->any())
-            ->method('isInteractive')
-            ->will($this->returnValue($interactive));
+        $question = new Question('What\'s your name?');
+        $question->setValidator(function () {
+            if (!$value) {
+                throw new \Exception('A value is required.');
+            }
+        });
 
-        return $mock;
-    }
-
-    private function hasSttyAvailable()
-    {
-        exec('stty 2>&1', $output, $exitcode);
-
-        return $exitcode === 0;
+        $dialog->ask($this->createInputInterfaceMock(), $this->createOutputInterface(), $question);
     }
 }

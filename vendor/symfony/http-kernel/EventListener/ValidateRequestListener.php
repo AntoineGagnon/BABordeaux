@@ -24,6 +24,18 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ValidateRequestListener implements EventSubscriberInterface
 {
     /**
+     * {@inheritdoc}
+     */
+    public static function getSubscribedEvents()
+    {
+        return array(
+            KernelEvents::REQUEST => array(
+                array('onKernelRequest', 256),
+            ),
+        );
+    }
+
+    /**
      * Performs the validation.
      *
      * @param GetResponseEvent $event
@@ -39,17 +51,5 @@ class ValidateRequestListener implements EventSubscriberInterface
             // This will throw an exception if the headers are inconsistent.
             $request->getClientIps();
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
-    {
-        return array(
-            KernelEvents::REQUEST => array(
-                array('onKernelRequest', 256),
-            ),
-        );
     }
 }

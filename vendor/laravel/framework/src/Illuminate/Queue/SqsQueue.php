@@ -58,6 +58,23 @@ class SqsQueue extends Queue implements QueueContract
     }
 
     /**
+     * Get the queue or return the default.
+     *
+     * @param  string|null $queue
+     * @return string
+     */
+    public function getQueue($queue)
+    {
+        $queue = $queue ?: $this->default;
+
+        if (filter_var($queue, FILTER_VALIDATE_URL) !== false) {
+            return $queue;
+        }
+
+        return rtrim($this->prefix, '/') . '/' . ($queue);
+    }
+
+    /**
      * Push a new job onto the queue.
      *
      * @param  string  $job
@@ -127,23 +144,6 @@ class SqsQueue extends Queue implements QueueContract
         if (count($response['Messages']) > 0) {
             return new SqsJob($this->container, $this->sqs, $queue, $response['Messages'][0]);
         }
-    }
-
-    /**
-     * Get the queue or return the default.
-     *
-     * @param  string|null  $queue
-     * @return string
-     */
-    public function getQueue($queue)
-    {
-        $queue = $queue ?: $this->default;
-
-        if (filter_var($queue, FILTER_VALIDATE_URL) !== false) {
-            return $queue;
-        }
-
-        return rtrim($this->prefix, '/').'/'.($queue);
     }
 
     /**

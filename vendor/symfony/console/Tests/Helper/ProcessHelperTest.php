@@ -31,6 +31,18 @@ class ProcessHelperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $this->getOutput($output));
     }
 
+    private function getOutputStream($verbosity)
+    {
+        return new StreamOutput(fopen('php://memory', 'r+', false), $verbosity, false);
+    }
+
+    private function getOutput(StreamOutput $output)
+    {
+        rewind($output->getStream());
+
+        return stream_get_contents($output->getStream());
+    }
+
     public function testPassedCallbackIsExecuted()
     {
         $helper = new ProcessHelper();
@@ -46,35 +58,35 @@ class ProcessHelperTest extends \PHPUnit_Framework_TestCase
 
     public function provideCommandsAndOutput()
     {
-        $successOutputVerbose = <<<EOT
+        $successOutputVerbose = <<<'EOT'
   RUN  php -r "echo 42;"
   RES  Command ran successfully
 
 EOT;
-        $successOutputDebug = <<<EOT
+        $successOutputDebug = <<<'EOT'
   RUN  php -r "echo 42;"
   OUT  42
   RES  Command ran successfully
 
 EOT;
-        $successOutputDebugWithTags = <<<EOT
+        $successOutputDebugWithTags = <<<'EOT'
   RUN  php -r "echo '<info>42</info>';"
   OUT  <info>42</info>
   RES  Command ran successfully
 
 EOT;
-        $successOutputProcessDebug = <<<EOT
+        $successOutputProcessDebug = <<<'EOT'
   RUN  'php' '-r' 'echo 42;'
   OUT  42
   RES  Command ran successfully
 
 EOT;
-        $syntaxErrorOutputVerbose = <<<EOT
+        $syntaxErrorOutputVerbose = <<<'EOT'
   RUN  php -r "fwrite(STDERR, 'error message');usleep(50000);fwrite(STDOUT, 'out message');exit(252);"
   RES  252 Command did not run successfully
 
 EOT;
-        $syntaxErrorOutputDebug = <<<EOT
+        $syntaxErrorOutputDebug = <<<'EOT'
   RUN  php -r "fwrite(STDERR, 'error message');usleep(500000);fwrite(STDOUT, 'out message');exit(252);"
   ERR  error message
   OUT  out message
@@ -101,17 +113,5 @@ EOT;
             array($successOutputProcessDebug, array('php', '-r', 'echo 42;'), StreamOutput::VERBOSITY_DEBUG, null),
             array($successOutputDebug, new Process('php -r "echo 42;"'), StreamOutput::VERBOSITY_DEBUG, null),
         );
-    }
-
-    private function getOutputStream($verbosity)
-    {
-        return new StreamOutput(fopen('php://memory', 'r+', false), $verbosity, false);
-    }
-
-    private function getOutput(StreamOutput $output)
-    {
-        rewind($output->getStream());
-
-        return stream_get_contents($output->getStream());
     }
 }

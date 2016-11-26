@@ -51,7 +51,7 @@ class PollController extends Controller
             }
         }
 
-        return redirect('/');
+        return redirect('/')->with("submissionWorked", true);
     }
 
     /**

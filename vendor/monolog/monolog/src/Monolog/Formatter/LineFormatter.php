@@ -60,6 +60,16 @@ class LineFormatter extends NormalizerFormatter
         $this->ignoreEmptyContextAndExtra = $ignore;
     }
 
+    public function formatBatch(array $records)
+    {
+        $message = '';
+        foreach ($records as $record) {
+            $message .= $this->format($record);
+        }
+
+        return $message;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -75,6 +85,7 @@ class LineFormatter extends NormalizerFormatter
                 unset($vars['extra'][$var]);
             }
         }
+
 
         foreach ($vars['context'] as $var => $val) {
             if (false !== strpos($output, '%context.'.$var.'%')) {
@@ -101,17 +112,12 @@ class LineFormatter extends NormalizerFormatter
             }
         }
 
-        return $output;
-    }
-
-    public function formatBatch(array $records)
-    {
-        $message = '';
-        foreach ($records as $record) {
-            $message .= $this->format($record);
+        // remove leftover %extra.xxx% and %context.xxx% if any
+        if (false !== strpos($output, '%')) {
+            $output = preg_replace('/%(?:extra|context)\..+?%/', '', $output);
         }
 
-        return $message;
+        return $output;
     }
 
     public function stringify($value)
@@ -119,26 +125,13 @@ class LineFormatter extends NormalizerFormatter
         return $this->replaceNewlines($this->convertToString($value));
     }
 
-    protected function normalizeException($e)
+    protected function replaceNewlines($str)
     {
-        // TODO 2.0 only check for Throwable
-        if (!$e instanceof \Exception && !$e instanceof \Throwable) {
-            throw new \InvalidArgumentException('Exception/Throwable expected, got '.gettype($e).' / '.get_class($e));
+        if ($this->allowInlineLineBreaks) {
+            return $str;
         }
 
-        $previousText = '';
-        if ($previous = $e->getPrevious()) {
-            do {
-                $previousText .= ', '.get_class($previous).'(code: '.$previous->getCode().'): '.$previous->getMessage().' at '.$previous->getFile().':'.$previous->getLine();
-            } while ($previous = $previous->getPrevious());
-        }
-
-        $str = '[object] ('.get_class($e).'(code: '.$e->getCode().'): '.$e->getMessage().' at '.$e->getFile().':'.$e->getLine().$previousText.')';
-        if ($this->includeStacktraces) {
-            $str .= "\n[stacktrace]\n".$e->getTraceAsString();
-        }
-
-        return $str;
+        return str_replace(array("\r\n", "\r", "\n"), ' ', $str);
     }
 
     protected function convertToString($data)
@@ -158,12 +151,25 @@ class LineFormatter extends NormalizerFormatter
         return str_replace('\\/', '/', @json_encode($data));
     }
 
-    protected function replaceNewlines($str)
+    protected function normalizeException($e)
     {
-        if ($this->allowInlineLineBreaks) {
-            return $str;
+        // TODO 2.0 only check for Throwable
+        if (!$e instanceof \Exception && !$e instanceof \Throwable) {
+            throw new \InvalidArgumentException('Exception/Throwable expected, got ' . gettype($e) . ' / ' . get_class($e));
         }
 
-        return str_replace(array("\r\n", "\r", "\n"), ' ', $str);
+        $previousText = '';
+        if ($previous = $e->getPrevious()) {
+            do {
+                $previousText .= ', ' . get_class($previous) . '(code: ' . $previous->getCode() . '): ' . $previous->getMessage() . ' at ' . $previous->getFile() . ':' . $previous->getLine();
+            } while ($previous = $previous->getPrevious());
+        }
+
+        $str = '[object] (' . get_class($e) . '(code: ' . $e->getCode() . '): ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine() . $previousText . ')';
+        if ($this->includeStacktraces) {
+            $str .= "\n[stacktrace]\n" . $e->getTraceAsString();
+        }
+
+        return $str;
     }
 }

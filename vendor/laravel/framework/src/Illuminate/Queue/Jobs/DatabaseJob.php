@@ -40,21 +40,9 @@ class DatabaseJob extends Job implements JobContract
     }
 
     /**
-     * Delete the job from the queue.
-     *
-     * @return void
-     */
-    public function delete()
-    {
-        parent::delete();
-
-        $this->database->deleteReserved($this->queue, $this->job->id);
-    }
-
-    /**
      * Release the job back into the queue.
      *
-     * @param  int  $delay
+     * @param  int $delay
      * @return void
      */
     public function release($delay = 0)
@@ -64,6 +52,18 @@ class DatabaseJob extends Job implements JobContract
         $this->delete();
 
         $this->database->release($this->queue, $this->job, $delay);
+    }
+
+    /**
+     * Delete the job from the queue.
+     *
+     * @return void
+     */
+    public function delete()
+    {
+        parent::delete();
+
+        $this->database->deleteReserved($this->queue, $this->job->id);
     }
 
     /**

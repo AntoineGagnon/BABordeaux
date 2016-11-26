@@ -70,18 +70,6 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
     }
 
     /**
-     * Get the URL for the next page.
-     *
-     * @return string|null
-     */
-    public function nextPageUrl()
-    {
-        if ($this->hasMorePages()) {
-            return $this->url($this->currentPage() + 1);
-        }
-    }
-
-    /**
      * Manually indicate that the paginator does have more pages.
      *
      * @param  bool  $value
@@ -92,16 +80,6 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
         $this->hasMore = $value;
 
         return $this;
-    }
-
-    /**
-     * Determine if there are more items in the data source.
-     *
-     * @return bool
-     */
-    public function hasMorePages()
-    {
-        return $this->hasMore;
     }
 
     /**
@@ -131,6 +109,27 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
     }
 
     /**
+     * Convert the object to its JSON representation.
+     *
+     * @param  int $options
+     * @return string
+     */
+    public function toJson($options = 0)
+    {
+        return json_encode($this->jsonSerialize(), $options);
+    }
+
+    /**
+     * Convert the object into something JSON serializable.
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
      * Get the instance as an array.
      *
      * @return array
@@ -149,23 +148,24 @@ class Paginator extends AbstractPaginator implements Arrayable, ArrayAccess, Cou
     }
 
     /**
-     * Convert the object into something JSON serializable.
+     * Get the URL for the next page.
      *
-     * @return array
+     * @return string|null
      */
-    public function jsonSerialize()
+    public function nextPageUrl()
     {
-        return $this->toArray();
+        if ($this->hasMorePages()) {
+            return $this->url($this->currentPage() + 1);
+        }
     }
 
     /**
-     * Convert the object to its JSON representation.
+     * Determine if there are more items in the data source.
      *
-     * @param  int  $options
-     * @return string
+     * @return bool
      */
-    public function toJson($options = 0)
+    public function hasMorePages()
     {
-        return json_encode($this->jsonSerialize(), $options);
+        return $this->hasMore;
     }
 }

@@ -21,11 +21,6 @@ class RouterListenerTest extends \PHPUnit_Framework_TestCase
 {
     private $requestStack;
 
-    protected function setUp()
-    {
-        $this->requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack', array(), array(), '', false);
-    }
-
     /**
      * @dataProvider getPortData
      */
@@ -50,16 +45,6 @@ class RouterListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0 === strpos($uri, 'https') ? 'https' : 'http', $context->getScheme());
     }
 
-    public function getPortData()
-    {
-        return array(
-            array(80, 443, 'http://localhost/', 80, 443),
-            array(80, 443, 'http://localhost:90/', 90, 443),
-            array(80, 443, 'https://localhost/', 80, 443),
-            array(80, 443, 'https://localhost:90/', 80, 90),
-        );
-    }
-
     /**
      * @param string $uri
      *
@@ -72,6 +57,16 @@ class RouterListenerTest extends \PHPUnit_Framework_TestCase
         $request->attributes->set('_controller', null); // Prevents going in to routing process
 
         return new GetResponseEvent($kernel, $request, HttpKernelInterface::MASTER_REQUEST);
+    }
+
+    public function getPortData()
+    {
+        return array(
+            array(80, 443, 'http://localhost/', 80, 443),
+            array(80, 443, 'http://localhost:90/', 90, 443),
+            array(80, 443, 'https://localhost/', 80, 443),
+            array(80, 443, 'https://localhost:90/', 80, 90),
+        );
     }
 
     /**
@@ -153,5 +148,10 @@ class RouterListenerTest extends \PHPUnit_Framework_TestCase
             array(array('_route' => 'foo'), 'Matched route "{route}".', array('route' => 'foo', 'route_parameters' => array('_route' => 'foo'), 'request_uri' => 'http://localhost/', 'method' => 'GET')),
             array(array(), 'Matched route "{route}".', array('route' => 'n/a', 'route_parameters' => array(), 'request_uri' => 'http://localhost/', 'method' => 'GET')),
         );
+    }
+
+    protected function setUp()
+    {
+        $this->requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack', array(), array(), '', false);
     }
 }

@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div class="panel panel-primary">
+	<div class="panel panel-primary notranslate">
 	<div class="panel-heading">
 		<h1>Modifier le mot de passe d'administration</h1>
 	</div>

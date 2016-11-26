@@ -118,6 +118,20 @@ class MongoDbSessionHandler implements \SessionHandlerInterface
     }
 
     /**
+     * Return a "MongoCollection" instance.
+     *
+     * @return \MongoCollection
+     */
+    private function getCollection()
+    {
+        if (null === $this->collection) {
+            $this->collection = $this->mongo->selectCollection($this->options['database'], $this->options['collection']);
+        }
+
+        return $this->collection;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function gc($maxlifetime)
@@ -129,6 +143,28 @@ class MongoDbSessionHandler implements \SessionHandlerInterface
         ));
 
         return true;
+    }
+
+    /**
+     * Create a date object using the class appropriate for the current mongo connection.
+     *
+     * Return an instance of a MongoDate or \MongoDB\BSON\UTCDateTime
+     *
+     * @param int $seconds An integer representing UTC seconds since Jan 1 1970.  Defaults to now.
+     *
+     * @return \MongoDate|\MongoDB\BSON\UTCDateTime
+     */
+    private function createDateTime($seconds = null)
+    {
+        if (null === $seconds) {
+            $seconds = time();
+        }
+
+        if ($this->mongo instanceof \MongoDB\Client) {
+            return new \MongoDB\BSON\UTCDateTime($seconds * 1000);
+        }
+
+        return new \MongoDate($seconds);
     }
 
     /**
@@ -185,20 +221,6 @@ class MongoDbSessionHandler implements \SessionHandlerInterface
     }
 
     /**
-     * Return a "MongoCollection" instance.
-     *
-     * @return \MongoCollection
-     */
-    private function getCollection()
-    {
-        if (null === $this->collection) {
-            $this->collection = $this->mongo->selectCollection($this->options['database'], $this->options['collection']);
-        }
-
-        return $this->collection;
-    }
-
-    /**
      * Return a Mongo instance.
      *
      * @return \Mongo|\MongoClient|\MongoDB\Client
@@ -206,27 +228,5 @@ class MongoDbSessionHandler implements \SessionHandlerInterface
     protected function getMongo()
     {
         return $this->mongo;
-    }
-
-    /**
-     * Create a date object using the class appropriate for the current mongo connection.
-     *
-     * Return an instance of a MongoDate or \MongoDB\BSON\UTCDateTime
-     *
-     * @param int $seconds An integer representing UTC seconds since Jan 1 1970.  Defaults to now.
-     *
-     * @return \MongoDate|\MongoDB\BSON\UTCDateTime
-     */
-    private function createDateTime($seconds = null)
-    {
-        if (null === $seconds) {
-            $seconds = time();
-        }
-
-        if ($this->mongo instanceof \MongoDB\Client) {
-            return new \MongoDB\BSON\UTCDateTime($seconds * 1000);
-        }
-
-        return new \MongoDate($seconds);
     }
 }

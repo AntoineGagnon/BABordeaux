@@ -31,6 +31,17 @@ class InlineFragmentRendererTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo', $strategy->render('/', Request::create('/'))->getContent());
     }
 
+    private function getKernel($returnValue)
+    {
+        $kernel = $this->getMock('Symfony\Component\HttpKernel\HttpKernelInterface');
+        $kernel
+            ->expects($this->any())
+            ->method('handle')
+            ->will($returnValue);
+
+        return $kernel;
+    }
+
     public function testRenderWithControllerReference()
     {
         $strategy = new InlineFragmentRenderer($this->getKernel($this->returnValue(new Response('foo'))));
@@ -50,6 +61,21 @@ class InlineFragmentRendererTest extends \PHPUnit_Framework_TestCase
         $strategy = new InlineFragmentRenderer($this->getKernelExpectingRequest($subRequest));
 
         $strategy->render(new ControllerReference('main_controller', array('object' => $object), array()), Request::create('/'));
+    }
+
+    /**
+     * Creates a Kernel expecting a request equals to $request
+     * Allows delta in comparison in case REQUEST_TIME changed by 1 second.
+     */
+    private function getKernelExpectingRequest(Request $request)
+    {
+        $kernel = $this->getMock('Symfony\Component\HttpKernel\HttpKernelInterface');
+        $kernel
+            ->expects($this->any())
+            ->method('handle')
+            ->with($this->equalTo($request, 1));
+
+        return $kernel;
     }
 
     /**
@@ -139,34 +165,6 @@ class InlineFragmentRendererTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $strategy->render('/', Request::create('/'), array('ignore_errors' => true, 'alt' => '/foo'))->getContent());
     }
 
-    private function getKernel($returnValue)
-    {
-        $kernel = $this->getMock('Symfony\Component\HttpKernel\HttpKernelInterface');
-        $kernel
-            ->expects($this->any())
-            ->method('handle')
-            ->will($returnValue)
-        ;
-
-        return $kernel;
-    }
-
-    /**
-     * Creates a Kernel expecting a request equals to $request
-     * Allows delta in comparison in case REQUEST_TIME changed by 1 second.
-     */
-    private function getKernelExpectingRequest(Request $request)
-    {
-        $kernel = $this->getMock('Symfony\Component\HttpKernel\HttpKernelInterface');
-        $kernel
-            ->expects($this->any())
-            ->method('handle')
-            ->with($this->equalTo($request, 1))
-        ;
-
-        return $kernel;
-    }
-
     public function testExceptionInSubRequestsDoesNotMangleOutputBuffers()
     {
         $controllerResolver = $this->getMock('Symfony\\Component\\HttpKernel\\Controller\\ControllerResolverInterface');
@@ -200,6 +198,16 @@ class InlineFragmentRendererTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Foo', ob_get_clean());
     }
 
+    public function testESIHeaderIsKeptInSubrequestWithTrustedHeaderDisabled()
+    {
+        $trustedHeaderName = Request::getTrustedHeaderName(Request::HEADER_CLIENT_IP);
+        Request::setTrustedHeaderName(Request::HEADER_CLIENT_IP, '');
+
+        $this->testESIHeaderIsKeptInSubrequest();
+
+        Request::setTrustedHeaderName(Request::HEADER_CLIENT_IP, $trustedHeaderName);
+    }
+
     public function testESIHeaderIsKeptInSubrequest()
     {
         $expectedSubRequest = Request::create('/');
@@ -215,16 +223,6 @@ class InlineFragmentRendererTest extends \PHPUnit_Framework_TestCase
         $request = Request::create('/');
         $request->headers->set('Surrogate-Capability', 'abc="ESI/1.0"');
         $strategy->render('/', $request);
-    }
-
-    public function testESIHeaderIsKeptInSubrequestWithTrustedHeaderDisabled()
-    {
-        $trustedHeaderName = Request::getTrustedHeaderName(Request::HEADER_CLIENT_IP);
-        Request::setTrustedHeaderName(Request::HEADER_CLIENT_IP, '');
-
-        $this->testESIHeaderIsKeptInSubrequest();
-
-        Request::setTrustedHeaderName(Request::HEADER_CLIENT_IP, $trustedHeaderName);
     }
 
     public function testHeadersPossiblyResultingIn304AreNotAssignedToSubrequest()

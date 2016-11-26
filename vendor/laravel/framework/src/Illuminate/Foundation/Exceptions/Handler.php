@@ -72,20 +72,9 @@ class Handler implements ExceptionHandlerContract
     }
 
     /**
-     * Determine if the exception should be reported.
-     *
-     * @param  \Exception  $e
-     * @return bool
-     */
-    public function shouldReport(Exception $e)
-    {
-        return ! $this->shouldntReport($e);
-    }
-
-    /**
      * Determine if the exception is in the "do not report" list.
      *
-     * @param  \Exception  $e
+     * @param  \Exception $e
      * @return bool
      */
     protected function shouldntReport(Exception $e)
@@ -99,6 +88,39 @@ class Handler implements ExceptionHandlerContract
         }
 
         return false;
+    }
+
+    /**
+     * Determine if the exception should be reported.
+     *
+     * @param  \Exception  $e
+     * @return bool
+     */
+    public function shouldReport(Exception $e)
+    {
+        return ! $this->shouldntReport($e);
+    }
+
+    /**
+     * Render an exception into a response.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Exception  $e
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function render($request, Exception $e)
+    {
+        $e = $this->prepareException($e);
+
+        if ($e instanceof HttpResponseException) {
+            return $e->getResponse();
+        } elseif ($e instanceof AuthenticationException) {
+            return $this->unauthenticated($request, $e);
+        } elseif ($e instanceof ValidationException) {
+            return $this->convertValidationExceptionToResponse($e, $request);
+        }
+
+        return $this->prepareResponse($request, $e);
     }
 
     /**
@@ -119,25 +141,25 @@ class Handler implements ExceptionHandlerContract
     }
 
     /**
-     * Render an exception into a response.
+     * Create a response object from the given validation exception.
      *
+     * @param  \Illuminate\Validation\ValidationException $e
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $e
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function render($request, Exception $e)
+    protected function convertValidationExceptionToResponse(ValidationException $e, $request)
     {
-        $e = $this->prepareException($e);
-
-        if ($e instanceof HttpResponseException) {
-            return $e->getResponse();
-        } elseif ($e instanceof AuthenticationException) {
-            return $this->unauthenticated($request, $e);
-        } elseif ($e instanceof ValidationException) {
-            return $this->convertValidationExceptionToResponse($e, $request);
+        if ($e->response) {
+            return $e->response;
         }
 
-        return $this->prepareResponse($request, $e);
+        $errors = $e->validator->errors()->getMessages();
+
+        if ($request->expectsJson()) {
+            return response()->json($errors, 422);
+        }
+
+        return redirect()->back()->withInput($request->input())->withErrors($errors);
     }
 
     /**
@@ -154,6 +176,17 @@ class Handler implements ExceptionHandlerContract
         } else {
             return $this->toIlluminateResponse($this->convertExceptionToResponse($e), $e);
         }
+    }
+
+    /**
+     * Determine if the given exception is an HTTP exception.
+     *
+     * @param  \Exception $e
+     * @return bool
+     */
+    protected function isHttpException(Exception $e)
+    {
+        return $e instanceof HttpException;
     }
 
     /**
@@ -175,18 +208,6 @@ class Handler implements ExceptionHandlerContract
     }
 
     /**
-     * Render an exception to the console.
-     *
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
-     * @param  \Exception  $e
-     * @return void
-     */
-    public function renderForConsole($output, Exception $e)
-    {
-        (new ConsoleApplication)->renderException($e, $output);
-    }
-
-    /**
      * Render the given HttpException.
      *
      * @param  \Symfony\Component\HttpKernel\Exception\HttpException  $e
@@ -201,28 +222,6 @@ class Handler implements ExceptionHandlerContract
         } else {
             return $this->convertExceptionToResponse($e);
         }
-    }
-
-    /**
-     * Create a response object from the given validation exception.
-     *
-     * @param  \Illuminate\Validation\ValidationException  $e
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    protected function convertValidationExceptionToResponse(ValidationException $e, $request)
-    {
-        if ($e->response) {
-            return $e->response;
-        }
-
-        $errors = $e->validator->errors()->getMessages();
-
-        if ($request->expectsJson()) {
-            return response()->json($errors, 422);
-        }
-
-        return redirect()->back()->withInput($request->input())->withErrors($errors);
     }
 
     /**
@@ -241,13 +240,14 @@ class Handler implements ExceptionHandlerContract
     }
 
     /**
-     * Determine if the given exception is an HTTP exception.
+     * Render an exception to the console.
      *
+     * @param  \Symfony\Component\Console\Output\OutputInterface $output
      * @param  \Exception  $e
-     * @return bool
+     * @return void
      */
-    protected function isHttpException(Exception $e)
+    public function renderForConsole($output, Exception $e)
     {
-        return $e instanceof HttpException;
+        (new ConsoleApplication)->renderException($e, $output);
     }
 }

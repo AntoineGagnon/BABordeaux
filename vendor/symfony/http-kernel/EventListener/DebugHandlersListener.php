@@ -55,6 +55,17 @@ class DebugHandlersListener implements EventSubscriberInterface
         $this->fileLinkFormat = $fileLinkFormat ?: ini_get('xdebug.file_link_format') ?: get_cfg_var('xdebug.file_link_format');
     }
 
+    public static function getSubscribedEvents()
+    {
+        $events = array(KernelEvents::REQUEST => array('configure', 2048));
+
+        if (defined('Symfony\Component\Console\ConsoleEvents::COMMAND')) {
+            $events[ConsoleEvents::COMMAND] = array('configure', 2048);
+        }
+
+        return $events;
+    }
+
     /**
      * Configures the error handler.
      *
@@ -123,16 +134,5 @@ class DebugHandlersListener implements EventSubscriberInterface
             }
             $this->exceptionHandler = null;
         }
-    }
-
-    public static function getSubscribedEvents()
-    {
-        $events = array(KernelEvents::REQUEST => array('configure', 2048));
-
-        if (defined('Symfony\Component\Console\ConsoleEvents::COMMAND')) {
-            $events[ConsoleEvents::COMMAND] = array('configure', 2048);
-        }
-
-        return $events;
     }
 }

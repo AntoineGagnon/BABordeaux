@@ -15,17 +15,6 @@ abstract class PageConstraint extends PHPUnit_Framework_Constraint
      * @param  \Symfony\Component\DomCrawler\Crawler|string  $crawler
      * @return string
      */
-    protected function html($crawler)
-    {
-        return is_object($crawler) ? $crawler->html() : $crawler;
-    }
-
-    /**
-     * Make sure we obtain the HTML from the crawler or the response.
-     *
-     * @param  \Symfony\Component\DomCrawler\Crawler|string  $crawler
-     * @return string
-     */
     protected function text($crawler)
     {
         return is_object($crawler) ? $crawler->text() : strip_tags($crawler);
@@ -91,23 +80,24 @@ abstract class PageConstraint extends PHPUnit_Framework_Constraint
     }
 
     /**
+     * Make sure we obtain the HTML from the crawler or the response.
+     *
+     * @param  \Symfony\Component\DomCrawler\Crawler|string $crawler
+     * @return string
+     */
+    protected function html($crawler)
+    {
+        return is_object($crawler) ? $crawler->html() : $crawler;
+    }
+
+    /**
      * Get the description of the failure.
      *
      * @return string
      */
     protected function getFailureDescription()
     {
-        return 'the page contains '.$this->toString();
-    }
-
-    /**
-     * Returns the reversed description of the failure.
-     *
-     * @return string
-     */
-    protected function getReverseFailureDescription()
-    {
-        return 'the page does not contain '.$this->toString();
+        return 'the page contains ' . $this->toString();
     }
 
     /**
@@ -120,5 +110,15 @@ abstract class PageConstraint extends PHPUnit_Framework_Constraint
     public function toString()
     {
         return '';
+    }
+
+    /**
+     * Returns the reversed description of the failure.
+     *
+     * @return string
+     */
+    protected function getReverseFailureDescription()
+    {
+        return 'the page does not contain ' . $this->toString();
     }
 }

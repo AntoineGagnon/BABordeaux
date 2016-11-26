@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <div class="panel panel-primary">
+    <div class="panel panel-primary notranslate">
         <div class="panel-heading">
             <h1>Soumissions du livre d'or</h1>
         </div>

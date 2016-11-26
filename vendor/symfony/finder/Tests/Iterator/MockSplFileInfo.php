@@ -48,6 +48,31 @@ class MockSplFileInfo extends \SplFileInfo
         }
     }
 
+    public function setMode($mode)
+    {
+        $this->mode = $mode;
+    }
+
+    public function setType($type)
+    {
+        if (is_string($type)) {
+            switch ($type) {
+                case 'directory':
+                case 'd':
+                    $this->type = self::TYPE_DIRECTORY;
+                    break;
+                case 'file':
+                case 'f':
+                    $this->type = self::TYPE_FILE;
+                    break;
+                default:
+                    $this->type = self::TYPE_UNKNOWN;
+            }
+        } else {
+            $this->type = $type;
+        }
+    }
+
     public function isFile()
     {
         if (null === $this->type) {
@@ -85,29 +110,9 @@ class MockSplFileInfo extends \SplFileInfo
         $this->contents = $contents;
     }
 
-    public function setMode($mode)
+    public function getRelativePath()
     {
-        $this->mode = $mode;
-    }
-
-    public function setType($type)
-    {
-        if (is_string($type)) {
-            switch ($type) {
-                case 'directory':
-                case 'd':
-                    $this->type = self::TYPE_DIRECTORY;
-                    break;
-                case 'file':
-                case 'f':
-                    $this->type = self::TYPE_FILE;
-                    break;
-                default:
-                    $this->type = self::TYPE_UNKNOWN;
-            }
-        } else {
-            $this->type = $type;
-        }
+        return $this->relativePath;
     }
 
     public function setRelativePath($relativePath)
@@ -115,18 +120,13 @@ class MockSplFileInfo extends \SplFileInfo
         $this->relativePath = $relativePath;
     }
 
-    public function setRelativePathname($relativePathname)
-    {
-        $this->relativePathname = $relativePathname;
-    }
-
-    public function getRelativePath()
-    {
-        return $this->relativePath;
-    }
-
     public function getRelativePathname()
     {
         return $this->relativePathname;
+    }
+
+    public function setRelativePathname($relativePathname)
+    {
+        $this->relativePathname = $relativePathname;
     }
 }

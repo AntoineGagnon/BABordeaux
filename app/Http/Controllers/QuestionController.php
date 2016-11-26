@@ -11,6 +11,7 @@ namespace App\Http\Controllers;
 use App\answer;
 use App\question;
 use App\question_group;
+use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Http\Request;
 
 

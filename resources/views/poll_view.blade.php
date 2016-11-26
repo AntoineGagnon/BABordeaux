@@ -2,6 +2,13 @@
 
 @section('content')
 
+    @if (session("submissionWorked"))
+        <div class="alert alert-success alert-dismissable fade in">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            Avis ajouté aux résultats !
+        </div>
+    @endif
+
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h1>Sondage du Musée des Beaux Arts</h1>
@@ -129,7 +136,6 @@
 
         var i = 0;
         @foreach($questionGroups as $questionGroup)
-
                 questionGroupsList[i] = {{$questionGroup->id}}
                 i++;
         @endforeach

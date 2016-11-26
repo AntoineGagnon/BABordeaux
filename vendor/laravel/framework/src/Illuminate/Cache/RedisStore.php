@@ -44,6 +44,17 @@ class RedisStore extends TaggableStore implements Store
     }
 
     /**
+     * Set the connection name to be used.
+     *
+     * @param  string $connection
+     * @return void
+     */
+    public function setConnection($connection)
+    {
+        $this->connection = $connection;
+    }
+
+    /**
      * Retrieve an item from the cache by key.
      *
      * @param  string|array  $key
@@ -54,6 +65,27 @@ class RedisStore extends TaggableStore implements Store
         if (! is_null($value = $this->connection()->get($this->prefix.$key))) {
             return $this->unserialize($value);
         }
+    }
+
+    /**
+     * Get the Redis connection instance.
+     *
+     * @return \Predis\ClientInterface
+     */
+    public function connection()
+    {
+        return $this->redis->connection($this->connection);
+    }
+
+    /**
+     * Unserialize the value.
+     *
+     * @param  mixed $value
+     * @return mixed
+     */
+    protected function unserialize($value)
+    {
+        return is_numeric($value) ? $value : unserialize($value);
     }
 
     /**
@@ -82,6 +114,24 @@ class RedisStore extends TaggableStore implements Store
     }
 
     /**
+     * Store multiple items in the cache for a given number of minutes.
+     *
+     * @param  array $values
+     * @param  float|int $minutes
+     * @return void
+     */
+    public function putMany(array $values, $minutes)
+    {
+        $this->connection()->multi();
+
+        foreach ($values as $key => $value) {
+            $this->put($key, $value, $minutes);
+        }
+
+        $this->connection()->exec();
+    }
+
+    /**
      * Store an item in the cache for a given number of minutes.
      *
      * @param  string  $key
@@ -97,21 +147,14 @@ class RedisStore extends TaggableStore implements Store
     }
 
     /**
-     * Store multiple items in the cache for a given number of minutes.
+     * Serialize the value.
      *
-     * @param  array  $values
-     * @param  float|int  $minutes
-     * @return void
+     * @param  mixed $value
+     * @return mixed
      */
-    public function putMany(array $values, $minutes)
+    protected function serialize($value)
     {
-        $this->connection()->multi();
-
-        foreach ($values as $key => $value) {
-            $this->put($key, $value, $minutes);
-        }
-
-        $this->connection()->exec();
+        return is_numeric($value) ? $value : serialize($value);
     }
 
     /**
@@ -183,27 +226,6 @@ class RedisStore extends TaggableStore implements Store
     }
 
     /**
-     * Get the Redis connection instance.
-     *
-     * @return \Predis\ClientInterface
-     */
-    public function connection()
-    {
-        return $this->redis->connection($this->connection);
-    }
-
-    /**
-     * Set the connection name to be used.
-     *
-     * @param  string  $connection
-     * @return void
-     */
-    public function setConnection($connection)
-    {
-        $this->connection = $connection;
-    }
-
-    /**
      * Get the Redis database instance.
      *
      * @return \Illuminate\Redis\Database
@@ -232,27 +254,5 @@ class RedisStore extends TaggableStore implements Store
     public function setPrefix($prefix)
     {
         $this->prefix = ! empty($prefix) ? $prefix.':' : '';
-    }
-
-    /**
-     * Serialize the value.
-     *
-     * @param  mixed  $value
-     * @return mixed
-     */
-    protected function serialize($value)
-    {
-        return is_numeric($value) ? $value : serialize($value);
-    }
-
-    /**
-     * Unserialize the value.
-     *
-     * @param  mixed  $value
-     * @return mixed
-     */
-    protected function unserialize($value)
-    {
-        return is_numeric($value) ? $value : unserialize($value);
     }
 }

@@ -263,29 +263,6 @@ abstract class AbstractCloner implements ClonerInterface
     }
 
     /**
-     * Casts a resource to an array representation.
-     *
-     * @param Stub $stub     The Stub for the casted resource
-     * @param bool $isNested True if the object is nested in the dumped structure
-     *
-     * @return array The resource casted as array
-     */
-    protected function castResource(Stub $stub, $isNested)
-    {
-        $a = array();
-        $res = $stub->value;
-        $type = $stub->class;
-
-        if (!empty($this->casters[':'.$type])) {
-            foreach ($this->casters[':'.$type] as $c) {
-                $a = $this->callCaster($c, $res, $a, $stub, $isNested);
-            }
-        }
-
-        return $a;
-    }
-
-    /**
      * Calls a custom caster.
      *
      * @param callable        $callback The caster
@@ -306,6 +283,29 @@ abstract class AbstractCloner implements ClonerInterface
             }
         } catch (\Exception $e) {
             $a[(Stub::TYPE_OBJECT === $stub->type ? Caster::PREFIX_VIRTUAL : '').'⚠'] = new ThrowingCasterException($e);
+        }
+
+        return $a;
+    }
+
+    /**
+     * Casts a resource to an array representation.
+     *
+     * @param Stub $stub The Stub for the casted resource
+     * @param bool $isNested True if the object is nested in the dumped structure
+     *
+     * @return array The resource casted as array
+     */
+    protected function castResource(Stub $stub, $isNested)
+    {
+        $a = array();
+        $res = $stub->value;
+        $type = $stub->class;
+
+        if (!empty($this->casters[':' . $type])) {
+            foreach ($this->casters[':' . $type] as $c) {
+                $a = $this->callCaster($c, $res, $a, $stub, $isNested);
+            }
         }
 
         return $a;

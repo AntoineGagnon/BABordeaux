@@ -52,33 +52,6 @@ class AmqpHandler extends AbstractProcessingHandler
     /**
      * {@inheritDoc}
      */
-    protected function write(array $record)
-    {
-        $data = $record["formatted"];
-        $routingKey = $this->getRoutingKey($record);
-
-        if ($this->exchange instanceof AMQPExchange) {
-            $this->exchange->publish(
-                $data,
-                $routingKey,
-                0,
-                array(
-                    'delivery_mode' => 2,
-                    'content_type' => 'application/json',
-                )
-            );
-        } else {
-            $this->exchange->basic_publish(
-                $this->createAmqpMessage($data),
-                $this->exchangeName,
-                $routingKey
-            );
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function handleBatch(array $records)
     {
         if ($this->exchange instanceof AMQPExchange) {
@@ -106,12 +79,39 @@ class AmqpHandler extends AbstractProcessingHandler
     }
 
     /**
+     * {@inheritDoc}
+     */
+    protected function write(array $record)
+    {
+        $data = $record["formatted"];
+        $routingKey = $this->getRoutingKey($record);
+
+        if ($this->exchange instanceof AMQPExchange) {
+            $this->exchange->publish(
+                $data,
+                $routingKey,
+                0,
+                array(
+                    'delivery_mode' => 2,
+                    'content_type' => 'application/json',
+                )
+            );
+        } else {
+            $this->exchange->basic_publish(
+                $this->createAmqpMessage($data),
+                $this->exchangeName,
+                $routingKey
+            );
+        }
+    }
+
+    /**
      * Gets the routing key for the AMQP exchange
      *
      * @param  array  $record
      * @return string
      */
-    private function getRoutingKey(array $record)
+    protected function getRoutingKey(array $record)
     {
         $routingKey = sprintf(
             '%s.%s',

@@ -4,7 +4,7 @@
 @section('content')
 
     @if(!empty($questionAdded))
-        <div class="panel panel-success">
+        <div class="panel panel-success notranslate">
             <div class="panel-heading">
                 Question ajoutée au sondage !
             </div>
@@ -12,7 +12,7 @@
     @endif
 
 
-    <div class="panel panel-default panel-primary">
+    <div class="panel panel-default panel-primary notranslate">
         <div class="panel-heading">
             <h1>Édition du sondage</h1>
         </div>

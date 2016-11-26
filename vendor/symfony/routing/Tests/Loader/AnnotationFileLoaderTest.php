@@ -20,14 +20,6 @@ class AnnotationFileLoaderTest extends AbstractAnnotationLoaderTest
     protected $loader;
     protected $reader;
 
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $this->reader = $this->getReader();
-        $this->loader = new AnnotationFileLoader(new FileLocator(), $this->getClassLoader($this->reader));
-    }
-
     public function testLoad()
     {
         $this->reader->expects($this->once())->method('getClassAnnotation');
@@ -67,5 +59,13 @@ class AnnotationFileLoaderTest extends AbstractAnnotationLoaderTest
 
         $this->assertTrue($this->loader->supports($fixture, 'annotation'), '->supports() checks the resource type if specified');
         $this->assertFalse($this->loader->supports($fixture, 'foo'), '->supports() checks the resource type if specified');
+    }
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->reader = $this->getReader();
+        $this->loader = new AnnotationFileLoader(new FileLocator(), $this->getClassLoader($this->reader));
     }
 }

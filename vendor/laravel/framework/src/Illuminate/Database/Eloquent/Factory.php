@@ -14,31 +14,29 @@ class Factory implements ArrayAccess
      * @var \Faker\Generator
      */
     protected $faker;
-
-    /**
-     * Create a new factory instance.
-     *
-     * @param  \Faker\Generator  $faker
-     * @return void
-     */
-    public function __construct(Faker $faker)
-    {
-        $this->faker = $faker;
-    }
-
     /**
      * The model definitions in the container.
      *
      * @var array
      */
     protected $definitions = [];
-
     /**
      * The registered model states.
      *
      * @var array
      */
     protected $states = [];
+
+    /**
+     * Create a new factory instance.
+     *
+     * @param  \Faker\Generator $faker
+     * @return void
+     */
+    public function __construct(Faker $faker)
+    {
+        $this->faker = $faker;
+    }
 
     /**
      * Create a new factory container.
@@ -55,73 +53,9 @@ class Factory implements ArrayAccess
     }
 
     /**
-     * Define a class with a given short-name.
-     *
-     * @param  string  $class
-     * @param  string  $name
-     * @param  callable  $attributes
-     * @return void
-     */
-    public function defineAs($class, $name, callable $attributes)
-    {
-        return $this->define($class, $attributes, $name);
-    }
-
-    /**
-     * Define a class with a given set of attributes.
-     *
-     * @param  string  $class
-     * @param  callable  $attributes
-     * @param  string  $name
-     * @return void
-     */
-    public function define($class, callable $attributes, $name = 'default')
-    {
-        $this->definitions[$class][$name] = $attributes;
-    }
-
-    /**
-     * Define a state with a given set of attributes.
-     *
-     * @param  string  $class
-     * @param  string  $state
-     * @param  callable  $attributes
-     * @return void
-     */
-    public function state($class, $state, callable $attributes)
-    {
-        $this->states[$class][$state] = $attributes;
-    }
-
-    /**
-     * Create an instance of the given model and persist it to the database.
-     *
-     * @param  string  $class
-     * @param  array  $attributes
-     * @return mixed
-     */
-    public function create($class, array $attributes = [])
-    {
-        return $this->of($class)->create($attributes);
-    }
-
-    /**
-     * Create an instance of the given model and type and persist it to the database.
-     *
-     * @param  string  $class
-     * @param  string  $name
-     * @param  array  $attributes
-     * @return mixed
-     */
-    public function createAs($class, $name, array $attributes = [])
-    {
-        return $this->of($class, $name)->create($attributes);
-    }
-
-    /**
      * Load factories from path.
      *
-     * @param  string  $path
+     * @param  string $path
      * @return $this
      */
     public function load($path)
@@ -138,15 +72,83 @@ class Factory implements ArrayAccess
     }
 
     /**
-     * Create an instance of the given model.
+     * Define a class with a given short-name.
+     *
+     * @param  string  $class
+     * @param  string  $name
+     * @param  callable  $attributes
+     * @return $this
+     */
+    public function defineAs($class, $name, callable $attributes)
+    {
+        return $this->define($class, $attributes, $name);
+    }
+
+    /**
+     * Define a class with a given set of attributes.
+     *
+     * @param  string  $class
+     * @param  callable  $attributes
+     * @param  string  $name
+     * @return $this
+     */
+    public function define($class, callable $attributes, $name = 'default')
+    {
+        $this->definitions[$class][$name] = $attributes;
+
+        return $this;
+    }
+
+    /**
+     * Define a state with a given set of attributes.
+     *
+     * @param  string  $class
+     * @param  string  $state
+     * @param  callable  $attributes
+     * @return $this
+     */
+    public function state($class, $state, callable $attributes)
+    {
+        $this->states[$class][$state] = $attributes;
+
+        return $this;
+    }
+
+    /**
+     * Create an instance of the given model and persist it to the database.
      *
      * @param  string  $class
      * @param  array  $attributes
      * @return mixed
      */
-    public function make($class, array $attributes = [])
+    public function create($class, array $attributes = [])
     {
-        return $this->of($class)->make($attributes);
+        return $this->of($class)->create($attributes);
+    }
+
+    /**
+     * Create a builder for the given model.
+     *
+     * @param  string  $class
+     * @param  string  $name
+     * @return \Illuminate\Database\Eloquent\FactoryBuilder
+     */
+    public function of($class, $name = 'default')
+    {
+        return new FactoryBuilder($class, $name, $this->definitions, $this->states, $this->faker);
+    }
+
+    /**
+     * Create an instance of the given model and type and persist it to the database.
+     *
+     * @param  string  $class
+     * @param  string $name
+     * @param  array  $attributes
+     * @return mixed
+     */
+    public function createAs($class, $name, array $attributes = [])
+    {
+        return $this->of($class, $name)->create($attributes);
     }
 
     /**
@@ -191,18 +193,6 @@ class Factory implements ArrayAccess
     }
 
     /**
-     * Create a builder for the given model.
-     *
-     * @param  string  $class
-     * @param  string  $name
-     * @return \Illuminate\Database\Eloquent\FactoryBuilder
-     */
-    public function of($class, $name = 'default')
-    {
-        return new FactoryBuilder($class, $name, $this->definitions, $this->states, $this->faker);
-    }
-
-    /**
      * Determine if the given offset exists.
      *
      * @param  string  $offset
@@ -222,6 +212,18 @@ class Factory implements ArrayAccess
     public function offsetGet($offset)
     {
         return $this->make($offset);
+    }
+
+    /**
+     * Create an instance of the given model.
+     *
+     * @param  string $class
+     * @param  array $attributes
+     * @return mixed
+     */
+    public function make($class, array $attributes = [])
+    {
+        return $this->of($class)->make($attributes);
     }
 
     /**

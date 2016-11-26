@@ -41,6 +41,16 @@ class TraceableEventDispatcherTest extends \PHPUnit_Framework_TestCase
         ), array_keys($events));
     }
 
+    protected function getHttpKernel($dispatcher, $controller)
+    {
+        $controllerResolver = $this->getMock('Symfony\Component\HttpKernel\Controller\ControllerResolverInterface');
+        $controllerResolver->expects($this->once())->method('getController')->will($this->returnValue($controller));
+        $argumentResolver = $this->getMock('Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface');
+        $argumentResolver->expects($this->once())->method('getArguments')->will($this->returnValue(array()));
+
+        return new HttpKernel($dispatcher, $controllerResolver, new RequestStack(), $argumentResolver);
+    }
+
     public function testStopwatchCheckControllerOnRequestEvent()
     {
         $stopwatch = $this->getMockBuilder('Symfony\Component\Stopwatch\Stopwatch')
@@ -106,15 +116,5 @@ class TraceableEventDispatcherTest extends \PHPUnit_Framework_TestCase
         $eventDispatcher->dispatch('foo');
 
         $this->assertCount(1, $eventDispatcher->getListeners('foo'), 'expected listener1 to be removed');
-    }
-
-    protected function getHttpKernel($dispatcher, $controller)
-    {
-        $controllerResolver = $this->getMock('Symfony\Component\HttpKernel\Controller\ControllerResolverInterface');
-        $controllerResolver->expects($this->once())->method('getController')->will($this->returnValue($controller));
-        $argumentResolver = $this->getMock('Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface');
-        $argumentResolver->expects($this->once())->method('getArguments')->will($this->returnValue(array()));
-
-        return new HttpKernel($dispatcher, $controllerResolver, new RequestStack(), $argumentResolver);
     }
 }

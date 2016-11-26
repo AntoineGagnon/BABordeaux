@@ -86,33 +86,13 @@ class WorkCommand extends Command
     }
 
     /**
-     * Run the worker instance.
+     * Determine if the worker should run in maintenance mode.
      *
-     * @param  string  $connection
-     * @param  string  $queue
-     * @return array
+     * @return bool
      */
-    protected function runWorker($connection, $queue)
+    protected function downForMaintenance()
     {
-        $this->worker->setCache($this->laravel['cache']->driver());
-
-        return $this->worker->{$this->option('once') ? 'runNextJob' : 'daemon'}(
-            $connection, $queue, $this->gatherWorkerOptions()
-        );
-    }
-
-    /**
-     * Gather all of the queue worker options as a single object.
-     *
-     * @return \Illuminate\Queue\WorkerOptions
-     */
-    protected function gatherWorkerOptions()
-    {
-        return new WorkerOptions(
-            $this->option('delay'), $this->option('memory'),
-            $this->option('timeout'), $this->option('sleep'),
-            $this->option('tries')
-        );
+        return $this->option('force') ? false : $this->laravel->isDownForMaintenance();
     }
 
     /**
@@ -177,12 +157,32 @@ class WorkCommand extends Command
     }
 
     /**
-     * Determine if the worker should run in maintenance mode.
+     * Run the worker instance.
      *
-     * @return bool
+     * @param  string $connection
+     * @param  string $queue
+     * @return array
      */
-    protected function downForMaintenance()
+    protected function runWorker($connection, $queue)
     {
-        return $this->option('force') ? false : $this->laravel->isDownForMaintenance();
+        $this->worker->setCache($this->laravel['cache']->driver());
+
+        return $this->worker->{$this->option('once') ? 'runNextJob' : 'daemon'}(
+            $connection, $queue, $this->gatherWorkerOptions()
+        );
+    }
+
+    /**
+     * Gather all of the queue worker options as a single object.
+     *
+     * @return \Illuminate\Queue\WorkerOptions
+     */
+    protected function gatherWorkerOptions()
+    {
+        return new WorkerOptions(
+            $this->option('delay'), $this->option('memory'),
+            $this->option('timeout'), $this->option('sleep'),
+            $this->option('tries'), $this->option('force')
+        );
     }
 }

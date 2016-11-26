@@ -22,6 +22,20 @@ use Ramsey\Uuid\UuidInterface;
 class TimestampFirstCombCodec extends StringCodec
 {
     /**
+     * Encodes a UuidInterface as a binary representation of timestamp first COMB UUID
+     *
+     * @param UuidInterface $uuid
+     *
+     * @return string Binary string representation of timestamp first COMB UUID
+     */
+    public function encodeBinary(UuidInterface $uuid)
+    {
+        $stringEncoding = $this->encode($uuid);
+
+        return hex2bin(str_replace('-', '', $stringEncoding));
+    }
+
+    /**
      * Encodes a UuidInterface as a string representation of a timestamp first COMB UUID
      *
      * @param UuidInterface $uuid
@@ -38,48 +52,6 @@ class TimestampFirstCombCodec extends StringCodec
             '%08s-%04s-%04s-%02s%02s-%012s',
             $sixPieceComponents
         );
-    }
-
-    /**
-     * Encodes a UuidInterface as a binary representation of timestamp first COMB UUID
-     *
-     * @param UuidInterface $uuid
-     *
-     * @return string Binary string representation of timestamp first COMB UUID
-     */
-    public function encodeBinary(UuidInterface $uuid)
-    {
-        $stringEncoding = $this->encode($uuid);
-
-        return hex2bin(str_replace('-', '', $stringEncoding));
-    }
-
-    /**
-     * Decodes a string representation of timestamp first COMB UUID into a UuidInterface object instance
-     *
-     * @param string $encodedUuid
-     *
-     * @return UuidInterface
-     */
-    public function decode($encodedUuid)
-    {
-        $fivePieceComponents = $this->extractComponents($encodedUuid);
-
-        $this->swapTimestampAndRandomBits($fivePieceComponents);
-
-        return $this->getBuilder()->build($this, $this->getFields($fivePieceComponents));
-    }
-
-    /**
-     * Decodes a binary representation of timestamp first COMB UUID into a UuidInterface object instance
-     *
-     * @param string $bytes
-     *
-     * @return UuidInterface
-     */
-    public function decodeBytes($bytes)
-    {
-        return $this->decode(bin2hex($bytes));
     }
 
     /**
@@ -101,5 +73,33 @@ class TimestampFirstCombCodec extends StringCodec
 
         $components[0] = substr($last48Bits, 0, 8);
         $components[1] = substr($last48Bits, 8, 4);
+    }
+
+    /**
+     * Decodes a binary representation of timestamp first COMB UUID into a UuidInterface object instance
+     *
+     * @param string $bytes
+     *
+     * @return UuidInterface
+     */
+    public function decodeBytes($bytes)
+    {
+        return $this->decode(bin2hex($bytes));
+    }
+
+    /**
+     * Decodes a string representation of timestamp first COMB UUID into a UuidInterface object instance
+     *
+     * @param string $encodedUuid
+     *
+     * @return UuidInterface
+     */
+    public function decode($encodedUuid)
+    {
+        $fivePieceComponents = $this->extractComponents($encodedUuid);
+
+        $this->swapTimestampAndRandomBits($fivePieceComponents);
+
+        return $this->getBuilder()->build($this, $this->getFields($fivePieceComponents));
     }
 }

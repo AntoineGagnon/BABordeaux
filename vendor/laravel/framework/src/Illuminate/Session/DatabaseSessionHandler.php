@@ -24,7 +24,7 @@ class DatabaseSessionHandler implements SessionHandlerInterface, ExistenceAwareI
      */
     protected $table;
 
-    /*
+    /**
      * The number of minutes the session should be valid.
      *
      * @var int
@@ -76,28 +76,6 @@ class DatabaseSessionHandler implements SessionHandlerInterface, ExistenceAwareI
     public function close()
     {
         return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function read($sessionId)
-    {
-        $session = (object) $this->getQuery()->find($sessionId);
-
-        if (isset($session->last_activity)) {
-            if ($session->last_activity < Carbon::now()->subMinutes($this->minutes)->getTimestamp()) {
-                $this->exists = true;
-
-                return;
-            }
-        }
-
-        if (isset($session->payload)) {
-            $this->exists = true;
-
-            return base64_decode($session->payload);
-        }
     }
 
     /**
@@ -156,6 +134,38 @@ class DatabaseSessionHandler implements SessionHandlerInterface, ExistenceAwareI
     /**
      * {@inheritdoc}
      */
+    public function read($sessionId)
+    {
+        $session = (object)$this->getQuery()->find($sessionId);
+
+        if (isset($session->last_activity)) {
+            if ($session->last_activity < Carbon::now()->subMinutes($this->minutes)->getTimestamp()) {
+                $this->exists = true;
+
+                return;
+            }
+        }
+
+        if (isset($session->payload)) {
+            $this->exists = true;
+
+            return base64_decode($session->payload);
+        }
+    }
+
+    /**
+     * Get a fresh query builder instance for the table.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    protected function getQuery()
+    {
+        return $this->connection->table($this->table);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function destroy($sessionId)
     {
         $this->getQuery()->where('id', $sessionId)->delete();
@@ -169,16 +179,6 @@ class DatabaseSessionHandler implements SessionHandlerInterface, ExistenceAwareI
     public function gc($lifetime)
     {
         $this->getQuery()->where('last_activity', '<=', Carbon::now()->getTimestamp() - $lifetime)->delete();
-    }
-
-    /**
-     * Get a fresh query builder instance for the table.
-     *
-     * @return \Illuminate\Database\Query\Builder
-     */
-    protected function getQuery()
-    {
-        return $this->connection->table($this->table);
     }
 
     /**

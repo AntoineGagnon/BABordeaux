@@ -43,9 +43,23 @@ class ResponseFactory implements FactoryContract
     }
 
     /**
+     * Return a new view response from the application.
+     *
+     * @param  string $view
+     * @param  array $data
+     * @param  int  $status
+     * @param  array  $headers
+     * @return \Illuminate\Http\Response
+     */
+    public function view($view, $data = [], $status = 200, array $headers = [])
+    {
+        return static::make($this->view->make($view, $data), $status, $headers);
+    }
+
+    /**
      * Return a new response from the application.
      *
-     * @param  string  $content
+     * @param  string $content
      * @param  int  $status
      * @param  array  $headers
      * @return \Illuminate\Http\Response
@@ -56,17 +70,18 @@ class ResponseFactory implements FactoryContract
     }
 
     /**
-     * Return a new view response from the application.
+     * Return a new JSONP response from the application.
      *
-     * @param  string  $view
-     * @param  array  $data
+     * @param  string $callback
+     * @param  mixed  $data
      * @param  int  $status
      * @param  array  $headers
-     * @return \Illuminate\Http\Response
+     * @param  int  $options
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function view($view, $data = [], $status = 200, array $headers = [])
+    public function jsonp($callback, $data = [], $status = 200, array $headers = [], $options = 0)
     {
-        return static::make($this->view->make($view, $data), $status, $headers);
+        return $this->json($data, $status, $headers, $options)->setCallback($callback);
     }
 
     /**
@@ -81,21 +96,6 @@ class ResponseFactory implements FactoryContract
     public function json($data = [], $status = 200, array $headers = [], $options = 0)
     {
         return new JsonResponse($data, $status, $headers, $options);
-    }
-
-    /**
-     * Return a new JSONP response from the application.
-     *
-     * @param  string  $callback
-     * @param  mixed  $data
-     * @param  int  $status
-     * @param  array  $headers
-     * @param  int  $options
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function jsonp($callback, $data = [], $status = 200, array $headers = [], $options = 0)
-    {
-        return $this->json($data, $status, $headers, $options)->setCallback($callback);
     }
 
     /**

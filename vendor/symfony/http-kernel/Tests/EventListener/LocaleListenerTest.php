@@ -20,11 +20,6 @@ class LocaleListenerTest extends \PHPUnit_Framework_TestCase
 {
     private $requestStack;
 
-    protected function setUp()
-    {
-        $this->requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack', array(), array(), '', false);
-    }
-
     public function testDefaultLocaleWithoutSession()
     {
         $listener = new LocaleListener($this->requestStack, 'fr');
@@ -32,6 +27,11 @@ class LocaleListenerTest extends \PHPUnit_Framework_TestCase
 
         $listener->onKernelRequest($event);
         $this->assertEquals('fr', $request->getLocale());
+    }
+
+    private function getEvent(Request $request)
+    {
+        return new GetResponseEvent($this->getMock('Symfony\Component\HttpKernel\HttpKernelInterface'), $request, HttpKernelInterface::MASTER_REQUEST);
     }
 
     public function testLocaleFromRequestAttribute()
@@ -95,8 +95,8 @@ class LocaleListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('de', $request->getLocale());
     }
 
-    private function getEvent(Request $request)
+    protected function setUp()
     {
-        return new GetResponseEvent($this->getMock('Symfony\Component\HttpKernel\HttpKernelInterface'), $request, HttpKernelInterface::MASTER_REQUEST);
+        $this->requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack', array(), array(), '', false);
     }
 }

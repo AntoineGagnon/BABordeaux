@@ -19,6 +19,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ControllerResolverTest extends \PHPUnit_Framework_TestCase
 {
+    protected static function controllerMethod4()
+    {
+    }
+
     public function testGetControllerWithoutControllerParameter()
     {
         $logger = $this->getMock('Psr\Log\LoggerInterface');
@@ -27,6 +31,11 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
 
         $request = Request::create('/');
         $this->assertFalse($resolver->getController($request), '->getController() returns false when the request has no _controller attribute');
+    }
+
+    protected function createControllerResolver(LoggerInterface $logger = null)
+    {
+        return new ControllerResolver($logger);
     }
 
     public function testGetControllerWithLambda()
@@ -257,11 +266,6 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(null, null, 'value', 'mandatory'), $resolver->getArguments($request, $controller));
     }
 
-    protected function createControllerResolver(LoggerInterface $logger = null)
-    {
-        return new ControllerResolver($logger);
-    }
-
     public function __invoke($foo, $bar = null)
     {
     }
@@ -278,10 +282,6 @@ class ControllerResolverTest extends \PHPUnit_Framework_TestCase
     {
     }
 
-    protected static function controllerMethod4()
-    {
-    }
-
     protected function controllerMethod5(Request $request)
     {
     }
@@ -293,11 +293,11 @@ function some_controller_function($foo, $foobar)
 
 class ControllerTest
 {
-    public function publicAction()
+    public static function staticAction()
     {
     }
 
-    private function privateAction()
+    public function publicAction()
     {
     }
 
@@ -305,7 +305,7 @@ class ControllerTest
     {
     }
 
-    public static function staticAction()
+    private function privateAction()
     {
     }
 }

@@ -47,13 +47,19 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
     protected $setUpHasRun = false;
 
     /**
-     * Creates the application.
+     * Register a callback to be run after the application is created.
      *
-     * Needs to be implemented by subclasses.
-     *
-     * @return \Symfony\Component\HttpKernel\HttpKernelInterface
+     * @param  callable $callback
+     * @return void
      */
-    abstract public function createApplication();
+    public function afterApplicationCreated(callable $callback)
+    {
+        $this->afterApplicationCreatedCallbacks[] = $callback;
+
+        if ($this->setUpHasRun) {
+            call_user_func($callback);
+        }
+    }
 
     /**
      * Setup the test environment.
@@ -90,6 +96,15 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
 
         $this->app = $this->createApplication();
     }
+
+    /**
+     * Creates the application.
+     *
+     * Needs to be implemented by subclasses.
+     *
+     * @return \Symfony\Component\HttpKernel\HttpKernelInterface
+     */
+    abstract public function createApplication();
 
     /**
      * Boot the testing helper traits.
@@ -146,21 +161,6 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
 
         $this->afterApplicationCreatedCallbacks = [];
         $this->beforeApplicationDestroyedCallbacks = [];
-    }
-
-    /**
-     * Register a callback to be run after the application is created.
-     *
-     * @param  callable  $callback
-     * @return void
-     */
-    public function afterApplicationCreated(callable $callback)
-    {
-        $this->afterApplicationCreatedCallbacks[] = $callback;
-
-        if ($this->setUpHasRun) {
-            call_user_func($callback);
-        }
     }
 
     /**

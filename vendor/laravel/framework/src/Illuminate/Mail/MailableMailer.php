@@ -100,17 +100,6 @@ class MailableMailer
     }
 
     /**
-     * Send a mailable message immediately.
-     *
-     * @param  Mailable  $mailable
-     * @return mixed
-     */
-    public function sendNow(Mailable $mailable)
-    {
-        return $this->mailer->send($this->fill($mailable));
-    }
-
-    /**
      * Push the given mailable onto the queue.
      *
      * @param  Mailable  $mailable
@@ -128,18 +117,6 @@ class MailableMailer
     }
 
     /**
-     * Deliver the queued message after the given delay.
-     *
-     * @param  \DateTime|int  $delay
-     * @param  Mailable  $mailable
-     * @return mixed
-     */
-    public function later($delay, Mailable $mailable)
-    {
-        return $this->mailer->later($delay, $this->fill($mailable));
-    }
-
-    /**
      * Populate the mailable with the addresses.
      *
      * @param  Mailable  $mailable
@@ -148,7 +125,30 @@ class MailableMailer
     protected function fill(Mailable $mailable)
     {
         return $mailable->to($this->to)
-                        ->cc($this->cc)
-                        ->bcc($this->bcc);
+            ->cc($this->cc)
+            ->bcc($this->bcc);
+    }
+
+    /**
+     * Send a mailable message immediately.
+     *
+     * @param  Mailable $mailable
+     * @return mixed
+     */
+    public function sendNow(Mailable $mailable)
+    {
+        return $this->mailer->send($this->fill($mailable));
+    }
+
+    /**
+     * Deliver the queued message after the given delay.
+     *
+     * @param  \DateTime|int $delay
+     * @param  Mailable  $mailable
+     * @return mixed
+     */
+    public function later($delay, Mailable $mailable)
+    {
+        return $this->mailer->later($delay, $this->fill($mailable));
     }
 }

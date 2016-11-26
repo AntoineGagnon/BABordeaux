@@ -25,21 +25,6 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
 
     private $kernel;
 
-    protected function setUp()
-    {
-        $this->dispatcher = new EventDispatcher();
-        $listener = new ResponseListener('UTF-8');
-        $this->dispatcher->addListener(KernelEvents::RESPONSE, array($listener, 'onKernelResponse'));
-
-        $this->kernel = $this->getMock('Symfony\Component\HttpKernel\HttpKernelInterface');
-    }
-
-    protected function tearDown()
-    {
-        $this->dispatcher = null;
-        $this->kernel = null;
-    }
-
     public function testFilterDoesNothingForSubRequests()
     {
         $response = new Response('foo');
@@ -90,5 +75,20 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
         $this->dispatcher->dispatch(KernelEvents::RESPONSE, $event);
 
         $this->assertEquals('ISO-8859-15', $response->getCharset());
+    }
+
+    protected function setUp()
+    {
+        $this->dispatcher = new EventDispatcher();
+        $listener = new ResponseListener('UTF-8');
+        $this->dispatcher->addListener(KernelEvents::RESPONSE, array($listener, 'onKernelResponse'));
+
+        $this->kernel = $this->getMock('Symfony\Component\HttpKernel\HttpKernelInterface');
+    }
+
+    protected function tearDown()
+    {
+        $this->dispatcher = null;
+        $this->kernel = null;
     }
 }

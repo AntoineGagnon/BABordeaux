@@ -64,6 +64,21 @@ EOF;
         $this->assertSame($expect, $this->collectionToString($result->getRoot(), '            '));
     }
 
+    private function collectionToString(DumperCollection $collection, $prefix)
+    {
+        $string = '';
+        foreach ($collection as $route) {
+            if ($route instanceof DumperCollection) {
+                $string .= sprintf("%s|-coll %s\n", $prefix, $route->getPrefix());
+                $string .= $this->collectionToString($route, $prefix . '| ');
+            } else {
+                $string .= sprintf("%s|-route %s %s\n", $prefix, $route->getName(), $route->getRoute()->getPath());
+            }
+        }
+
+        return $string;
+    }
+
     public function testMergeSlashNodes()
     {
         $coll = new DumperPrefixCollection();
@@ -104,20 +119,5 @@ EOF;
 EOF;
 
         $this->assertSame($expect, $this->collectionToString($result->getRoot(), '            '));
-    }
-
-    private function collectionToString(DumperCollection $collection, $prefix)
-    {
-        $string = '';
-        foreach ($collection as $route) {
-            if ($route instanceof DumperCollection) {
-                $string .= sprintf("%s|-coll %s\n", $prefix, $route->getPrefix());
-                $string .= $this->collectionToString($route, $prefix.'| ');
-            } else {
-                $string .= sprintf("%s|-route %s %s\n", $prefix, $route->getName(), $route->getRoute()->getPath());
-            }
-        }
-
-        return $string;
     }
 }

@@ -20,12 +20,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     private $loader = null;
 
-    protected function setUp()
-    {
-        $this->loader = $this->getMock('Symfony\Component\Config\Loader\LoaderInterface');
-        $this->router = new Router($this->loader, 'routing.yml');
-    }
-
     public function testSetOptionsWithSupportedOptions()
     {
         $this->router->setOptions(array(
@@ -157,5 +151,11 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $p->setValue($this->router, $matcher);
 
         $this->router->matchRequest(Request::create('/'));
+    }
+
+    protected function setUp()
+    {
+        $this->loader = $this->getMock('Symfony\Component\Config\Loader\LoaderInterface');
+        $this->router = new Router($this->loader, 'routing.yml');
     }
 }

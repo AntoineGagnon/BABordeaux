@@ -146,6 +146,28 @@ class Logger implements LoggerInterface
     }
 
     /**
+     * Gets all supported logging levels.
+     *
+     * @return array Assoc array with human-readable level names => level codes.
+     */
+    public static function getLevels()
+    {
+        return array_flip(static::$levels);
+    }
+
+    /**
+     * Set the timezone to be used for the timestamp of log records.
+     *
+     * This is stored globally for all Logger instances
+     *
+     * @param \DateTimeZone $tz Timezone object
+     */
+    public static function setTimezone(\DateTimeZone $tz)
+    {
+        self::$timezone = $tz;
+    }
+
+    /**
      * @return string
      */
     public function getName()
@@ -167,19 +189,6 @@ class Logger implements LoggerInterface
     }
 
     /**
-     * Pushes a handler on to the stack.
-     *
-     * @param  HandlerInterface $handler
-     * @return $this
-     */
-    public function pushHandler(HandlerInterface $handler)
-    {
-        array_unshift($this->handlers, $handler);
-
-        return $this;
-    }
-
-    /**
      * Pops a handler from the stack
      *
      * @return HandlerInterface
@@ -191,6 +200,14 @@ class Logger implements LoggerInterface
         }
 
         return array_shift($this->handlers);
+    }
+
+    /**
+     * @return HandlerInterface[]
+     */
+    public function getHandlers()
+    {
+        return $this->handlers;
     }
 
     /**
@@ -212,11 +229,16 @@ class Logger implements LoggerInterface
     }
 
     /**
-     * @return HandlerInterface[]
+     * Pushes a handler on to the stack.
+     *
+     * @param  HandlerInterface $handler
+     * @return $this
      */
-    public function getHandlers()
+    public function pushHandler(HandlerInterface $handler)
     {
-        return $this->handlers;
+        array_unshift($this->handlers, $handler);
+
+        return $this;
     }
 
     /**
@@ -276,6 +298,18 @@ class Logger implements LoggerInterface
     }
 
     /**
+     * Adds a log record at the DEBUG level.
+     *
+     * @param  string $message The log message
+     * @param  array $context The log context
+     * @return Boolean Whether the record has been processed
+     */
+    public function addDebug($message, array $context = array())
+    {
+        return $this->addRecord(static::DEBUG, $message, $context);
+    }
+
+    /**
      * Adds a log record.
      *
      * @param  int     $level   The logging level
@@ -311,7 +345,8 @@ class Logger implements LoggerInterface
             static::$timezone = new \DateTimeZone(date_default_timezone_get() ?: 'UTC');
         }
 
-        if ($this->microsecondTimestamps) {
+        // php7.1+ always has microseconds enabled, so we do not need this hack
+        if ($this->microsecondTimestamps && PHP_VERSION_ID < 70100) {
             $ts = \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)), static::$timezone);
         } else {
             $ts = new \DateTime(null, static::$timezone);
@@ -344,15 +379,18 @@ class Logger implements LoggerInterface
     }
 
     /**
-     * Adds a log record at the DEBUG level.
+     * Gets the name of the logging level.
      *
-     * @param  string  $message The log message
-     * @param  array   $context The log context
-     * @return Boolean Whether the record has been processed
+     * @param  int $level
+     * @return string
      */
-    public function addDebug($message, array $context = array())
+    public static function getLevelName($level)
     {
-        return $this->addRecord(static::DEBUG, $message, $context);
+        if (!isset(static::$levels[$level])) {
+            throw new InvalidArgumentException('Level "' . $level . '" is not defined, use one of: ' . implode(', ', array_keys(static::$levels)));
+        }
+
+        return static::$levels[$level];
     }
 
     /**
@@ -440,46 +478,6 @@ class Logger implements LoggerInterface
     }
 
     /**
-     * Gets all supported logging levels.
-     *
-     * @return array Assoc array with human-readable level names => level codes.
-     */
-    public static function getLevels()
-    {
-        return array_flip(static::$levels);
-    }
-
-    /**
-     * Gets the name of the logging level.
-     *
-     * @param  int    $level
-     * @return string
-     */
-    public static function getLevelName($level)
-    {
-        if (!isset(static::$levels[$level])) {
-            throw new InvalidArgumentException('Level "'.$level.'" is not defined, use one of: '.implode(', ', array_keys(static::$levels)));
-        }
-
-        return static::$levels[$level];
-    }
-
-    /**
-     * Converts PSR-3 levels to Monolog ones if necessary
-     *
-     * @param string|int Level number (monolog) or name (PSR-3)
-     * @return int
-     */
-    public static function toMonologLevel($level)
-    {
-        if (is_string($level) && defined(__CLASS__.'::'.strtoupper($level))) {
-            return constant(__CLASS__.'::'.strtoupper($level));
-        }
-
-        return $level;
-    }
-
-    /**
      * Checks whether the Logger has a handler that listens on the given level
      *
      * @param  int     $level
@@ -515,6 +513,21 @@ class Logger implements LoggerInterface
         $level = static::toMonologLevel($level);
 
         return $this->addRecord($level, $message, $context);
+    }
+
+    /**
+     * Converts PSR-3 levels to Monolog ones if necessary
+     *
+     * @param string|int Level number (monolog) or name (PSR-3)
+     * @return int
+     */
+    public static function toMonologLevel($level)
+    {
+        if (is_string($level) && defined(__CLASS__ . '::' . strtoupper($level))) {
+            return constant(__CLASS__ . '::' . strtoupper($level));
+        }
+
+        return $level;
     }
 
     /**
@@ -683,17 +696,5 @@ class Logger implements LoggerInterface
     public function emergency($message, array $context = array())
     {
         return $this->addRecord(static::EMERGENCY, $message, $context);
-    }
-
-    /**
-     * Set the timezone to be used for the timestamp of log records.
-     *
-     * This is stored globally for all Logger instances
-     *
-     * @param \DateTimeZone $tz Timezone object
-     */
-    public static function setTimezone(\DateTimeZone $tz)
-    {
-        self::$timezone = $tz;
     }
 }

@@ -33,6 +33,19 @@ class ClosureCommand extends Command
     }
 
     /**
+     * Set the description for the command.
+     *
+     * @param  string $description
+     * @return $this
+     */
+    public function describe($description)
+    {
+        $this->setDescription($description);
+
+        return $this;
+    }
+
+    /**
      * Execute the console command.
      *
      * @param  \Symfony\Component\Console\Input\InputInterface  $input
@@ -54,18 +67,5 @@ class ClosureCommand extends Command
         return $this->laravel->call(
             $this->callback->bindTo($this, $this), $parameters
         );
-    }
-
-    /**
-     * Set the description for the command.
-     *
-     * @param  string  $description
-     * @return $this
-     */
-    public function describe($description)
-    {
-        $this->setDescription($description);
-
-        return $this;
     }
 }

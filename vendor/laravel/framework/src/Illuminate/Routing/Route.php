@@ -23,88 +23,77 @@ class Route
     use RouteDependencyResolverTrait;
 
     /**
+     * The validators used by the routes.
+     *
+     * @var array
+     */
+    public static $validators;
+    /**
      * The URI pattern the route responds to.
      *
      * @var string
      */
     protected $uri;
-
     /**
      * The HTTP methods the route responds to.
      *
      * @var array
      */
     protected $methods;
-
     /**
      * The route action array.
      *
      * @var array
      */
     protected $action;
-
     /**
      * The controller instance.
      *
      * @var mixed
      */
     protected $controller;
-
     /**
      * The default values for the route.
      *
      * @var array
      */
     protected $defaults = [];
-
     /**
      * The regular expression requirements.
      *
      * @var array
      */
     protected $wheres = [];
-
     /**
      * The array of matched parameters.
      *
      * @var array
      */
     protected $parameters;
-
     /**
      * The parameter names for the route.
      *
      * @var array|null
      */
     protected $parameterNames;
-
     /**
      * The compiled version of the route.
      *
      * @var \Symfony\Component\Routing\CompiledRoute
      */
     protected $compiled;
-
     /**
      * The router instance used by the route.
      *
      * @var \Illuminate\Routing\Router
      */
     protected $router;
-
     /**
      * The container instance used by the route.
      *
      * @var \Illuminate\Container\Container
      */
     protected $container;
-
-    /**
-     * The validators used by the routes.
-     *
-     * @var array
-     */
-    public static $validators;
 
     /**
      * Create a new Route instance.
@@ -127,6 +116,91 @@ class Route
         if (isset($this->action['prefix'])) {
             $this->prefix($this->action['prefix']);
         }
+    }
+
+    /**
+     * Parse the route action into a standard array.
+     *
+     * @param  callable|array|null $action
+     * @return array
+     *
+     * @throws \UnexpectedValueException
+     */
+    protected function parseAction($action)
+    {
+        // If no action is passed in right away, we assume the user will make use of
+        // fluent routing. In that case, we set a default closure, to be executed
+        // if the user never explicitly sets an action to handle the given uri.
+        if (is_null($action)) {
+            return ['uses' => function () {
+                throw new LogicException("Route for [{$this->uri}] has no action.");
+            }];
+        }
+
+        // If the action is already a Closure instance, we will just set that instance
+        // as the "uses" property, because there is nothing else we need to do when
+        // it is available. Otherwise we will need to find it in the action list.
+        if (is_callable($action)) {
+            return ['uses' => $action];
+        }
+
+        // If no "uses" property has been set, we will dig through the array to find a
+        // Closure instance within this list. We will set the first Closure we come
+        // across into the "uses" property that will get fired off by this route.
+        elseif (!isset($action['uses'])) {
+            $action['uses'] = $this->findCallable($action);
+        }
+
+        if (is_string($action['uses']) && !Str::contains($action['uses'], '@')) {
+            $action['uses'] = $this->makeInvokableAction($action['uses']);
+        }
+
+        return $action;
+    }
+
+    /**
+     * Find the callable in an action array.
+     *
+     * @param  array $action
+     * @return callable
+     */
+    protected function findCallable(array $action)
+    {
+        return Arr::first($action, function ($value, $key) {
+            return is_callable($value) && is_numeric($key);
+        });
+    }
+
+    /**
+     * Make an action for an invokable controller.
+     *
+     * @param  string $action
+     * @return string
+     */
+    protected function makeInvokableAction($action)
+    {
+        if (!method_exists($action, '__invoke')) {
+            throw new UnexpectedValueException(sprintf(
+                'Invalid route action: [%s]', $action
+            ));
+        }
+
+        return $action . '@__invoke';
+    }
+
+    /**
+     * Add a prefix to the route URI.
+     *
+     * @param  string $prefix
+     * @return $this
+     */
+    public function prefix($prefix)
+    {
+        $uri = rtrim($prefix, '/') . '/' . ltrim($this->uri, '/');
+
+        $this->uri = trim($uri, '/');
+
+        return $this;
     }
 
     /**
@@ -158,22 +232,6 @@ class Route
     protected function isControllerAction()
     {
         return is_string($this->action['uses']);
-    }
-
-    /**
-     * Run the route action and return the response.
-     *
-     * @return mixed
-     */
-    protected function runCallable()
-    {
-        $parameters = $this->resolveMethodDependencies(
-            $this->parametersWithoutNulls(), new ReflectionFunction($this->action['uses'])
-        );
-
-        $callable = $this->action['uses'];
-
-        return $callable(...array_values($parameters));
     }
 
     /**
@@ -214,6 +272,50 @@ class Route
     protected function getControllerMethod()
     {
         return explode('@', $this->action['uses'])[1];
+    }
+
+    /**
+     * Run the route action and return the response.
+     *
+     * @return mixed
+     */
+    protected function runCallable()
+    {
+        $parameters = $this->resolveMethodDependencies(
+            $this->parametersWithoutNulls(), new ReflectionFunction($this->action['uses'])
+        );
+
+        $callable = $this->action['uses'];
+
+        return $callable(...array_values($parameters));
+    }
+
+    /**
+     * Get the key / value list of parameters without null values.
+     *
+     * @return array
+     */
+    public function parametersWithoutNulls()
+    {
+        return array_filter($this->parameters(), function ($p) {
+            return !is_null($p);
+        });
+    }
+
+    /**
+     * Get the key / value list of parameters for the route.
+     *
+     * @return array
+     *
+     * @throws \LogicException
+     */
+    public function parameters()
+    {
+        if (isset($this->parameters)) {
+            return $this->parameters;
+        }
+
+        throw new LogicException('Route is not bound.');
     }
 
     /**
@@ -266,6 +368,37 @@ class Route
         preg_match_all('/\{(\w+?)\?\}/', $this->uri, $matches);
 
         return isset($matches[1]) ? array_fill_keys($matches[1], null) : [];
+    }
+
+    /**
+     * Get the domain defined for the route.
+     *
+     * @return string|null
+     */
+    public function domain()
+    {
+        return isset($this->action['domain'])
+            ? str_replace(['http://', 'https://'], '', $this->action['domain']) : null;
+    }
+
+    /**
+     * Get the route validators for the instance.
+     *
+     * @return array
+     */
+    public static function getValidators()
+    {
+        if (isset(static::$validators)) {
+            return static::$validators;
+        }
+
+        // To match the route, we will use a chain of responsibility pattern with the
+        // validator implementations. We will spin through each one making sure it
+        // passes and then we will know if the route as a whole matches request.
+        return static::$validators = [
+            new UriValidator, new MethodValidator,
+            new SchemeValidator, new HostValidator,
+        ];
     }
 
     /**
@@ -341,13 +474,26 @@ class Route
     }
 
     /**
-     * Determine if the route has parameters.
+     * Get the action array for the route.
      *
-     * @return bool
+     * @return array
      */
-    public function hasParameters()
+    public function getAction()
     {
-        return isset($this->parameters);
+        return $this->action;
+    }
+
+    /**
+     * Set the action array for the route.
+     *
+     * @param  array $action
+     * @return $this
+     */
+    public function setAction(array $action)
+    {
+        $this->action = $action;
+
+        return $this;
     }
 
     /**
@@ -363,6 +509,16 @@ class Route
         }
 
         return array_key_exists($name, $this->parameters());
+    }
+
+    /**
+     * Determine if the route has parameters.
+     *
+     * @return bool
+     */
+    public function hasParameters()
+    {
+        return isset($this->parameters);
     }
 
     /**
@@ -417,62 +573,6 @@ class Route
     }
 
     /**
-     * Get the key / value list of parameters for the route.
-     *
-     * @return array
-     *
-     * @throws \LogicException
-     */
-    public function parameters()
-    {
-        if (isset($this->parameters)) {
-            return $this->parameters;
-        }
-
-        throw new LogicException('Route is not bound.');
-    }
-
-    /**
-     * Get the key / value list of parameters without null values.
-     *
-     * @return array
-     */
-    public function parametersWithoutNulls()
-    {
-        return array_filter($this->parameters(), function ($p) {
-            return ! is_null($p);
-        });
-    }
-
-    /**
-     * Get all of the parameter names for the route.
-     *
-     * @return array
-     */
-    public function parameterNames()
-    {
-        if (isset($this->parameterNames)) {
-            return $this->parameterNames;
-        }
-
-        return $this->parameterNames = $this->compileParameterNames();
-    }
-
-    /**
-     * Get the parameter names for the route.
-     *
-     * @return array
-     */
-    protected function compileParameterNames()
-    {
-        preg_match_all('/\{(.*?)\}/', $this->domain().$this->uri, $matches);
-
-        return array_map(function ($m) {
-            return trim($m, '?');
-        }, $matches[1]);
-    }
-
-    /**
      * Bind the route to a given request for execution.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -515,33 +615,6 @@ class Route
     }
 
     /**
-     * Get the parameter matches for the path portion of the URI.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    protected function bindPathParameters(Request $request)
-    {
-        preg_match($this->compiled->getRegex(), '/'.$request->decodedPath(), $matches);
-
-        return $matches;
-    }
-
-    /**
-     * Extract the parameter list from the host part of the request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  array  $parameters
-     * @return array
-     */
-    protected function bindHostParameters(Request $request, $parameters)
-    {
-        preg_match($this->compiled->getHostRegex(), $request->getHost(), $matches);
-
-        return array_merge($this->matchToKeys(array_slice($matches, 1)), $parameters);
-    }
-
-    /**
      * Combine a set of parameter matches with the route's keys.
      *
      * @param  array  $matches
@@ -561,9 +634,64 @@ class Route
     }
 
     /**
+     * Get all of the parameter names for the route.
+     *
+     * @return array
+     */
+    public function parameterNames()
+    {
+        if (isset($this->parameterNames)) {
+            return $this->parameterNames;
+        }
+
+        return $this->parameterNames = $this->compileParameterNames();
+    }
+
+    /**
+     * Get the parameter names for the route.
+     *
+     * @return array
+     */
+    protected function compileParameterNames()
+    {
+        preg_match_all('/\{(.*?)\}/', $this->domain() . $this->uri, $matches);
+
+        return array_map(function ($m) {
+            return trim($m, '?');
+        }, $matches[1]);
+    }
+
+    /**
+     * Get the parameter matches for the path portion of the URI.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return array
+     */
+    protected function bindPathParameters(Request $request)
+    {
+        preg_match($this->compiled->getRegex(), '/' . $request->decodedPath(), $matches);
+
+        return $matches;
+    }
+
+    /**
+     * Extract the parameter list from the host part of the request.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  array $parameters
+     * @return array
+     */
+    protected function bindHostParameters(Request $request, $parameters)
+    {
+        preg_match($this->compiled->getHostRegex(), $request->getHost(), $matches);
+
+        return array_merge($this->matchToKeys(array_slice($matches, 1)), $parameters);
+    }
+
+    /**
      * Replace null parameters with their defaults.
      *
-     * @param  array  $parameters
+     * @param  array $parameters
      * @return array
      */
     protected function replaceDefaults(array $parameters)
@@ -573,102 +701,12 @@ class Route
         }
 
         foreach ($this->defaults as $key => $value) {
-            if (! isset($parameters[$key])) {
+            if (!isset($parameters[$key])) {
                 $parameters[$key] = $value;
             }
         }
 
         return $parameters;
-    }
-
-    /**
-     * Parse the route action into a standard array.
-     *
-     * @param  callable|array|null  $action
-     * @return array
-     *
-     * @throws \UnexpectedValueException
-     */
-    protected function parseAction($action)
-    {
-        // If no action is passed in right away, we assume the user will make use of
-        // fluent routing. In that case, we set a default closure, to be executed
-        // if the user never explicitly sets an action to handle the given uri.
-        if (is_null($action)) {
-            return ['uses' => function () {
-                throw new LogicException("Route for [{$this->uri}] has no action.");
-            }];
-        }
-
-        // If the action is already a Closure instance, we will just set that instance
-        // as the "uses" property, because there is nothing else we need to do when
-        // it is available. Otherwise we will need to find it in the action list.
-        if (is_callable($action)) {
-            return ['uses' => $action];
-        }
-
-        // If no "uses" property has been set, we will dig through the array to find a
-        // Closure instance within this list. We will set the first Closure we come
-        // across into the "uses" property that will get fired off by this route.
-        elseif (! isset($action['uses'])) {
-            $action['uses'] = $this->findCallable($action);
-        }
-
-        if (is_string($action['uses']) && ! Str::contains($action['uses'], '@')) {
-            $action['uses'] = $this->makeInvokableAction($action['uses']);
-        }
-
-        return $action;
-    }
-
-    /**
-     * Find the callable in an action array.
-     *
-     * @param  array  $action
-     * @return callable
-     */
-    protected function findCallable(array $action)
-    {
-        return Arr::first($action, function ($value, $key) {
-            return is_callable($value) && is_numeric($key);
-        });
-    }
-
-    /**
-     * Make an action for an invokable controller.
-     *
-     * @param  string $action
-     * @return string
-     */
-    protected function makeInvokableAction($action)
-    {
-        if (! method_exists($action, '__invoke')) {
-            throw new UnexpectedValueException(sprintf(
-                'Invalid route action: [%s]', $action
-            ));
-        }
-
-        return $action.'@__invoke';
-    }
-
-    /**
-     * Get the route validators for the instance.
-     *
-     * @return array
-     */
-    public static function getValidators()
-    {
-        if (isset(static::$validators)) {
-            return static::$validators;
-        }
-
-        // To match the route, we will use a chain of responsibility pattern with the
-        // validator implementations. We will spin through each one making sure it
-        // passes and then we will know if the route as a whole matches request.
-        return static::$validators = [
-            new UriValidator, new MethodValidator,
-            new SchemeValidator, new HostValidator,
-        ];
     }
 
     /**
@@ -681,64 +719,6 @@ class Route
     public function defaults($key, $value)
     {
         $this->defaults[$key] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Set a regular expression requirement on the route.
-     *
-     * @param  array|string  $name
-     * @param  string  $expression
-     * @return $this
-     */
-    public function where($name, $expression = null)
-    {
-        foreach ($this->parseWhere($name, $expression) as $name => $expression) {
-            $this->wheres[$name] = $expression;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Parse arguments to the where method into an array.
-     *
-     * @param  array|string  $name
-     * @param  string  $expression
-     * @return array
-     */
-    protected function parseWhere($name, $expression)
-    {
-        return is_array($name) ? $name : [$name => $expression];
-    }
-
-    /**
-     * Set a list of regular expression requirements on the route.
-     *
-     * @param  array  $wheres
-     * @return $this
-     */
-    protected function whereArray(array $wheres)
-    {
-        foreach ($wheres as $name => $expression) {
-            $this->where($name, $expression);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add a prefix to the route URI.
-     *
-     * @param  string  $prefix
-     * @return $this
-     */
-    public function prefix($prefix)
-    {
-        $uri = rtrim($prefix, '/').'/'.ltrim($this->uri, '/');
-
-        $this->uri = trim($uri, '/');
 
         return $this;
     }
@@ -811,17 +791,6 @@ class Route
     public function secure()
     {
         return in_array('https', $this->action, true);
-    }
-
-    /**
-     * Get the domain defined for the route.
-     *
-     * @return string|null
-     */
-    public function domain()
-    {
-        return isset($this->action['domain'])
-                ? str_replace(['http://', 'https://'], '', $this->action['domain']) : null;
     }
 
     /**
@@ -924,29 +893,6 @@ class Route
     }
 
     /**
-     * Get the action array for the route.
-     *
-     * @return array
-     */
-    public function getAction()
-    {
-        return $this->action;
-    }
-
-    /**
-     * Set the action array for the route.
-     *
-     * @param  array  $action
-     * @return $this
-     */
-    public function setAction(array $action)
-    {
-        $this->action = $action;
-
-        return $this;
-    }
-
-    /**
      * Get the compiled version of the route.
      *
      * @return \Symfony\Component\Routing\CompiledRoute
@@ -1007,5 +953,48 @@ class Route
     public function __get($key)
     {
         return $this->parameter($key);
+    }
+
+    /**
+     * Set a list of regular expression requirements on the route.
+     *
+     * @param  array $wheres
+     * @return $this
+     */
+    protected function whereArray(array $wheres)
+    {
+        foreach ($wheres as $name => $expression) {
+            $this->where($name, $expression);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set a regular expression requirement on the route.
+     *
+     * @param  array|string $name
+     * @param  string $expression
+     * @return $this
+     */
+    public function where($name, $expression = null)
+    {
+        foreach ($this->parseWhere($name, $expression) as $name => $expression) {
+            $this->wheres[$name] = $expression;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Parse arguments to the where method into an array.
+     *
+     * @param  array|string $name
+     * @param  string $expression
+     * @return array
+     */
+    protected function parseWhere($name, $expression)
+    {
+        return is_array($name) ? $name : [$name => $expression];
     }
 }

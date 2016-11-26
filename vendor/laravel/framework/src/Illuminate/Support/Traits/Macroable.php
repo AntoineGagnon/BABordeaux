@@ -27,17 +27,6 @@ trait Macroable
     }
 
     /**
-     * Checks if macro is registered.
-     *
-     * @param  string  $name
-     * @return bool
-     */
-    public static function hasMacro($name)
-    {
-        return isset(static::$macros[$name]);
-    }
-
-    /**
      * Dynamically handle calls to the class.
      *
      * @param  string  $method
@@ -57,6 +46,17 @@ trait Macroable
         }
 
         return call_user_func_array(static::$macros[$method], $parameters);
+    }
+
+    /**
+     * Checks if macro is registered.
+     *
+     * @param  string $name
+     * @return bool
+     */
+    public static function hasMacro($name)
+    {
+        return isset(static::$macros[$name]);
     }
 
     /**

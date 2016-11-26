@@ -139,6 +139,24 @@ class Factory implements FactoryContract
     }
 
     /**
+     * Add a piece of shared data to the environment.
+     *
+     * @param  array|string $key
+     * @param  mixed $value
+     * @return mixed
+     */
+    public function share($key, $value = null)
+    {
+        $keys = is_array($key) ? $key : [$key => $value];
+
+        foreach ($keys as $key => $value) {
+            $this->shared[$key] = $value;
+        }
+
+        return $value;
+    }
+
+    /**
      * Get the evaluated view contents for the given view.
      *
      * @param  string  $path
@@ -153,6 +171,74 @@ class Factory implements FactoryContract
         $this->callCreator($view = new View($this, $this->getEngineFromPath($path), $path, $path, $data));
 
         return $view;
+    }
+
+    /**
+     * Parse the given data into a raw array.
+     *
+     * @param  mixed $data
+     * @return array
+     */
+    protected function parseData($data)
+    {
+        return $data instanceof Arrayable ? $data->toArray() : $data;
+    }
+
+    /**
+     * Call the creator for a given view.
+     *
+     * @param  \Illuminate\Contracts\View\View $view
+     * @return void
+     */
+    public function callCreator(ViewContract $view)
+    {
+        $this->events->fire('creating: ' . $view->name(), [$view]);
+    }
+
+    /**
+     * Get the appropriate view engine for the given path.
+     *
+     * @param  string $path
+     * @return \Illuminate\View\Engines\EngineInterface
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function getEngineFromPath($path)
+    {
+        if (!$extension = $this->getExtension($path)) {
+            throw new InvalidArgumentException("Unrecognized extension in file: $path");
+        }
+
+        $engine = $this->extensions[$extension];
+
+        return $this->engines->resolve($engine);
+    }
+
+    /**
+     * Get the extension used by the view file.
+     *
+     * @param  string $path
+     * @return string
+     */
+    protected function getExtension($path)
+    {
+        $extensions = array_keys($this->extensions);
+
+        return Arr::first($extensions, function ($value) use ($path) {
+            return Str::endsWith($path, '.' . $value);
+        });
+    }
+
+    /**
+     * Get the evaluated view contents for a named view.
+     *
+     * @param  string $view
+     * @param  mixed $data
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function of($view, $data = [])
+    {
+        return $this->make($this->names[$view], $data);
     }
 
     /**
@@ -197,29 +283,6 @@ class Factory implements FactoryContract
         list($namespace, $name) = explode($delimiter, $name);
 
         return $namespace.$delimiter.str_replace('/', '.', $name);
-    }
-
-    /**
-     * Parse the given data into a raw array.
-     *
-     * @param  mixed  $data
-     * @return array
-     */
-    protected function parseData($data)
-    {
-        return $data instanceof Arrayable ? $data->toArray() : $data;
-    }
-
-    /**
-     * Get the evaluated view contents for a named view.
-     *
-     * @param  string  $view
-     * @param  mixed   $data
-     * @return \Illuminate\Contracts\View\View
-     */
-    public function of($view, $data = [])
-    {
-        return $this->make($this->names[$view], $data);
     }
 
     /**
@@ -302,58 +365,6 @@ class Factory implements FactoryContract
     }
 
     /**
-     * Get the appropriate view engine for the given path.
-     *
-     * @param  string  $path
-     * @return \Illuminate\View\Engines\EngineInterface
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function getEngineFromPath($path)
-    {
-        if (! $extension = $this->getExtension($path)) {
-            throw new InvalidArgumentException("Unrecognized extension in file: $path");
-        }
-
-        $engine = $this->extensions[$extension];
-
-        return $this->engines->resolve($engine);
-    }
-
-    /**
-     * Get the extension used by the view file.
-     *
-     * @param  string  $path
-     * @return string
-     */
-    protected function getExtension($path)
-    {
-        $extensions = array_keys($this->extensions);
-
-        return Arr::first($extensions, function ($value) use ($path) {
-            return Str::endsWith($path, '.'.$value);
-        });
-    }
-
-    /**
-     * Add a piece of shared data to the environment.
-     *
-     * @param  array|string  $key
-     * @param  mixed  $value
-     * @return mixed
-     */
-    public function share($key, $value = null)
-    {
-        $keys = is_array($key) ? $key : [$key => $value];
-
-        foreach ($keys as $key => $value) {
-            $this->shared[$key] = $value;
-        }
-
-        return $value;
-    }
-
-    /**
      * Register a view creator event.
      *
      * @param  array|string     $views
@@ -369,42 +380,6 @@ class Factory implements FactoryContract
         }
 
         return $creators;
-    }
-
-    /**
-     * Register multiple view composers via an array.
-     *
-     * @param  array  $composers
-     * @return array
-     */
-    public function composers(array $composers)
-    {
-        $registered = [];
-
-        foreach ($composers as $callback => $views) {
-            $registered = array_merge($registered, $this->composer($views, $callback));
-        }
-
-        return $registered;
-    }
-
-    /**
-     * Register a view composer event.
-     *
-     * @param  array|string  $views
-     * @param  \Closure|string  $callback
-     * @param  int|null  $priority
-     * @return array
-     */
-    public function composer($views, $callback, $priority = null)
-    {
-        $composers = [];
-
-        foreach ((array) $views as $view) {
-            $composers[] = $this->addViewEvent($view, $callback, 'composing: ', $priority);
-        }
-
-        return $composers;
     }
 
     /**
@@ -430,6 +405,23 @@ class Factory implements FactoryContract
     }
 
     /**
+     * Add a listener to the event dispatcher.
+     *
+     * @param  string $name
+     * @param  \Closure $callback
+     * @param  int|null $priority
+     * @return void
+     */
+    protected function addEventListener($name, $callback, $priority = null)
+    {
+        if (is_null($priority)) {
+            $this->events->listen($name, $callback);
+        } else {
+            $this->events->listen($name, $callback, $priority);
+        }
+    }
+
+    /**
      * Register a class based view composer.
      *
      * @param  string    $view
@@ -450,23 +442,6 @@ class Factory implements FactoryContract
         $this->addEventListener($name, $callback, $priority);
 
         return $callback;
-    }
-
-    /**
-     * Add a listener to the event dispatcher.
-     *
-     * @param  string    $name
-     * @param  \Closure  $callback
-     * @param  int|null  $priority
-     * @return void
-     */
-    protected function addEventListener($name, $callback, $priority = null)
-    {
-        if (is_null($priority)) {
-            $this->events->listen($name, $callback);
-        } else {
-            $this->events->listen($name, $callback, $priority);
-        }
     }
 
     /**
@@ -509,6 +484,42 @@ class Factory implements FactoryContract
     }
 
     /**
+     * Register multiple view composers via an array.
+     *
+     * @param  array $composers
+     * @return array
+     */
+    public function composers(array $composers)
+    {
+        $registered = [];
+
+        foreach ($composers as $callback => $views) {
+            $registered = array_merge($registered, $this->composer($views, $callback));
+        }
+
+        return $registered;
+    }
+
+    /**
+     * Register a view composer event.
+     *
+     * @param  array|string $views
+     * @param  \Closure|string $callback
+     * @param  int|null $priority
+     * @return array
+     */
+    public function composer($views, $callback, $priority = null)
+    {
+        $composers = [];
+
+        foreach ((array)$views as $view) {
+            $composers[] = $this->addViewEvent($view, $callback, 'composing: ', $priority);
+        }
+
+        return $composers;
+    }
+
+    /**
      * Call the composer for a given view.
      *
      * @param  \Illuminate\Contracts\View\View  $view
@@ -520,14 +531,15 @@ class Factory implements FactoryContract
     }
 
     /**
-     * Call the creator for a given view.
+     * Inject inline content into a section.
      *
-     * @param  \Illuminate\Contracts\View\View  $view
+     * @param  string $section
+     * @param  string $content
      * @return void
      */
-    public function callCreator(ViewContract $view)
+    public function inject($section, $content)
     {
-        $this->events->fire('creating: '.$view->name(), [$view]);
+        return $this->startSection($section, $content);
     }
 
     /**
@@ -549,15 +561,19 @@ class Factory implements FactoryContract
     }
 
     /**
-     * Inject inline content into a section.
+     * Append content to a given section.
      *
      * @param  string  $section
      * @param  string  $content
      * @return void
      */
-    public function inject($section, $content)
+    protected function extendSection($section, $content)
     {
-        return $this->startSection($section, $content);
+        if (isset($this->sections[$section])) {
+            $content = str_replace('@parent', $content, $this->sections[$section]);
+        }
+
+        $this->sections[$section] = $content;
     }
 
     /**
@@ -572,6 +588,28 @@ class Factory implements FactoryContract
         }
 
         return $this->yieldContent($this->stopSection());
+    }
+
+    /**
+     * Get the string contents of a section.
+     *
+     * @param  string $section
+     * @param  string $default
+     * @return string
+     */
+    public function yieldContent($section, $default = '')
+    {
+        $sectionContent = $default;
+
+        if (isset($this->sections[$section])) {
+            $sectionContent = $this->sections[$section];
+        }
+
+        $sectionContent = str_replace('@@parent', '--parent--holder--', $sectionContent);
+
+        return str_replace(
+            '--parent--holder--', '@parent', str_replace('@parent', '', $sectionContent)
+        );
     }
 
     /**
@@ -622,44 +660,6 @@ class Factory implements FactoryContract
     }
 
     /**
-     * Append content to a given section.
-     *
-     * @param  string  $section
-     * @param  string  $content
-     * @return void
-     */
-    protected function extendSection($section, $content)
-    {
-        if (isset($this->sections[$section])) {
-            $content = str_replace('@parent', $content, $this->sections[$section]);
-        }
-
-        $this->sections[$section] = $content;
-    }
-
-    /**
-     * Get the string contents of a section.
-     *
-     * @param  string  $section
-     * @param  string  $default
-     * @return string
-     */
-    public function yieldContent($section, $default = '')
-    {
-        $sectionContent = $default;
-
-        if (isset($this->sections[$section])) {
-            $sectionContent = $this->sections[$section];
-        }
-
-        $sectionContent = str_replace('@@parent', '--parent--holder--', $sectionContent);
-
-        return str_replace(
-            '--parent--holder--', '@parent', str_replace('@parent', '', $sectionContent)
-        );
-    }
-
-    /**
      * Start injecting content into a push section.
      *
      * @param  string  $section
@@ -674,6 +674,25 @@ class Factory implements FactoryContract
             }
         } else {
             $this->extendPush($section, $content);
+        }
+    }
+
+    /**
+     * Append content to a given push section.
+     *
+     * @param  string  $section
+     * @param  string  $content
+     * @return void
+     */
+    protected function extendPush($section, $content)
+    {
+        if (!isset($this->pushes[$section])) {
+            $this->pushes[$section] = [];
+        }
+        if (!isset($this->pushes[$section][$this->renderCount])) {
+            $this->pushes[$section][$this->renderCount] = $content;
+        } else {
+            $this->pushes[$section][$this->renderCount] .= $content;
         }
     }
 
@@ -697,29 +716,10 @@ class Factory implements FactoryContract
     }
 
     /**
-     * Append content to a given push section.
-     *
-     * @param  string  $section
-     * @param  string  $content
-     * @return void
-     */
-    protected function extendPush($section, $content)
-    {
-        if (! isset($this->pushes[$section])) {
-            $this->pushes[$section] = [];
-        }
-        if (! isset($this->pushes[$section][$this->renderCount])) {
-            $this->pushes[$section][$this->renderCount] = $content;
-        } else {
-            $this->pushes[$section][$this->renderCount] .= $content;
-        }
-    }
-
-    /**
      * Get the string contents of a push section.
      *
      * @param  string  $section
-     * @param  string  $default
+     * @param  string $default
      * @return string
      */
     public function yieldPushContent($section, $default = '')
@@ -729,6 +729,28 @@ class Factory implements FactoryContract
         }
 
         return implode(array_reverse($this->pushes[$section]));
+    }
+
+    /**
+     * Flush all of the section contents if done rendering.
+     *
+     * @return void
+     */
+    public function flushSectionsIfDoneRendering()
+    {
+        if ($this->doneRendering()) {
+            $this->flushSections();
+        }
+    }
+
+    /**
+     * Check if there are no active render operations.
+     *
+     * @return bool
+     */
+    public function doneRendering()
+    {
+        return $this->renderCount == 0;
     }
 
     /**
@@ -745,18 +767,6 @@ class Factory implements FactoryContract
 
         $this->pushes = [];
         $this->pushStack = [];
-    }
-
-    /**
-     * Flush all of the section contents if done rendering.
-     *
-     * @return void
-     */
-    public function flushSectionsIfDoneRendering()
-    {
-        if ($this->doneRendering()) {
-            $this->flushSections();
-        }
     }
 
     /**
@@ -777,16 +787,6 @@ class Factory implements FactoryContract
     public function decrementRender()
     {
         $this->renderCount--;
-    }
-
-    /**
-     * Check if there are no active render operations.
-     *
-     * @return bool
-     */
-    public function doneRendering()
-    {
-        return $this->renderCount == 0;
     }
 
     /**

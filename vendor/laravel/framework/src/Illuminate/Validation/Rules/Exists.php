@@ -48,6 +48,18 @@ class Exists
     }
 
     /**
+     * Set a "where not" constraint on the query.
+     *
+     * @param  string $column
+     * @param  string $value
+     * @return $this
+     */
+    public function whereNot($column, $value)
+    {
+        return $this->where($column, '!' . $value);
+    }
+
+    /**
      * Set a "where" constraint on the query.
      *
      * @param  string  $column
@@ -66,15 +78,16 @@ class Exists
     }
 
     /**
-     * Set a "where not" constraint on the query.
+     * Register a custom query callback.
      *
-     * @param  string  $column
-     * @param  string  $value
+     * @param  \Closure $callback
      * @return $this
      */
-    public function whereNot($column, $value)
+    public function using(Closure $callback)
     {
-        return $this->where($column, '!'.$value);
+        $this->using = $callback;
+
+        return $this;
     }
 
     /**
@@ -100,31 +113,6 @@ class Exists
     }
 
     /**
-     * Register a custom query callback.
-     *
-     * @param  \Closure $callback
-     * @return $this
-     */
-    public function using(Closure $callback)
-    {
-        $this->using = $callback;
-
-        return $this;
-    }
-
-    /**
-     * Format the where clauses.
-     *
-     * @return string
-     */
-    protected function formatWheres()
-    {
-        return collect($this->wheres)->map(function ($where) {
-            return $where['column'].','.$where['value'];
-        })->implode(',');
-    }
-
-    /**
      * Get the custom query callbacks for the rule.
      *
      * @return array
@@ -146,5 +134,17 @@ class Exists
             $this->column,
             $this->formatWheres()
         ), ',');
+    }
+
+    /**
+     * Format the where clauses.
+     *
+     * @return string
+     */
+    protected function formatWheres()
+    {
+        return collect($this->wheres)->map(function ($where) {
+            return $where['column'] . ',' . $where['value'];
+        })->implode(',');
     }
 }

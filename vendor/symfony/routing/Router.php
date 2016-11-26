@@ -194,13 +194,9 @@ class Router implements RouterInterface, RequestMatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function getRouteCollection()
+    public function getContext()
     {
-        if (null === $this->collection) {
-            $this->collection = $this->loader->load($this->resource, $this->options['resource_type']);
-        }
-
-        return $this->collection;
+        return $this->context;
     }
 
     /**
@@ -216,54 +212,6 @@ class Router implements RouterInterface, RequestMatcherInterface
         if (null !== $this->generator) {
             $this->getGenerator()->setContext($context);
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getContext()
-    {
-        return $this->context;
-    }
-
-    /**
-     * Sets the ConfigCache factory to use.
-     *
-     * @param ConfigCacheFactoryInterface $configCacheFactory The factory to use
-     */
-    public function setConfigCacheFactory(ConfigCacheFactoryInterface $configCacheFactory)
-    {
-        $this->configCacheFactory = $configCacheFactory;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function generate($name, $parameters = array(), $referenceType = self::ABSOLUTE_PATH)
-    {
-        return $this->getGenerator()->generate($name, $parameters, $referenceType);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function match($pathinfo)
-    {
-        return $this->getMatcher()->match($pathinfo);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function matchRequest(Request $request)
-    {
-        $matcher = $this->getMatcher();
-        if (!$matcher instanceof RequestMatcherInterface) {
-            // fallback to the default UrlMatcherInterface
-            return $matcher->match($request->getPathInfo());
-        }
-
-        return $matcher->matchRequest($request);
     }
 
     /**
@@ -312,6 +260,41 @@ class Router implements RouterInterface, RequestMatcherInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getRouteCollection()
+    {
+        if (null === $this->collection) {
+            $this->collection = $this->loader->load($this->resource, $this->options['resource_type']);
+        }
+
+        return $this->collection;
+    }
+
+    /**
+     * Provides the ConfigCache factory implementation, falling back to a
+     * default implementation if necessary.
+     *
+     * @return ConfigCacheFactoryInterface $configCacheFactory
+     */
+    private function getConfigCacheFactory()
+    {
+        if (null === $this->configCacheFactory) {
+            $this->configCacheFactory = new ConfigCacheFactory($this->options['debug']);
+        }
+
+        return $this->configCacheFactory;
+    }
+
+    /**
+     * @return MatcherDumperInterface
+     */
+    protected function getMatcherDumperInstance()
+    {
+        return new $this->options['matcher_dumper_class']($this->getRouteCollection());
+    }
+
+    /**
      * Gets the UrlGenerator instance associated with this Router.
      *
      * @return UrlGeneratorInterface A UrlGeneratorInterface instance
@@ -350,11 +333,6 @@ class Router implements RouterInterface, RequestMatcherInterface
         return $this->generator;
     }
 
-    public function addExpressionLanguageProvider(ExpressionFunctionProviderInterface $provider)
-    {
-        $this->expressionLanguageProviders[] = $provider;
-    }
-
     /**
      * @return GeneratorDumperInterface
      */
@@ -364,25 +342,47 @@ class Router implements RouterInterface, RequestMatcherInterface
     }
 
     /**
-     * @return MatcherDumperInterface
+     * Sets the ConfigCache factory to use.
+     *
+     * @param ConfigCacheFactoryInterface $configCacheFactory The factory to use
      */
-    protected function getMatcherDumperInstance()
+    public function setConfigCacheFactory(ConfigCacheFactoryInterface $configCacheFactory)
     {
-        return new $this->options['matcher_dumper_class']($this->getRouteCollection());
+        $this->configCacheFactory = $configCacheFactory;
     }
 
     /**
-     * Provides the ConfigCache factory implementation, falling back to a
-     * default implementation if necessary.
-     *
-     * @return ConfigCacheFactoryInterface $configCacheFactory
+     * {@inheritdoc}
      */
-    private function getConfigCacheFactory()
+    public function generate($name, $parameters = array(), $referenceType = self::ABSOLUTE_PATH)
     {
-        if (null === $this->configCacheFactory) {
-            $this->configCacheFactory = new ConfigCacheFactory($this->options['debug']);
+        return $this->getGenerator()->generate($name, $parameters, $referenceType);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function match($pathinfo)
+    {
+        return $this->getMatcher()->match($pathinfo);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function matchRequest(Request $request)
+    {
+        $matcher = $this->getMatcher();
+        if (!$matcher instanceof RequestMatcherInterface) {
+            // fallback to the default UrlMatcherInterface
+            return $matcher->match($request->getPathInfo());
         }
 
-        return $this->configCacheFactory;
+        return $matcher->matchRequest($request);
+    }
+
+    public function addExpressionLanguageProvider(ExpressionFunctionProviderInterface $provider)
+    {
+        $this->expressionLanguageProviders[] = $provider;
     }
 }

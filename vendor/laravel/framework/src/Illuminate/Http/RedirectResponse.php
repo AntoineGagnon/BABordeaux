@@ -30,27 +30,9 @@ class RedirectResponse extends BaseRedirectResponse
     protected $session;
 
     /**
-     * Flash a piece of data to the session.
-     *
-     * @param  string|array  $key
-     * @param  mixed  $value
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function with($key, $value = null)
-    {
-        $key = is_array($key) ? $key : [$key => $value];
-
-        foreach ($key as $k => $v) {
-            $this->session->flash($k, $v);
-        }
-
-        return $this;
-    }
-
-    /**
      * Add multiple cookies to the response.
      *
-     * @param  array  $cookies
+     * @param  array $cookies
      * @return $this
      */
     public function withCookies(array $cookies)
@@ -60,6 +42,16 @@ class RedirectResponse extends BaseRedirectResponse
         }
 
         return $this;
+    }
+
+    /**
+     * Flash an array of input to the session.
+     *
+     * @return $this
+     */
+    public function onlyInput()
+    {
+        return $this->withInput($this->request->only(func_get_args()));
     }
 
     /**
@@ -96,16 +88,6 @@ class RedirectResponse extends BaseRedirectResponse
         }
 
         return $input;
-    }
-
-    /**
-     * Flash an array of input to the session.
-     *
-     * @return $this
-     */
-    public function onlyInput()
-    {
-        return $this->withInput($this->request->only(func_get_args()));
     }
 
     /**
@@ -209,5 +191,23 @@ class RedirectResponse extends BaseRedirectResponse
         }
 
         throw new BadMethodCallException("Method [$method] does not exist on Redirect.");
+    }
+
+    /**
+     * Flash a piece of data to the session.
+     *
+     * @param  string|array $key
+     * @param  mixed $value
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function with($key, $value = null)
+    {
+        $key = is_array($key) ? $key : [$key => $value];
+
+        foreach ($key as $k => $v) {
+            $this->session->flash($k, $v);
+        }
+
+        return $this;
     }
 }

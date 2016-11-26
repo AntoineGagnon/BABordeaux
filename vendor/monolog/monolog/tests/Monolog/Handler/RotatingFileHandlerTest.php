@@ -45,21 +45,6 @@ class RotatingFileHandlerTest extends TestCase
         });
     }
 
-    private function assertErrorWasTriggered($code, $message)
-    {
-        if (empty($this->lastError)) {
-            $this->fail(
-                sprintf(
-                    'Failed asserting that error with code `%d` and message `%s` was triggered',
-                    $code,
-                    $message
-                )
-            );
-        }
-        $this->assertEquals($code, $this->lastError['code'], sprintf('Expected an error with code %d to be triggered, got `%s` instead', $code, $this->lastError['code']));
-        $this->assertEquals($message, $this->lastError['message'], sprintf('Expected an error with message `%d` to be triggered, got `%s` instead', $message, $this->lastError['message']));
-    }
-
     public function testRotationCreatesNewFile()
     {
         touch(__DIR__.'/Fixtures/foo-'.date('Y-m-d', time() - 86400).'.rot');
@@ -150,6 +135,21 @@ class RotatingFileHandlerTest extends TestCase
                 'or you can set one of the date formats using slashes, underscores and/or dots instead of dashes.'
             );
         }
+    }
+
+    private function assertErrorWasTriggered($code, $message)
+    {
+        if (empty($this->lastError)) {
+            $this->fail(
+                sprintf(
+                    'Failed asserting that error with code `%d` and message `%s` was triggered',
+                    $code,
+                    $message
+                )
+            );
+        }
+        $this->assertEquals($code, $this->lastError['code'], sprintf('Expected an error with code %d to be triggered, got `%s` instead', $code, $this->lastError['code']));
+        $this->assertEquals($message, $this->lastError['message'], sprintf('Expected an error with message `%d` to be triggered, got `%s` instead', $message, $this->lastError['message']));
     }
 
     public function dateFormatProvider()

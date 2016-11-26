@@ -12,6 +12,7 @@
 namespace Monolog\Formatter;
 
 use Exception;
+use Throwable;
 
 /**
  * Encodes whatever record data is passed to it as json
@@ -68,14 +69,6 @@ class JsonFormatter extends NormalizerFormatter
     /**
      * {@inheritdoc}
      */
-    public function format(array $record)
-    {
-        return $this->toJson($this->normalize($record), true) . ($this->appendNewline ? "\n" : '');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function formatBatch(array $records)
     {
         switch ($this->batchMode) {
@@ -86,25 +79,6 @@ class JsonFormatter extends NormalizerFormatter
             default:
                 return $this->formatBatchJson($records);
         }
-    }
-
-    /**
-     * @param bool $include
-     */
-    public function includeStacktraces($include = true)
-    {
-        $this->includeStacktraces = $include;
-    }
-
-    /**
-     * Return a JSON-encoded array of records.
-     *
-     * @param  array  $records
-     * @return string
-     */
-    protected function formatBatchJson(array $records)
-    {
-        return $this->toJson($this->normalize($records), true);
     }
 
     /**
@@ -126,6 +100,14 @@ class JsonFormatter extends NormalizerFormatter
         $this->appendNewline = $oldNewline;
 
         return implode("\n", $records);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function format(array $record)
+    {
+        return $this->toJson($this->normalize($record), true) . ($this->appendNewline ? "\n" : '');
     }
 
     /**
@@ -152,7 +134,7 @@ class JsonFormatter extends NormalizerFormatter
             return $normalized;
         }
 
-        if ($data instanceof Exception) {
+        if ($data instanceof Exception || $data instanceof Throwable) {
             return $this->normalizeException($data);
         }
 
@@ -170,7 +152,7 @@ class JsonFormatter extends NormalizerFormatter
     protected function normalizeException($e)
     {
         // TODO 2.0 only check for Throwable
-        if (!$e instanceof Exception && !$e instanceof \Throwable) {
+        if (!$e instanceof Exception && !$e instanceof Throwable) {
             throw new \InvalidArgumentException('Exception/Throwable expected, got '.gettype($e).' / '.get_class($e));
         }
 
@@ -201,5 +183,24 @@ class JsonFormatter extends NormalizerFormatter
         }
 
         return $data;
+    }
+
+    /**
+     * Return a JSON-encoded array of records.
+     *
+     * @param  array $records
+     * @return string
+     */
+    protected function formatBatchJson(array $records)
+    {
+        return $this->toJson($this->normalize($records), true);
+    }
+
+    /**
+     * @param bool $include
+     */
+    public function includeStacktraces($include = true)
+    {
+        $this->includeStacktraces = $include;
     }
 }

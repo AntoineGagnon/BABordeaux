@@ -78,6 +78,39 @@ class MigrationCreator
     }
 
     /**
+     * Get the class name of a migration name.
+     *
+     * @param  string $name
+     * @return string
+     */
+    protected function getClassName($name)
+    {
+        return Str::studly($name);
+    }
+
+    /**
+     * Get the full path name to the migration.
+     *
+     * @param  string $name
+     * @param  string $path
+     * @return string
+     */
+    protected function getPath($name, $path)
+    {
+        return $path . '/' . $this->getDatePrefix() . '_' . $name . '.php';
+    }
+
+    /**
+     * Get the date prefix for the migration.
+     *
+     * @return string
+     */
+    protected function getDatePrefix()
+    {
+        return date('Y_m_d_His');
+    }
+
+    /**
      * Get the migration stub file.
      *
      * @param  string  $table
@@ -98,6 +131,16 @@ class MigrationCreator
 
             return $this->files->get($this->getStubPath()."/{$stub}");
         }
+    }
+
+    /**
+     * Get the path to the stubs.
+     *
+     * @return string
+     */
+    public function getStubPath()
+    {
+        return __DIR__ . '/stubs';
     }
 
     /**
@@ -123,17 +166,6 @@ class MigrationCreator
     }
 
     /**
-     * Get the class name of a migration name.
-     *
-     * @param  string  $name
-     * @return string
-     */
-    protected function getClassName($name)
-    {
-        return Str::studly($name);
-    }
-
-    /**
      * Fire the registered post create hooks.
      *
      * @return void
@@ -154,38 +186,6 @@ class MigrationCreator
     public function afterCreate(Closure $callback)
     {
         $this->postCreate[] = $callback;
-    }
-
-    /**
-     * Get the full path name to the migration.
-     *
-     * @param  string  $name
-     * @param  string  $path
-     * @return string
-     */
-    protected function getPath($name, $path)
-    {
-        return $path.'/'.$this->getDatePrefix().'_'.$name.'.php';
-    }
-
-    /**
-     * Get the date prefix for the migration.
-     *
-     * @return string
-     */
-    protected function getDatePrefix()
-    {
-        return date('Y_m_d_His');
-    }
-
-    /**
-     * Get the path to the stubs.
-     *
-     * @return string
-     */
-    public function getStubPath()
-    {
-        return __DIR__.'/stubs';
     }
 
     /**

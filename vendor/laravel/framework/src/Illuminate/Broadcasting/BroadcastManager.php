@@ -148,6 +148,16 @@ class BroadcastManager implements FactoryContract
     }
 
     /**
+     * Get the default driver name.
+     *
+     * @return string
+     */
+    public function getDefaultDriver()
+    {
+        return $this->app['config']['broadcasting.default'];
+    }
+
+    /**
      * Attempt to get the connection from the local cache.
      *
      * @param  string  $name
@@ -188,6 +198,17 @@ class BroadcastManager implements FactoryContract
     }
 
     /**
+     * Get the connection configuration.
+     *
+     * @param  string $name
+     * @return array
+     */
+    protected function getConfig($name)
+    {
+        return $this->app['config']["broadcasting.connections.{$name}"];
+    }
+
+    /**
      * Call a custom driver creator.
      *
      * @param  array  $config
@@ -196,6 +217,43 @@ class BroadcastManager implements FactoryContract
     protected function callCustomCreator(array $config)
     {
         return $this->customCreators[$config['driver']]($this->app, $config);
+    }
+
+    /**
+     * Set the default driver name.
+     *
+     * @param  string $name
+     * @return void
+     */
+    public function setDefaultDriver($name)
+    {
+        $this->app['config']['broadcasting.default'] = $name;
+    }
+
+    /**
+     * Register a custom driver creator Closure.
+     *
+     * @param  string $driver
+     * @param  \Closure $callback
+     * @return $this
+     */
+    public function extend($driver, Closure $callback)
+    {
+        $this->customCreators[$driver] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Dynamically call the default driver instance.
+     *
+     * @param  string $method
+     * @param  array $parameters
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+        return $this->driver()->$method(...$parameters);
     }
 
     /**
@@ -246,63 +304,5 @@ class BroadcastManager implements FactoryContract
     protected function createNullDriver(array $config)
     {
         return new NullBroadcaster;
-    }
-
-    /**
-     * Get the connection configuration.
-     *
-     * @param  string  $name
-     * @return array
-     */
-    protected function getConfig($name)
-    {
-        return $this->app['config']["broadcasting.connections.{$name}"];
-    }
-
-    /**
-     * Get the default driver name.
-     *
-     * @return string
-     */
-    public function getDefaultDriver()
-    {
-        return $this->app['config']['broadcasting.default'];
-    }
-
-    /**
-     * Set the default driver name.
-     *
-     * @param  string  $name
-     * @return void
-     */
-    public function setDefaultDriver($name)
-    {
-        $this->app['config']['broadcasting.default'] = $name;
-    }
-
-    /**
-     * Register a custom driver creator Closure.
-     *
-     * @param  string    $driver
-     * @param  \Closure  $callback
-     * @return $this
-     */
-    public function extend($driver, Closure $callback)
-    {
-        $this->customCreators[$driver] = $callback;
-
-        return $this;
-    }
-
-    /**
-     * Dynamically call the default driver instance.
-     *
-     * @param  string  $method
-     * @param  array   $parameters
-     * @return mixed
-     */
-    public function __call($method, $parameters)
-    {
-        return $this->driver()->$method(...$parameters);
     }
 }

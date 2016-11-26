@@ -51,17 +51,6 @@ trait InteractsWithPages
     protected $uploads = [];
 
     /**
-     * Visit the given URI with a GET request.
-     *
-     * @param  string  $uri
-     * @return $this
-     */
-    public function visit($uri)
-    {
-        return $this->makeRequest('GET', $uri);
-    }
-
-    /**
      * Visit the given named route with a GET request.
      *
      * @param  string  $route
@@ -99,44 +88,28 @@ trait InteractsWithPages
     }
 
     /**
-     * Clean the crawler and the subcrawlers values to reset the page context.
+     * Assert that a given page successfully loaded.
      *
+     * @param  string $uri
+     * @param  string|null $message
      * @return void
-     */
-    protected function resetPageContext()
-    {
-        $this->crawler = null;
-
-        $this->subCrawlers = [];
-    }
-
-    /**
-     * Make a request to the application using the given form.
      *
-     * @param  \Symfony\Component\DomCrawler\Form  $form
-     * @param  array  $uploads
-     * @return $this
+     * @throws \Illuminate\Foundation\Testing\HttpException
      */
-    protected function makeRequestUsingForm(Form $form, array $uploads = [])
+    protected function assertPageLoaded($uri, $message = null)
     {
-        $files = $this->convertUploadsForTesting($form, $uploads);
+        $status = $this->response->getStatusCode();
 
-        return $this->makeRequest(
-            $form->getMethod(), $form->getUri(), $this->extractParametersFromForm($form), [], $files
-        );
-    }
+        try {
+            $this->assertEquals(200, $status);
+        } catch (PHPUnitException $e) {
+            $message = $message ?: "A request to [{$uri}] failed. Received status code [{$status}].";
 
-    /**
-     * Extract the parameters from the given form.
-     *
-     * @param  \Symfony\Component\DomCrawler\Form  $form
-     * @return array
-     */
-    protected function extractParametersFromForm(Form $form)
-    {
-        parse_str(http_build_query($form->getValues()), $parameters);
+            $responseException = isset($this->response->exception)
+                ? $this->response->exception : null;
 
-        return $parameters;
+            throw new HttpException($message, null, $responseException);
+        }
     }
 
     /**
@@ -165,60 +138,6 @@ trait InteractsWithPages
         $this->uploads = [];
 
         return $this;
-    }
-
-    /**
-     * Assert that the current page matches a given URI.
-     *
-     * @param  string  $uri
-     * @return $this
-     */
-    protected function seePageIs($uri)
-    {
-        $this->assertPageLoaded($uri = $this->prepareUrlForRequest($uri));
-
-        $this->assertEquals(
-            $uri, $this->currentUri, "Did not land on expected page [{$uri}].\n"
-        );
-
-        return $this;
-    }
-
-    /**
-     * Assert that the current page matches a given named route.
-     *
-     * @param  string  $route
-     * @param  array  $parameters
-     * @return $this
-     */
-    protected function seeRouteIs($route, $parameters = [])
-    {
-        return $this->seePageIs(route($route, $parameters));
-    }
-
-    /**
-     * Assert that a given page successfully loaded.
-     *
-     * @param  string  $uri
-     * @param  string|null  $message
-     * @return void
-     *
-     * @throws \Illuminate\Foundation\Testing\HttpException
-     */
-    protected function assertPageLoaded($uri, $message = null)
-    {
-        $status = $this->response->getStatusCode();
-
-        try {
-            $this->assertEquals(200, $status);
-        } catch (PHPUnitException $e) {
-            $message = $message ?: "A request to [{$uri}] failed. Received status code [{$status}].";
-
-            $responseException = isset($this->response->exception)
-                    ? $this->response->exception : null;
-
-            throw new HttpException($message, null, $responseException);
-        }
     }
 
     /**
@@ -254,6 +173,18 @@ trait InteractsWithPages
     }
 
     /**
+     * Assert that a given string is seen on the current HTML.
+     *
+     * @param  string $text
+     * @param  bool $negate
+     * @return $this
+     */
+    public function see($text, $negate = false)
+    {
+        return $this->assertInPage(new HasSource($text), $negate);
+    }
+
+    /**
      * Assert the given constraint.
      *
      * @param  \Illuminate\Foundation\Testing\Constraints\PageConstraint  $constraint
@@ -273,18 +204,6 @@ trait InteractsWithPages
         );
 
         return $this;
-    }
-
-    /**
-     * Assert that a given string is seen on the current HTML.
-     *
-     * @param  string  $text
-     * @param  bool  $negate
-     * @return $this
-     */
-    public function see($text, $negate = false)
-    {
-        return $this->assertInPage(new HasSource($text), $negate);
     }
 
     /**
@@ -470,6 +389,47 @@ trait InteractsWithPages
     }
 
     /**
+     * Clean the crawler and the subcrawlers values to reset the page context.
+     *
+     * @return void
+     */
+    protected function resetPageContext()
+    {
+        $this->crawler = null;
+
+        $this->subCrawlers = [];
+    }
+
+    /**
+     * Assert that the current page matches a given named route.
+     *
+     * @param  string $route
+     * @param  array $parameters
+     * @return $this
+     */
+    protected function seeRouteIs($route, $parameters = [])
+    {
+        return $this->seePageIs(route($route, $parameters));
+    }
+
+    /**
+     * Assert that the current page matches a given URI.
+     *
+     * @param  string $uri
+     * @return $this
+     */
+    protected function seePageIs($uri)
+    {
+        $this->assertPageLoaded($uri = $this->prepareUrlForRequest($uri));
+
+        $this->assertEquals(
+            $uri, $this->currentUri, "Did not land on expected page [{$uri}].\n"
+        );
+
+        return $this;
+    }
+
+    /**
      * Click a link with the given body, name, or ID attribute.
      *
      * @param  string  $name
@@ -497,6 +457,39 @@ trait InteractsWithPages
     }
 
     /**
+     * Filter elements according to the given name or ID attribute.
+     *
+     * @param  string $name
+     * @param  array|string $elements
+     * @return \Symfony\Component\DomCrawler\Crawler
+     */
+    protected function filterByNameOrId($name, $elements = '*')
+    {
+        $name = str_replace('#', '', $name);
+
+        $id = str_replace(['[', ']'], ['\\[', '\\]'], $name);
+
+        $elements = is_array($elements) ? $elements : [$elements];
+
+        array_walk($elements, function (&$element) use ($name, $id) {
+            $element = "{$element}#{$id}, {$element}[name='{$name}']";
+        });
+
+        return $this->crawler()->filter(implode(', ', $elements));
+    }
+
+    /**
+     * Visit the given URI with a GET request.
+     *
+     * @param  string $uri
+     * @return $this
+     */
+    public function visit($uri)
+    {
+        return $this->makeRequest('GET', $uri);
+    }
+
+    /**
      * Fill an input field with the given text.
      *
      * @param  string  $text
@@ -506,6 +499,43 @@ trait InteractsWithPages
     protected function type($text, $element)
     {
         return $this->storeInput($element, $text);
+    }
+
+    /**
+     * Store a form input in the local array.
+     *
+     * @param  string $element
+     * @param  string $text
+     * @return $this
+     */
+    protected function storeInput($element, $text)
+    {
+        $this->assertFilterProducesResults($element);
+
+        $element = str_replace(['#', '[]'], '', $element);
+
+        $this->inputs[$element] = $text;
+
+        return $this;
+    }
+
+    /**
+     * Assert that a filtered Crawler returns nodes.
+     *
+     * @param  string $filter
+     * @return void
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function assertFilterProducesResults($filter)
+    {
+        $crawler = $this->filterByNameOrId($filter);
+
+        if (!count($crawler)) {
+            throw new InvalidArgumentException(
+                "Nothing matched the filter [{$filter}] CSS query provided for [{$this->currentUri}]."
+            );
+        }
     }
 
     /**
@@ -583,103 +613,19 @@ trait InteractsWithPages
     }
 
     /**
-     * Fill the form with the given data.
+     * Make a request to the application using the given form.
      *
-     * @param  string  $buttonText
-     * @param  array  $inputs
-     * @return \Symfony\Component\DomCrawler\Form
-     */
-    protected function fillForm($buttonText, $inputs = [])
-    {
-        if (! is_string($buttonText)) {
-            $inputs = $buttonText;
-
-            $buttonText = null;
-        }
-
-        return $this->getForm($buttonText)->setValues($inputs);
-    }
-
-    /**
-     * Get the form from the page with the given submit button text.
-     *
-     * @param  string|null  $buttonText
-     * @return \Symfony\Component\DomCrawler\Form
-     *
-     * @throws \InvalidArgumentException
-     */
-    protected function getForm($buttonText = null)
-    {
-        try {
-            if ($buttonText) {
-                return $this->crawler()->selectButton($buttonText)->form();
-            }
-
-            return $this->crawler()->filter('form')->form();
-        } catch (InvalidArgumentException $e) {
-            throw new InvalidArgumentException(
-                "Could not find a form that has submit button [{$buttonText}]."
-            );
-        }
-    }
-
-    /**
-     * Store a form input in the local array.
-     *
-     * @param  string  $element
-     * @param  string  $text
+     * @param  \Symfony\Component\DomCrawler\Form $form
+     * @param  array $uploads
      * @return $this
      */
-    protected function storeInput($element, $text)
+    protected function makeRequestUsingForm(Form $form, array $uploads = [])
     {
-        $this->assertFilterProducesResults($element);
+        $files = $this->convertUploadsForTesting($form, $uploads);
 
-        $element = str_replace(['#', '[]'], '', $element);
-
-        $this->inputs[$element] = $text;
-
-        return $this;
-    }
-
-    /**
-     * Assert that a filtered Crawler returns nodes.
-     *
-     * @param  string  $filter
-     * @return void
-     *
-     * @throws \InvalidArgumentException
-     */
-    protected function assertFilterProducesResults($filter)
-    {
-        $crawler = $this->filterByNameOrId($filter);
-
-        if (! count($crawler)) {
-            throw new InvalidArgumentException(
-                "Nothing matched the filter [{$filter}] CSS query provided for [{$this->currentUri}]."
-            );
-        }
-    }
-
-    /**
-     * Filter elements according to the given name or ID attribute.
-     *
-     * @param  string  $name
-     * @param  array|string  $elements
-     * @return \Symfony\Component\DomCrawler\Crawler
-     */
-    protected function filterByNameOrId($name, $elements = '*')
-    {
-        $name = str_replace('#', '', $name);
-
-        $id = str_replace(['[', ']'], ['\\[', '\\]'], $name);
-
-        $elements = is_array($elements) ? $elements : [$elements];
-
-        array_walk($elements, function (&$element) use ($name, $id) {
-            $element = "{$element}#{$id}, {$element}[name='{$name}']";
-        });
-
-        return $this->crawler()->filter(implode(', ', $elements));
+        return $this->makeRequest(
+            $form->getMethod(), $form->getUri(), $this->extractParametersFromForm($form), [], $files
+        );
     }
 
     /**
@@ -713,6 +659,21 @@ trait InteractsWithPages
     }
 
     /**
+     * Create an UploadedFile instance for testing.
+     *
+     * @param  array $file
+     * @param  array $uploads
+     * @param  string $name
+     * @return \Illuminate\Http\UploadedFile
+     */
+    protected function getUploadedFileForTesting($file, $uploads, $name)
+    {
+        return new UploadedFile(
+            $file['tmp_name'], basename($uploads[$name]), $file['type'], $file['size'], $file['error'], true
+        );
+    }
+
+    /**
      * Store an array based file upload with the proper nested array structure.
      *
      * @param  array  $uploads
@@ -737,17 +698,56 @@ trait InteractsWithPages
     }
 
     /**
-     * Create an UploadedFile instance for testing.
+     * Extract the parameters from the given form.
      *
-     * @param  array  $file
-     * @param  array  $uploads
-     * @param  string  $name
-     * @return \Illuminate\Http\UploadedFile
+     * @param  \Symfony\Component\DomCrawler\Form $form
+     * @return array
      */
-    protected function getUploadedFileForTesting($file, $uploads, $name)
+    protected function extractParametersFromForm(Form $form)
     {
-        return new UploadedFile(
-            $file['tmp_name'], basename($uploads[$name]), $file['type'], $file['size'], $file['error'], true
-        );
+        parse_str(http_build_query($form->getValues()), $parameters);
+
+        return $parameters;
+    }
+
+    /**
+     * Fill the form with the given data.
+     *
+     * @param  string $buttonText
+     * @param  array $inputs
+     * @return \Symfony\Component\DomCrawler\Form
+     */
+    protected function fillForm($buttonText, $inputs = [])
+    {
+        if (!is_string($buttonText)) {
+            $inputs = $buttonText;
+
+            $buttonText = null;
+        }
+
+        return $this->getForm($buttonText)->setValues($inputs);
+    }
+
+    /**
+     * Get the form from the page with the given submit button text.
+     *
+     * @param  string|null $buttonText
+     * @return \Symfony\Component\DomCrawler\Form
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function getForm($buttonText = null)
+    {
+        try {
+            if ($buttonText) {
+                return $this->crawler()->selectButton($buttonText)->form();
+            }
+
+            return $this->crawler()->filter('form')->form();
+        } catch (InvalidArgumentException $e) {
+            throw new InvalidArgumentException(
+                "Could not find a form that has submit button [{$buttonText}]."
+            );
+        }
     }
 }

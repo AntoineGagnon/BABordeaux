@@ -47,6 +47,19 @@ class JoinClause extends Builder
     }
 
     /**
+     * Add an "or on" clause to the join.
+     *
+     * @param  \Closure|string $first
+     * @param  string|null $operator
+     * @param  string|null $second
+     * @return \Illuminate\Database\Query\JoinClause
+     */
+    public function orOn($first, $operator = null, $second = null)
+    {
+        return $this->on($first, $operator, $second, 'or');
+    }
+
+    /**
      * Add an "on" clause to the join.
      *
      * On clauses can be chained, e.g.
@@ -73,19 +86,6 @@ class JoinClause extends Builder
         }
 
         return $this->whereColumn($first, $operator, $second, $boolean);
-    }
-
-    /**
-     * Add an "or on" clause to the join.
-     *
-     * @param  \Closure|string  $first
-     * @param  string|null  $operator
-     * @param  string|null  $second
-     * @return \Illuminate\Database\Query\JoinClause
-     */
-    public function orOn($first, $operator = null, $second = null)
-    {
-        return $this->on($first, $operator, $second, 'or');
     }
 
     /**

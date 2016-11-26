@@ -75,6 +75,7 @@ class Kernel implements KernelContract
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
         \Illuminate\Auth\Middleware\Authenticate::class,
+        \Illuminate\Session\Middleware\AuthenticateSession::class,
         \Illuminate\Routing\Middleware\SubstituteBindings::class,
         \Illuminate\Auth\Middleware\Authorize::class,
     ];
@@ -147,6 +148,65 @@ class Kernel implements KernelContract
                     ->send($request)
                     ->through($this->app->shouldSkipMiddleware() ? [] : $this->middleware)
                     ->then($this->dispatchToRouter());
+    }
+
+    /**
+     * Bootstrap the application for HTTP requests.
+     *
+     * @return void
+     */
+    public function bootstrap()
+    {
+        if (!$this->app->hasBeenBootstrapped()) {
+            $this->app->bootstrapWith($this->bootstrappers());
+        }
+    }
+
+    /**
+     * Get the bootstrap classes for the application.
+     *
+     * @return array
+     */
+    protected function bootstrappers()
+    {
+        return $this->bootstrappers;
+    }
+
+    /**
+     * Get the route dispatcher callback.
+     *
+     * @return \Closure
+     */
+    protected function dispatchToRouter()
+    {
+        return function ($request) {
+            $this->app->instance('request', $request);
+
+            return $this->router->dispatch($request);
+        };
+    }
+
+    /**
+     * Report the exception to the exception handler.
+     *
+     * @param  \Exception $e
+     * @return void
+     */
+    protected function reportException(Exception $e)
+    {
+        $this->app[ExceptionHandler::class]->report($e);
+    }
+
+    /**
+     * Render the exception to a response.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Exception $e
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function renderException($request, Exception $e)
+    {
+        return $this->app[ExceptionHandler::class]->render($request, $e);
     }
 
     /**
@@ -243,32 +303,6 @@ class Kernel implements KernelContract
     }
 
     /**
-     * Bootstrap the application for HTTP requests.
-     *
-     * @return void
-     */
-    public function bootstrap()
-    {
-        if (! $this->app->hasBeenBootstrapped()) {
-            $this->app->bootstrapWith($this->bootstrappers());
-        }
-    }
-
-    /**
-     * Get the route dispatcher callback.
-     *
-     * @return \Closure
-     */
-    protected function dispatchToRouter()
-    {
-        return function ($request) {
-            $this->app->instance('request', $request);
-
-            return $this->router->dispatch($request);
-        };
-    }
-
-    /**
      * Determine if the kernel has a given middleware.
      *
      * @param  string  $middleware
@@ -277,39 +311,6 @@ class Kernel implements KernelContract
     public function hasMiddleware($middleware)
     {
         return in_array($middleware, $this->middleware);
-    }
-
-    /**
-     * Get the bootstrap classes for the application.
-     *
-     * @return array
-     */
-    protected function bootstrappers()
-    {
-        return $this->bootstrappers;
-    }
-
-    /**
-     * Report the exception to the exception handler.
-     *
-     * @param  \Exception  $e
-     * @return void
-     */
-    protected function reportException(Exception $e)
-    {
-        $this->app[ExceptionHandler::class]->report($e);
-    }
-
-    /**
-     * Render the exception to a response.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $e
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    protected function renderException($request, Exception $e)
-    {
-        return $this->app[ExceptionHandler::class]->render($request, $e);
     }
 
     /**

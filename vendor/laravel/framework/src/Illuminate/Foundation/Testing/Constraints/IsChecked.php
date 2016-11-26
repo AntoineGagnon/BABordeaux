@@ -16,16 +16,6 @@ class IsChecked extends FormFieldConstraint
     }
 
     /**
-     * Get the valid elements.
-     *
-     * @return string
-     */
-    protected function validElements()
-    {
-        return "input[type='checkbox']";
-    }
-
-    /**
      * Determine if the checkbox is checked.
      *
      * @param  \Symfony\Component\DomCrawler\Crawler|string  $crawler
@@ -36,6 +26,16 @@ class IsChecked extends FormFieldConstraint
         $crawler = $this->crawler($crawler);
 
         return ! is_null($this->field($crawler)->attr('checked'));
+    }
+
+    /**
+     * Get the valid elements.
+     *
+     * @return string
+     */
+    protected function validElements()
+    {
+        return "input[type='checkbox']";
     }
 
     /**

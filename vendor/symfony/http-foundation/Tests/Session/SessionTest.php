@@ -35,18 +35,6 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     protected $session;
 
-    protected function setUp()
-    {
-        $this->storage = new MockArraySessionStorage();
-        $this->session = new Session($this->storage, new AttributeBag(), new FlashBag());
-    }
-
-    protected function tearDown()
-    {
-        $this->storage = null;
-        $this->session = null;
-    }
-
     public function testStart()
     {
         $this->assertEquals('', $this->session->getId());
@@ -217,5 +205,17 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     public function testGetMeta()
     {
         $this->assertInstanceOf('Symfony\Component\HttpFoundation\Session\Storage\MetadataBag', $this->session->getMetadataBag());
+    }
+
+    protected function setUp()
+    {
+        $this->storage = new MockArraySessionStorage();
+        $this->session = new Session($this->storage, new AttributeBag(), new FlashBag());
+    }
+
+    protected function tearDown()
+    {
+        $this->storage = null;
+        $this->session = null;
     }
 }

@@ -34,6 +34,16 @@ class ReversePageConstraint extends PageConstraint
     }
 
     /**
+     * Get a string representation of the object.
+     *
+     * @return string
+     */
+    public function toString()
+    {
+        return $this->pageConstraint->toString();
+    }
+
+    /**
      * Get the description of the failure.
      *
      * This method will attempt to negate the original description.
@@ -43,15 +53,5 @@ class ReversePageConstraint extends PageConstraint
     protected function getFailureDescription()
     {
         return $this->pageConstraint->getReverseFailureDescription();
-    }
-
-    /**
-     * Get a string representation of the object.
-     *
-     * @return string
-     */
-    public function toString()
-    {
-        return $this->pageConstraint->toString();
     }
 }

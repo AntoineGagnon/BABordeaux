@@ -3,7 +3,7 @@
 
 @section('content')
 
-    <div class="panel panel-primary">
+    <div class="panel panel-primary notranslate">
         <div class="panel-heading">
             <h1>Panneau administrateur</h1>
         </div>

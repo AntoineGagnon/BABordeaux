@@ -30,25 +30,34 @@ class TaggedCache extends Repository
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function fireCacheEvent($event, $payload)
-    {
-        $payload[] = $this->tags->getNames();
-
-        parent::fireCacheEvent($event, $payload);
-    }
-
-    /**
      * Increment the value of an item in the cache.
      *
-     * @param  string  $key
-     * @param  mixed   $value
+     * @param  string $key
+     * @param  mixed $value
      * @return void
      */
     public function increment($key, $value = 1)
     {
         $this->store->increment($this->itemKey($key), $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function itemKey($key)
+    {
+        return $this->taggedItemKey($key);
+    }
+
+    /**
+     * Get a fully qualified key for a tagged item.
+     *
+     * @param  string  $key
+     * @return string
+     */
+    public function taggedItemKey($key)
+    {
+        return sha1($this->tags->getNamespace()) . ':' . $key;
     }
 
     /**
@@ -76,19 +85,10 @@ class TaggedCache extends Repository
     /**
      * {@inheritdoc}
      */
-    protected function itemKey($key)
+    protected function fireCacheEvent($event, $payload)
     {
-        return $this->taggedItemKey($key);
-    }
+        $payload[] = $this->tags->getNames();
 
-    /**
-     * Get a fully qualified key for a tagged item.
-     *
-     * @param  string  $key
-     * @return string
-     */
-    public function taggedItemKey($key)
-    {
-        return sha1($this->tags->getNamespace()).':'.$key;
+        parent::fireCacheEvent($event, $payload);
     }
 }

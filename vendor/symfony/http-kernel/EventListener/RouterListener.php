@@ -65,11 +65,12 @@ class RouterListener implements EventSubscriberInterface
         $this->logger = $logger;
     }
 
-    private function setCurrentRequest(Request $request = null)
+    public static function getSubscribedEvents()
     {
-        if (null !== $request) {
-            $this->context->fromRequest($request);
-        }
+        return array(
+            KernelEvents::REQUEST => array(array('onKernelRequest', 32)),
+            KernelEvents::FINISH_REQUEST => array(array('onKernelFinishRequest', 0)),
+        );
     }
 
     /**
@@ -81,6 +82,13 @@ class RouterListener implements EventSubscriberInterface
     public function onKernelFinishRequest(FinishRequestEvent $event)
     {
         $this->setCurrentRequest($this->requestStack->getParentRequest());
+    }
+
+    private function setCurrentRequest(Request $request = null)
+    {
+        if (null !== $request) {
+            $this->context->fromRequest($request);
+        }
     }
 
     public function onKernelRequest(GetResponseEvent $event)
@@ -128,13 +136,5 @@ class RouterListener implements EventSubscriberInterface
 
             throw new MethodNotAllowedHttpException($e->getAllowedMethods(), $message, $e);
         }
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return array(
-            KernelEvents::REQUEST => array(array('onKernelRequest', 32)),
-            KernelEvents::FINISH_REQUEST => array(array('onKernelFinishRequest', 0)),
-        );
     }
 }

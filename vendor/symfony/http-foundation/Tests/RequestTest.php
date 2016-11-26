@@ -836,6 +836,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('DELETE', $request->getMethod(), '->getMethod() returns the method from X-HTTP-Method-Override if defined and POST');
     }
 
+    private function disableHttpMethodParameterOverride()
+    {
+        $class = new \ReflectionClass('Symfony\\Component\\HttpFoundation\\Request');
+        $property = $class->getProperty('httpMethodParameterOverride');
+        $property->setAccessible(true);
+        $property->setValue(false);
+    }
+
     /**
      * @dataProvider testGetClientIpsProvider
      */
@@ -846,6 +854,24 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected[0], $request->getClientIp());
 
         Request::setTrustedProxies(array());
+    }
+
+    private function getRequestInstanceForClientIpTests($remoteAddr, $httpForwardedFor, $trustedProxies)
+    {
+        $request = new Request();
+
+        $server = array('REMOTE_ADDR' => $remoteAddr);
+        if (null !== $httpForwardedFor) {
+            $server['HTTP_X_FORWARDED_FOR'] = $httpForwardedFor;
+        }
+
+        if ($trustedProxies) {
+            Request::setTrustedProxies($trustedProxies);
+        }
+
+        $request->initialize(array(), array(), array(), array(), array(), $server);
+
+        return $request;
     }
 
     /**
@@ -870,6 +896,25 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $request->getClientIps());
 
         Request::setTrustedProxies(array());
+    }
+
+    private function getRequestInstanceForClientIpsForwardedTests($remoteAddr, $httpForwarded, $trustedProxies)
+    {
+        $request = new Request();
+
+        $server = array('REMOTE_ADDR' => $remoteAddr);
+
+        if (null !== $httpForwarded) {
+            $server['HTTP_FORWARDED'] = $httpForwarded;
+        }
+
+        if ($trustedProxies) {
+            Request::setTrustedProxies($trustedProxies);
+        }
+
+        $request->initialize(array(), array(), array(), array(), array(), $server);
+
+        return $request;
     }
 
     public function testGetClientIpsForwardedProvider()
@@ -1107,7 +1152,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             array('put'),
             array('delete'),
             array('patch'),
-
         );
     }
 
@@ -1618,51 +1662,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             array('fo+o/bar', 'fo+o', 'fo+o'),
             array('fo%2Bo/bar', 'fo+o', 'fo%2Bo'),
         );
-    }
-
-    private function disableHttpMethodParameterOverride()
-    {
-        $class = new \ReflectionClass('Symfony\\Component\\HttpFoundation\\Request');
-        $property = $class->getProperty('httpMethodParameterOverride');
-        $property->setAccessible(true);
-        $property->setValue(false);
-    }
-
-    private function getRequestInstanceForClientIpTests($remoteAddr, $httpForwardedFor, $trustedProxies)
-    {
-        $request = new Request();
-
-        $server = array('REMOTE_ADDR' => $remoteAddr);
-        if (null !== $httpForwardedFor) {
-            $server['HTTP_X_FORWARDED_FOR'] = $httpForwardedFor;
-        }
-
-        if ($trustedProxies) {
-            Request::setTrustedProxies($trustedProxies);
-        }
-
-        $request->initialize(array(), array(), array(), array(), array(), $server);
-
-        return $request;
-    }
-
-    private function getRequestInstanceForClientIpsForwardedTests($remoteAddr, $httpForwarded, $trustedProxies)
-    {
-        $request = new Request();
-
-        $server = array('REMOTE_ADDR' => $remoteAddr);
-
-        if (null !== $httpForwarded) {
-            $server['HTTP_FORWARDED'] = $httpForwarded;
-        }
-
-        if ($trustedProxies) {
-            Request::setTrustedProxies($trustedProxies);
-        }
-
-        $request->initialize(array(), array(), array(), array(), array(), $server);
-
-        return $request;
     }
 
     public function testTrustedProxies()

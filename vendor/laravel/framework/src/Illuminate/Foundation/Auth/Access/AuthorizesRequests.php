@@ -23,23 +23,6 @@ trait AuthorizesRequests
     }
 
     /**
-     * Authorize a given action for a user.
-     *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|mixed  $user
-     * @param  mixed  $ability
-     * @param  mixed|array  $arguments
-     * @return \Illuminate\Auth\Access\Response
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
-    public function authorizeForUser($user, $ability, $arguments = [])
-    {
-        list($ability, $arguments) = $this->parseAbilityAndArguments($ability, $arguments);
-
-        return app(Gate::class)->forUser($user)->authorize($ability, $arguments);
-    }
-
-    /**
      * Guesses the ability's name if it wasn't provided.
      *
      * @param  mixed  $ability
@@ -71,6 +54,40 @@ trait AuthorizesRequests
     }
 
     /**
+     * Get the map of resource methods to ability names.
+     *
+     * @return array
+     */
+    protected function resourceAbilityMap()
+    {
+        return [
+            'show' => 'view',
+            'create' => 'create',
+            'store' => 'create',
+            'edit' => 'update',
+            'update' => 'update',
+            'destroy' => 'delete',
+        ];
+    }
+
+    /**
+     * Authorize a given action for a user.
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|mixed $user
+     * @param  mixed $ability
+     * @param  mixed|array $arguments
+     * @return \Illuminate\Auth\Access\Response
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function authorizeForUser($user, $ability, $arguments = [])
+    {
+        list($ability, $arguments) = $this->parseAbilityAndArguments($ability, $arguments);
+
+        return app(Gate::class)->forUser($user)->authorize($ability, $arguments);
+    }
+
+    /**
      * Authorize a resource action based on the incoming request.
      *
      * @param  string  $model
@@ -94,22 +111,5 @@ trait AuthorizesRequests
         foreach ($middleware as $middlewareName => $methods) {
             $this->middleware($middlewareName, $options)->only($methods);
         }
-    }
-
-    /**
-     * Get the map of resource methods to ability names.
-     *
-     * @return array
-     */
-    protected function resourceAbilityMap()
-    {
-        return [
-            'show' => 'view',
-            'create' => 'create',
-            'store' => 'create',
-            'edit' => 'update',
-            'update' => 'update',
-            'destroy' => 'delete',
-        ];
     }
 }

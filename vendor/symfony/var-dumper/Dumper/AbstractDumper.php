@@ -53,6 +53,25 @@ abstract class AbstractDumper implements DataDumperInterface, DumperInterface
     }
 
     /**
+     * Sets the default character encoding to use for non-UTF8 strings.
+     *
+     * @param string $charset The default character encoding to use for non-UTF8 strings
+     *
+     * @return string The previous charset
+     */
+    public function setCharset($charset)
+    {
+        $prev = $this->charset;
+
+        $charset = strtoupper($charset);
+        $charset = null === $charset || 'UTF-8' === $charset || 'UTF8' === $charset ? 'CP1252' : $charset;
+
+        $this->charset = $charset;
+
+        return $prev;
+    }
+
+    /**
      * Sets the output destination of the dumps.
      *
      * @param callable|resource|string $output A line dumper callable, an opened stream or an output path
@@ -73,25 +92,6 @@ abstract class AbstractDumper implements DataDumperInterface, DumperInterface
             $this->outputStream = $output;
             $this->lineDumper = array($this, 'echoLine');
         }
-
-        return $prev;
-    }
-
-    /**
-     * Sets the default character encoding to use for non-UTF8 strings.
-     *
-     * @param string $charset The default character encoding to use for non-UTF8 strings
-     *
-     * @return string The previous charset
-     */
-    public function setCharset($charset)
-    {
-        $prev = $this->charset;
-
-        $charset = strtoupper($charset);
-        $charset = null === $charset || 'UTF-8' === $charset || 'UTF8' === $charset ? 'CP1252' : $charset;
-
-        $this->charset = $charset;
 
         return $prev;
     }

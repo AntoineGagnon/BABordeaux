@@ -24,9 +24,9 @@ class StreamHandler extends AbstractProcessingHandler
 {
     protected $stream;
     protected $url;
-    private $errorMessage;
     protected $filePermission;
     protected $useLocking;
+    private $errorMessage;
     private $dirCreated;
 
     /**
@@ -113,16 +113,31 @@ class StreamHandler extends AbstractProcessingHandler
             flock($this->stream, LOCK_EX);
         }
 
-        fwrite($this->stream, (string) $record['formatted']);
+        $this->streamWrite($this->stream, $record);
 
         if ($this->useLocking) {
             flock($this->stream, LOCK_UN);
         }
     }
 
-    private function customErrorHandler($code, $msg)
+    private function createDir()
     {
-        $this->errorMessage = preg_replace('{^(fopen|mkdir)\(.*?\): }', '', $msg);
+        // Do not try to create dir if it has already been tried.
+        if ($this->dirCreated) {
+            return;
+        }
+
+        $dir = $this->getDirFromStream($this->url);
+        if (null !== $dir && !is_dir($dir)) {
+            $this->errorMessage = null;
+            set_error_handler(array($this, 'customErrorHandler'));
+            $status = mkdir($dir, 0777, true);
+            restore_error_handler();
+            if (false === $status) {
+                throw new \UnexpectedValueException(sprintf('There is no existing directory at "%s" and its not buildable: ' . $this->errorMessage, $dir));
+            }
+        }
+        $this->dirCreated = true;
     }
 
     /**
@@ -144,23 +159,18 @@ class StreamHandler extends AbstractProcessingHandler
         return;
     }
 
-    private function createDir()
+    /**
+     * Write to stream
+     * @param resource $stream
+     * @param array $record
+     */
+    protected function streamWrite($stream, array $record)
     {
-        // Do not try to create dir if it has already been tried.
-        if ($this->dirCreated) {
-            return;
-        }
+        fwrite($stream, (string)$record['formatted']);
+    }
 
-        $dir = $this->getDirFromStream($this->url);
-        if (null !== $dir && !is_dir($dir)) {
-            $this->errorMessage = null;
-            set_error_handler(array($this, 'customErrorHandler'));
-            $status = mkdir($dir, 0777, true);
-            restore_error_handler();
-            if (false === $status) {
-                throw new \UnexpectedValueException(sprintf('There is no existing directory at "%s" and its not buildable: '.$this->errorMessage, $dir));
-            }
-        }
-        $this->dirCreated = true;
+    private function customErrorHandler($code, $msg)
+    {
+        $this->errorMessage = preg_replace('{^(fopen|mkdir)\(.*?\): }', '', $msg);
     }
 }
