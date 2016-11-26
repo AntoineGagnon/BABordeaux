@@ -147,7 +147,16 @@
             // Clic sur #next-button
             $('.next-button').click(onNextButtonClick);
 
+            updateProgressBar();
+
         });
+
+        function updateProgressBar() {
+            var value = 0;
+            value = page / ({{$questionGroups->count()}} -1) * 100;
+            $('.progress-bar').css('width', value + '%').attr('aria-valuenow', value);
+            $('.progress-bar').text(value + "%");
+        }
 
         function onPrevButtonClick() {
             console.log("PrevButtonClicked");
@@ -160,6 +169,7 @@
 
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             $(currentQuestionGroup).removeClass('hidden');
+            updateProgressBar();
 
         }
 
@@ -174,7 +184,7 @@
 
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             $(currentQuestionGroup).removeClass('hidden');
-
+            updateProgressBar();
         }
 
 
