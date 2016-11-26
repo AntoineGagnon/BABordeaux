@@ -11,7 +11,7 @@
 
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h1>Sondage du Musée des Beaux Arts</h1>
+            <h1>Sondage du Musée</h1>
         </div>
 
         <div class="panel-body">

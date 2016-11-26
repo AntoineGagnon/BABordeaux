@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Musée des Beaux Arts</title>
+    <title class="notranslate">Musée des Beaux Arts Bordeaux</title>
     <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <!-- CSS And JavaScript -->
     <link rel="stylesheet" href="{{asset('css/style.css')}}">
@@ -27,7 +27,7 @@
     <nav class="navbar navbar-inverse">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand">Musée des Beaux Arts</a>
+                <a class="navbar-brand notranslate">Musée des Beaux Arts Bordeaux</a>
             </div>
             <ul class="nav navbar-nav">
                 <li class="@if(URL::current() == URL::to('/')) active @endif"><a href="/">Sondage</a></li>
