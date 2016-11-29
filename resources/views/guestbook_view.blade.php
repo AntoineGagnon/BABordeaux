@@ -3,7 +3,7 @@
 @section('content')
 
     @if (!empty($submissionWorked))
-        <div class="alert alert-success alert-dismissable fade in">
+        <div class="alert alert-success alert-dismissable fade in" id="successAlert">
             <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
             Avis ajouté au livre d'or !
         </div>

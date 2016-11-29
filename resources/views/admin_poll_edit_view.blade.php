@@ -20,9 +20,9 @@
 
         <div class="panel-body">
             <!-- Display Validation Errors -->
-            @include('common.errors')
+        @include('common.errors')
 
-            <!-- Question add form -->
+        <!-- Question add form -->
             <div class="row">
                 <div class="col-md-12">
                     <div class="panel-group" id="accordion">
@@ -85,13 +85,17 @@
                                                     <label class="form-check-label">Question obligatoire: </label>
                                                     <label for="is_required_true"> Oui </label><input type="radio" name="is_required" required value="1" />
                                                     <label for="is_required_false"> Non </label><input type="radio" name="is_required" value="0" />
+                                                </div>
+                                                <button type="submit" class="btn btn-success pull-right btn-lg"
+                                                        style="margin-top: 1%">Valider
+                                                </button>
+
                                             </div>
-                                        <button type="submit" class="btn btn-success pull-right btn-lg" style="margin-top: 1%">Valider</button>
 
+                                        </div>
                                     </div>
-
-                                </div>
-                                <input value="0" type="number" class="form-control" id="nb_choices" name="nb_choices" style="display: none"/>
+                                    <input value="0" type="number" class="form-control" id="nb_choices"
+                                           name="nb_choices" style="display: none"/>
 
                             </form>
                         </div>
@@ -101,7 +105,7 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                 <span class="glyphicon glyphicon-th-list"></span>SUPPRIMER DES QUESTIONS</a>
+                                    <span class="glyphicon glyphicon-th-list"></span>SUPPRIMER DES QUESTIONS</a>
                                 </h4>
                             </div>
                             <div id="collapseOne" class="panel-collapse collapse in">
