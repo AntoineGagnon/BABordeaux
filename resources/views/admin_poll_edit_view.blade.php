@@ -11,7 +11,6 @@
         </div>
     @endif
 
-
     <div class="panel panel-default panel-primary notranslate">
         <div class="panel-heading">
             <h1>Édition du sondage</h1>
@@ -20,9 +19,9 @@
 
         <div class="panel-body">
             <!-- Display Validation Errors -->
-        @include('common.errors')
+            @include('common.errors')
 
-        <!-- Question add form -->
+            <!-- Question add form -->
             <div class="row">
                 <div class="col-md-12">
                     <div class="panel-group" id="accordion">
@@ -39,8 +38,7 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="question_type">
-                                                        Type</label>
+                                                    <label for="question_type">Type</label>
                                                     <select class="form-control" id="question_type" name="question_type">
                                                         <option value="openAnswer">Ouverte</option>
                                                         <option value="multipleChoice">Choix multiples</option>
@@ -50,9 +48,13 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label for="Numéro de groupe">
-                                                        Numéro de groupe</label>
-                                                    <input type="number" class="form-control" id="group_id" name="group_id" placeholder="N°" required />
+                                                    <label for="num_group_questions">Numéro du groupe de question: </label>
+                                                    <select class="form-control" id="num_group_questions" name="num_group_questions">
+                                                        @foreach($questionGroups as $questionGroup)
+                                                            <option value="{{ $questionGroup->id }}">{{ $questionGroup->id}}</option>
+                                                        @endforeach
+                                                        <option value="new_question_group">Nouveau groupe</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
@@ -86,16 +88,12 @@
                                                     <label for="is_required_true"> Oui </label><input type="radio" name="is_required" required value="1" />
                                                     <label for="is_required_false"> Non </label><input type="radio" name="is_required" value="0" />
                                                 </div>
-                                                <button type="submit" class="btn btn-success pull-right btn-lg"
-                                                        style="margin-top: 1%">Valider
-                                                </button>
-
                                             </div>
-
                                         </div>
+                                        <button type="submit" class="btn btn-success pull-right btn-lg" style="margin-top: 1%">Valider</button>
                                     </div>
-                                    <input value="0" type="number" class="form-control" id="nb_choices"
-                                           name="nb_choices" style="display: none"/>
+                                </div>
+                                <input value="0" type="number" class="form-control" id="nb_choices" name="nb_choices" style="display: none"/>
 
                             </form>
                         </div>
@@ -105,7 +103,7 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                    <span class="glyphicon glyphicon-th-list"></span>SUPPRIMER DES QUESTIONS</a>
+                                 <span class="glyphicon glyphicon-th-list"></span>SUPPRIMER DES QUESTIONS</a>
                                 </h4>
                             </div>
                             <div id="collapseOne" class="panel-collapse collapse in">
@@ -158,6 +156,8 @@
                 return --oldval;
             });
         });
+
+
     </script>
 @endsection
 

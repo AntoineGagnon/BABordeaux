@@ -84,7 +84,16 @@ class PollController extends Controller
         if(!Auth::check())
             return redirect()->intended('login');
 
-        return view('admin_poll_edit_view', []);
+        $questionGroups = question_group::all();
+
+        foreach($questionGroups as $questionGroup){
+            if(question::where('question_group_id',$questionGroup->id)->count() == 0)
+            {
+                $questionGroup->destroy($questionGroup->id);
+            }
+        }
+
+        return view('admin_poll_edit_view', ['questionGroups' => $questionGroups]);
     }
 
     /**
