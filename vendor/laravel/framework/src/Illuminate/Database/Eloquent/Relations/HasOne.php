@@ -19,7 +19,7 @@ class HasOne extends HasOneOrMany
     /**
      * Return a new model instance in case the relationship does not exist.
      *
-     * @param  \Closure|bool $callback
+     * @param  \Closure|bool  $callback
      * @return $this
      */
     public function withDefault($callback = true)
@@ -37,33 +37,6 @@ class HasOne extends HasOneOrMany
     public function getResults()
     {
         return $this->query->first() ?: $this->getDefaultFor($this->parent);
-    }
-
-    /**
-     * Get the default value for this relation.
-     *
-     * @param  \Illuminate\Database\Eloquent\Model $model
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
-    protected function getDefaultFor(Model $model)
-    {
-        if (!$this->withDefault) {
-            return;
-        }
-
-        $instance = $this->related->newInstance()->setAttribute(
-            $this->getPlainForeignKey(), $model->getAttribute($this->localKey)
-        );
-
-        if (is_callable($this->withDefault)) {
-            return call_user_func($this->withDefault, $instance) ?: $instance;
-        }
-
-        if (is_array($this->withDefault)) {
-            $instance->forceFill($this->withDefault);
-        }
-
-        return $instance;
     }
 
     /**
@@ -85,7 +58,7 @@ class HasOne extends HasOneOrMany
     /**
      * Match the eagerly loaded results to their parents.
      *
-     * @param  array $models
+     * @param  array  $models
      * @param  \Illuminate\Database\Eloquent\Collection  $results
      * @param  string  $relation
      * @return array
@@ -93,5 +66,32 @@ class HasOne extends HasOneOrMany
     public function match(array $models, Collection $results, $relation)
     {
         return $this->matchOne($models, $results, $relation);
+    }
+
+    /**
+     * Get the default value for this relation.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    protected function getDefaultFor(Model $model)
+    {
+        if (! $this->withDefault) {
+            return;
+        }
+
+        $instance = $this->related->newInstance()->setAttribute(
+            $this->getPlainForeignKey(), $model->getAttribute($this->localKey)
+        );
+
+        if (is_callable($this->withDefault)) {
+            return call_user_func($this->withDefault, $instance) ?: $instance;
+        }
+
+        if (is_array($this->withDefault)) {
+            $instance->forceFill($this->withDefault);
+        }
+
+        return $instance;
     }
 }

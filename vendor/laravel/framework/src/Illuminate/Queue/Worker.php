@@ -85,18 +85,6 @@ class Worker
     }
 
     /**
-     * Get the last queue restart timestamp, or null.
-     *
-     * @return int|null
-     */
-    protected function getTimestampOfLastQueueRestart()
-    {
-        if ($this->cache) {
-            return $this->cache->get('illuminate:queue:restart');
-        }
-    }
-
-    /**
      * Register the worker timeout handler (PHP 7.1+).
      *
      * @param  WorkerOptions  $options
@@ -104,7 +92,7 @@ class Worker
      */
     protected function registerTimeoutHandler(WorkerOptions $options)
     {
-        if ($options->timeout == 0 || version_compare(PHP_VERSION, '7.1.0') < 0 || !extension_loaded('pcntl')) {
+        if ($options->timeout == 0 || version_compare(PHP_VERSION, '7.1.0') < 0 || ! extension_loaded('pcntl')) {
             return;
         }
 
@@ -122,12 +110,12 @@ class Worker
     /**
      * Determine if the daemon should process on this iteration.
      *
-     * @param  WorkerOptions $options
+     * @param  WorkerOptions  $options
      * @return bool
      */
     protected function daemonShouldRun(WorkerOptions $options)
     {
-        if (($this->manager->isDownForMaintenance() && !$options->force) ||
+        if (($this->manager->isDownForMaintenance() && ! $options->force) ||
             $this->events->until('illuminate.queue.looping') === false) {
             // If the application is down for maintenance or doesn't want the queues to run
             // we will sleep for one second just in case the developer has it set to not
@@ -138,17 +126,6 @@ class Worker
         }
 
         return true;
-    }
-
-    /**
-     * Sleep the script for a given number of seconds.
-     *
-     * @param  int $seconds
-     * @return void
-     */
-    public function sleep($seconds)
-    {
-        sleep($seconds);
     }
 
     /**
@@ -234,17 +211,36 @@ class Worker
     }
 
     /**
-     * Raise the before queue job event.
+     * Handle an exception that occurred while the job was running.
      *
      * @param  string  $connectionName
      * @param  \Illuminate\Contracts\Queue\Job  $job
+     * @param  \Illuminate\Queue\WorkerOptions  $options
+     * @param  \Exception  $e
      * @return void
+     *
+     * @throws \Exception
      */
-    protected function raiseBeforeJobEvent($connectionName, $job)
+    protected function handleJobException($connectionName, $job, WorkerOptions $options, $e)
     {
-        $this->events->fire(new Events\JobProcessing(
-            $connectionName, $job
-        ));
+        // If we catch an exception, we will attempt to release the job back onto the queue
+        // so it is not lost entirely. This'll let the job be retried at a later time by
+        // another listener (or this same one). We will re-throw this exception after.
+        try {
+            $this->markJobAsFailedIfHasExceededMaxAttempts(
+                $connectionName, $job, (int) $options->maxTries, $e
+            );
+
+            $this->raiseExceptionOccurredJobEvent(
+                $connectionName, $job, $e
+            );
+        } finally {
+            if (! $job->isDeleted()) {
+                $job->release($options->delay);
+            }
+        }
+
+        throw $e;
     }
 
     /**
@@ -270,6 +266,25 @@ class Worker
         $this->failJob($connectionName, $job, $e);
 
         throw $e;
+    }
+
+    /**
+     * Mark the given job as failed if it has exceeded the maximum allowed attempts.
+     *
+     * @param  string  $connectionName
+     * @param  \Illuminate\Contracts\Queue\Job  $job
+     * @param  int  $maxTries
+     * @param  \Exception  $e
+     * @return void
+     */
+    protected function markJobAsFailedIfHasExceededMaxAttempts(
+        $connectionName, $job, $maxTries, $e
+    ) {
+        if ($maxTries === 0 || $job->attempts() < $maxTries) {
+            return;
+        }
+
+        $this->failJob($connectionName, $job, $e);
     }
 
     /**
@@ -299,17 +314,16 @@ class Worker
     }
 
     /**
-     * Raise the failed queue job event.
+     * Raise the before queue job event.
      *
      * @param  string  $connectionName
      * @param  \Illuminate\Contracts\Queue\Job  $job
-     * @param  \Exception $e
      * @return void
      */
-    protected function raiseFailedJobEvent($connectionName, $job, $e)
+    protected function raiseBeforeJobEvent($connectionName, $job)
     {
-        $this->events->fire(new Events\JobFailed(
-            $connectionName, $job, $e
+        $this->events->fire(new Events\JobProcessing(
+            $connectionName, $job
         ));
     }
 
@@ -328,69 +342,31 @@ class Worker
     }
 
     /**
-     * Handle an exception that occurred while the job was running.
-     *
-     * @param  string  $connectionName
-     * @param  \Illuminate\Contracts\Queue\Job  $job
-     * @param  \Illuminate\Queue\WorkerOptions $options
-     * @param  \Exception  $e
-     * @return void
-     *
-     * @throws \Exception
-     */
-    protected function handleJobException($connectionName, $job, WorkerOptions $options, $e)
-    {
-        // If we catch an exception, we will attempt to release the job back onto the queue
-        // so it is not lost entirely. This'll let the job be retried at a later time by
-        // another listener (or this same one). We will re-throw this exception after.
-        try {
-            $this->markJobAsFailedIfHasExceededMaxAttempts(
-                $connectionName, $job, (int)$options->maxTries, $e
-            );
-
-            $this->raiseExceptionOccurredJobEvent(
-                $connectionName, $job, $e
-            );
-        } finally {
-            if (!$job->isDeleted()) {
-                $job->release($options->delay);
-            }
-        }
-
-        throw $e;
-    }
-
-    /**
-     * Mark the given job as failed if it has exceeded the maximum allowed attempts.
-     *
-     * @param  string  $connectionName
-     * @param  \Illuminate\Contracts\Queue\Job  $job
-     * @param  int $maxTries
-     * @param  \Exception  $e
-     * @return void
-     */
-    protected function markJobAsFailedIfHasExceededMaxAttempts(
-        $connectionName, $job, $maxTries, $e
-    )
-    {
-        if ($maxTries === 0 || $job->attempts() < $maxTries) {
-            return;
-        }
-
-        $this->failJob($connectionName, $job, $e);
-    }
-
-    /**
      * Raise the exception occurred queue job event.
      *
-     * @param  string $connectionName
-     * @param  \Illuminate\Contracts\Queue\Job $job
-     * @param  \Exception $e
+     * @param  string  $connectionName
+     * @param  \Illuminate\Contracts\Queue\Job  $job
+     * @param  \Exception  $e
      * @return void
      */
     protected function raiseExceptionOccurredJobEvent($connectionName, $job, $e)
     {
         $this->events->fire(new Events\JobExceptionOccurred(
+            $connectionName, $job, $e
+        ));
+    }
+
+    /**
+     * Raise the failed queue job event.
+     *
+     * @param  string  $connectionName
+     * @param  \Illuminate\Contracts\Queue\Job  $job
+     * @param  \Exception  $e
+     * @return void
+     */
+    protected function raiseFailedJobEvent($connectionName, $job, $e)
+    {
+        $this->events->fire(new Events\JobFailed(
             $connectionName, $job, $e
         ));
     }
@@ -407,17 +383,6 @@ class Worker
     }
 
     /**
-     * Determine if the queue worker should restart.
-     *
-     * @param  int|null $lastRestart
-     * @return bool
-     */
-    protected function queueShouldRestart($lastRestart)
-    {
-        return $this->getTimestampOfLastQueueRestart() != $lastRestart;
-    }
-
-    /**
      * Stop listening and bail out of the script.
      *
      * @return void
@@ -427,6 +392,40 @@ class Worker
         $this->events->fire(new Events\WorkerStopping);
 
         die;
+    }
+
+    /**
+     * Sleep the script for a given number of seconds.
+     *
+     * @param  int   $seconds
+     * @return void
+     */
+    public function sleep($seconds)
+    {
+        sleep($seconds);
+    }
+
+    /**
+     * Get the last queue restart timestamp, or null.
+     *
+     * @return int|null
+     */
+    protected function getTimestampOfLastQueueRestart()
+    {
+        if ($this->cache) {
+            return $this->cache->get('illuminate:queue:restart');
+        }
+    }
+
+    /**
+     * Determine if the queue worker should restart.
+     *
+     * @param  int|null  $lastRestart
+     * @return bool
+     */
+    protected function queueShouldRestart($lastRestart)
+    {
+        return $this->getTimestampOfLastQueueRestart() != $lastRestart;
     }
 
     /**

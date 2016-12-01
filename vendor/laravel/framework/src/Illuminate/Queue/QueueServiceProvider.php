@@ -64,19 +64,6 @@ class QueueServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the connectors on the queue manager.
-     *
-     * @param  \Illuminate\Queue\QueueManager $manager
-     * @return void
-     */
-    public function registerConnectors($manager)
-    {
-        foreach (['Null', 'Sync', 'Database', 'Beanstalkd', 'Redis', 'Sqs'] as $connector) {
-            $this->{"register{$connector}Connector"}($manager);
-        }
-    }
-
-    /**
      * Register the queue worker.
      *
      * @return void
@@ -110,20 +97,6 @@ class QueueServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the queue restart console command.
-     *
-     * @return void
-     */
-    public function registerRestartCommand()
-    {
-        $this->app->singleton('command.queue.restart', function () {
-            return new RestartCommand;
-        });
-
-        $this->commands('command.queue.restart');
-    }
-
-    /**
      * Register the queue listener.
      *
      * @return void
@@ -152,35 +125,30 @@ class QueueServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the failed job services.
+     * Register the queue restart console command.
      *
      * @return void
      */
-    protected function registerFailedJobServices()
+    public function registerRestartCommand()
     {
-        $this->app->singleton('queue.failer', function ($app) {
-            $config = $app['config']['queue.failed'];
-
-            if (isset($config['table'])) {
-                return new DatabaseFailedJobProvider($app['db'], $config['database'], $config['table']);
-            } else {
-                return new NullFailedJobProvider;
-            }
+        $this->app->singleton('command.queue.restart', function () {
+            return new RestartCommand;
         });
+
+        $this->commands('command.queue.restart');
     }
 
     /**
-     * Get the services provided by the provider.
+     * Register the connectors on the queue manager.
      *
-     * @return array
+     * @param  \Illuminate\Queue\QueueManager  $manager
+     * @return void
      */
-    public function provides()
+    public function registerConnectors($manager)
     {
-        return [
-            'queue', 'queue.worker', 'queue.listener', 'queue.failer',
-            'command.queue.work', 'command.queue.listen',
-            'command.queue.restart', 'queue.connection',
-        ];
+        foreach (['Null', 'Sync', 'Database', 'Beanstalkd', 'Redis', 'Sqs'] as $connector) {
+            $this->{"register{$connector}Connector"}($manager);
+        }
     }
 
     /**
@@ -261,5 +229,37 @@ class QueueServiceProvider extends ServiceProvider
         $manager->addConnector('sqs', function () {
             return new SqsConnector;
         });
+    }
+
+    /**
+     * Register the failed job services.
+     *
+     * @return void
+     */
+    protected function registerFailedJobServices()
+    {
+        $this->app->singleton('queue.failer', function ($app) {
+            $config = $app['config']['queue.failed'];
+
+            if (isset($config['table'])) {
+                return new DatabaseFailedJobProvider($app['db'], $config['database'], $config['table']);
+            } else {
+                return new NullFailedJobProvider;
+            }
+        });
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return [
+            'queue', 'queue.worker', 'queue.listener', 'queue.failer',
+            'command.queue.work', 'command.queue.listen',
+            'command.queue.restart', 'queue.connection',
+        ];
     }
 }

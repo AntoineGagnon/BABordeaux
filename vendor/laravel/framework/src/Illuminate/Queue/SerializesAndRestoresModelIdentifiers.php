@@ -42,7 +42,7 @@ trait SerializesAndRestoresModelIdentifiers
 
         return is_array($value->id)
                 ? $this->restoreCollection($value)
-            : $this->getQueryForModelRestoration(new $value->class)->useWritePdo()->findOrFail($value->id);
+                : $this->getQueryForModelRestoration(new $value->class)->useWritePdo()->findOrFail($value->id);
     }
 
     /**
@@ -66,7 +66,7 @@ trait SerializesAndRestoresModelIdentifiers
     /**
      * Get the query for restoration.
      *
-     * @param  \Illuminate\Database\Eloquent\Model $model
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function getQueryForModelRestoration($model)

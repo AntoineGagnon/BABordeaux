@@ -55,20 +55,6 @@ class TinkerCommand extends Command
     }
 
     /**
-     * Get an array of Laravel tailored casters.
-     *
-     * @return array
-     */
-    protected function getCasters()
-    {
-        return [
-            'Illuminate\Foundation\Application' => 'Illuminate\Foundation\Console\IlluminateCaster::castApplication',
-            'Illuminate\Support\Collection' => 'Illuminate\Foundation\Console\IlluminateCaster::castCollection',
-            'Illuminate\Database\Eloquent\Model' => 'Illuminate\Foundation\Console\IlluminateCaster::castModel',
-        ];
-    }
-
-    /**
      * Get artisan commands to pass through to PsySH.
      *
      * @return array
@@ -84,6 +70,20 @@ class TinkerCommand extends Command
         }
 
         return $commands;
+    }
+
+    /**
+     * Get an array of Laravel tailored casters.
+     *
+     * @return array
+     */
+    protected function getCasters()
+    {
+        return [
+            'Illuminate\Foundation\Application' => 'Illuminate\Foundation\Console\IlluminateCaster::castApplication',
+            'Illuminate\Support\Collection' => 'Illuminate\Foundation\Console\IlluminateCaster::castCollection',
+            'Illuminate\Database\Eloquent\Model' => 'Illuminate\Foundation\Console\IlluminateCaster::castModel',
+        ];
     }
 
     /**

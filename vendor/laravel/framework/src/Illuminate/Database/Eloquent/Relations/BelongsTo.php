@@ -10,29 +10,32 @@ use Illuminate\Database\Eloquent\Collection;
 class BelongsTo extends Relation
 {
     /**
-     * The count of self joins.
-     *
-     * @var int
-     */
-    protected static $selfJoinCount = 0;
-    /**
      * The foreign key of the parent model.
      *
      * @var string
      */
     protected $foreignKey;
+
     /**
      * The associated key on the parent model.
      *
      * @var string
      */
     protected $otherKey;
+
     /**
      * The name of the relationship.
      *
      * @var string
      */
     protected $relation;
+
+    /**
+     * The count of self joins.
+     *
+     * @var int
+     */
+    protected static $selfJoinCount = 0;
 
     /**
      * Create a new belongs to relationship instance.
@@ -51,6 +54,16 @@ class BelongsTo extends Relation
         $this->foreignKey = $foreignKey;
 
         parent::__construct($query, $parent);
+    }
+
+    /**
+     * Get the results of the relationship.
+     *
+     * @return mixed
+     */
+    public function getResults()
+    {
+        return $this->query->first();
     }
 
     /**
@@ -123,16 +136,6 @@ class BelongsTo extends Relation
     }
 
     /**
-     * Get the fully qualified foreign key of the relationship.
-     *
-     * @return string
-     */
-    public function getQualifiedForeignKey()
-    {
-        return $this->parent->getTable() . '.' . $this->foreignKey;
-    }
-
-    /**
      * Set the constraints for an eager load of the relation.
      *
      * @param  array  $models
@@ -172,7 +175,7 @@ class BelongsTo extends Relation
         // fail plus returns zero results, which should be what the developer expects.
         if (count($keys) === 0) {
             return [$this->related->getIncrementing() &&
-            $this->related->getKeyType() === 'int' ? 0 : null,];
+                    $this->related->getKeyType() === 'int' ? 0 : null, ];
         }
 
         return array_values(array_unique($keys));
@@ -274,16 +277,6 @@ class BelongsTo extends Relation
     }
 
     /**
-     * Get the results of the relationship.
-     *
-     * @return mixed
-     */
-    public function getResults()
-    {
-        return $this->query->first();
-    }
-
-    /**
      * Get the foreign key of the relationship.
      *
      * @return string
@@ -291,6 +284,16 @@ class BelongsTo extends Relation
     public function getForeignKey()
     {
         return $this->foreignKey;
+    }
+
+    /**
+     * Get the fully qualified foreign key of the relationship.
+     *
+     * @return string
+     */
+    public function getQualifiedForeignKey()
+    {
+        return $this->parent->getTable().'.'.$this->foreignKey;
     }
 
     /**

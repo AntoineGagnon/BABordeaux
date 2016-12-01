@@ -63,7 +63,7 @@ class MailChannel
                 $m->cc($message->cc);
             }
 
-            if (!empty($message->replyTo)) {
+            if (! empty($message->replyTo)) {
                 $m->replyTo($message->replyTo[0], isset($message->replyTo[1]) ? $message->replyTo[1] : null);
             }
 

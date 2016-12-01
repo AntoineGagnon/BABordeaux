@@ -79,6 +79,27 @@ class HasManyThrough extends Relation
     }
 
     /**
+     * Add the constraints for a relationship query.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $parent
+     * @param  array|mixed  $columns
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function getRelationQuery(Builder $query, Builder $parent, $columns = ['*'])
+    {
+        $parentTable = $this->parent->getTable();
+
+        $this->setJoin($query);
+
+        $query->select($columns);
+
+        $key = $this->wrap($parentTable.'.'.$this->firstKey);
+
+        return $query->where($this->getHasCompareKey(), '=', new Expression($key));
+    }
+
+    /**
      * Set the join clause on the query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
@@ -105,37 +126,6 @@ class HasManyThrough extends Relation
     public function parentSoftDeletes()
     {
         return in_array(SoftDeletes::class, class_uses_recursive(get_class($this->parent)));
-    }
-
-    /**
-     * Add the constraints for a relationship query.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  \Illuminate\Database\Eloquent\Builder $parent
-     * @param  array|mixed $columns
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function getRelationQuery(Builder $query, Builder $parent, $columns = ['*'])
-    {
-        $parentTable = $this->parent->getTable();
-
-        $this->setJoin($query);
-
-        $query->select($columns);
-
-        $key = $this->wrap($parentTable . '.' . $this->firstKey);
-
-        return $query->where($this->getHasCompareKey(), '=', new Expression($key));
-    }
-
-    /**
-     * Get the key for comparing against the parent key in "has" query.
-     *
-     * @return string
-     */
-    public function getHasCompareKey()
-    {
-        return $this->farParent->getQualifiedKeyName();
     }
 
     /**
@@ -228,9 +218,99 @@ class HasManyThrough extends Relation
     }
 
     /**
+     * Execute the query and get the first related model.
+     *
+     * @param  array   $columns
+     * @return mixed
+     */
+    public function first($columns = ['*'])
+    {
+        $results = $this->take(1)->get($columns);
+
+        return count($results) > 0 ? $results->first() : null;
+    }
+
+    /**
+     * Execute the query and get the first result or throw an exception.
+     *
+     * @param  array  $columns
+     * @return \Illuminate\Database\Eloquent\Model|static
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public function firstOrFail($columns = ['*'])
+    {
+        if (! is_null($model = $this->first($columns))) {
+            return $model;
+        }
+
+        throw (new ModelNotFoundException)->setModel(get_class($this->parent));
+    }
+
+    /**
+     * Find a related model by its primary key.
+     *
+     * @param  mixed  $id
+     * @param  array  $columns
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|null
+     */
+    public function find($id, $columns = ['*'])
+    {
+        if (is_array($id)) {
+            return $this->findMany($id, $columns);
+        }
+
+        $this->where($this->getRelated()->getQualifiedKeyName(), '=', $id);
+
+        return $this->first($columns);
+    }
+
+    /**
+     * Find multiple related models by their primary keys.
+     *
+     * @param  mixed  $ids
+     * @param  array  $columns
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function findMany($ids, $columns = ['*'])
+    {
+        if (empty($ids)) {
+            return $this->getRelated()->newCollection();
+        }
+
+        $this->whereIn($this->getRelated()->getQualifiedKeyName(), $ids);
+
+        return $this->get($columns);
+    }
+
+    /**
+     * Find a related model by its primary key or throw an exception.
+     *
+     * @param  mixed  $id
+     * @param  array  $columns
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public function findOrFail($id, $columns = ['*'])
+    {
+        $result = $this->find($id, $columns);
+
+        if (is_array($id)) {
+            if (count($result) == count(array_unique($id))) {
+                return $result;
+            }
+        } elseif (! is_null($result)) {
+            return $result;
+        }
+
+        throw (new ModelNotFoundException)->setModel(get_class($this->parent));
+    }
+
+    /**
      * Execute the query as a "select" statement.
      *
-     * @param  array $columns
+     * @param  array  $columns
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function get($columns = ['*'])
@@ -265,100 +345,10 @@ class HasManyThrough extends Relation
     protected function getSelectColumns(array $columns = ['*'])
     {
         if ($columns == ['*']) {
-            $columns = [$this->related->getTable() . '.*'];
+            $columns = [$this->related->getTable().'.*'];
         }
 
-        return array_merge($columns, [$this->parent->getTable() . '.' . $this->firstKey]);
-    }
-
-    /**
-     * Execute the query and get the first result or throw an exception.
-     *
-     * @param  array  $columns
-     * @return \Illuminate\Database\Eloquent\Model|static
-     *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-     */
-    public function firstOrFail($columns = ['*'])
-    {
-        if (!is_null($model = $this->first($columns))) {
-            return $model;
-        }
-
-        throw (new ModelNotFoundException)->setModel(get_class($this->parent));
-    }
-
-    /**
-     * Execute the query and get the first related model.
-     *
-     * @param  array $columns
-     * @return mixed
-     */
-    public function first($columns = ['*'])
-    {
-        $results = $this->take(1)->get($columns);
-
-        return count($results) > 0 ? $results->first() : null;
-    }
-
-    /**
-     * Find a related model by its primary key or throw an exception.
-     *
-     * @param  mixed  $id
-     * @param  array  $columns
-     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
-     *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-     */
-    public function findOrFail($id, $columns = ['*'])
-    {
-        $result = $this->find($id, $columns);
-
-        if (is_array($id)) {
-            if (count($result) == count(array_unique($id))) {
-                return $result;
-            }
-        } elseif (! is_null($result)) {
-            return $result;
-        }
-
-        throw (new ModelNotFoundException)->setModel(get_class($this->parent));
-    }
-
-    /**
-     * Find a related model by its primary key.
-     *
-     * @param  mixed $id
-     * @param  array  $columns
-     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|null
-     */
-    public function find($id, $columns = ['*'])
-    {
-        if (is_array($id)) {
-            return $this->findMany($id, $columns);
-        }
-
-        $this->where($this->getRelated()->getQualifiedKeyName(), '=', $id);
-
-        return $this->first($columns);
-    }
-
-    /**
-     * Find multiple related models by their primary keys.
-     *
-     * @param  mixed $ids
-     * @param  array  $columns
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function findMany($ids, $columns = ['*'])
-    {
-        if (empty($ids)) {
-            return $this->getRelated()->newCollection();
-        }
-
-        $this->whereIn($this->getRelated()->getQualifiedKeyName(), $ids);
-
-        return $this->get($columns);
+        return array_merge($columns, [$this->parent->getTable().'.'.$this->firstKey]);
     }
 
     /**
@@ -391,6 +381,16 @@ class HasManyThrough extends Relation
         $this->query->addSelect($this->getSelectColumns($columns));
 
         return $this->query->simplePaginate($perPage, $columns, $pageName, $page);
+    }
+
+    /**
+     * Get the key for comparing against the parent key in "has" query.
+     *
+     * @return string
+     */
+    public function getHasCompareKey()
+    {
+        return $this->farParent->getQualifiedKeyName();
     }
 
     /**

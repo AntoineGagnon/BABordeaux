@@ -67,17 +67,6 @@ abstract class Queue
     }
 
     /**
-     * Set the IoC container instance.
-     *
-     * @param  \Illuminate\Container\Container $container
-     * @return void
-     */
-    public function setContainer(Container $container)
-    {
-        $this->container = $container;
-    }
-
-    /**
      * Create a payload string from the given job and data.
      *
      * @param  string  $job
@@ -166,5 +155,16 @@ abstract class Queue
     protected function getTime()
     {
         return Carbon::now()->getTimestamp();
+    }
+
+    /**
+     * Set the IoC container instance.
+     *
+     * @param  \Illuminate\Container\Container  $container
+     * @return void
+     */
+    public function setContainer(Container $container)
+    {
+        $this->container = $container;
     }
 }

@@ -51,6 +51,13 @@ abstract class Job
     abstract public function attempts();
 
     /**
+     * Get the raw body string for the job.
+     *
+     * @return string
+     */
+    abstract public function getRawBody();
+
+    /**
      * Fire the job.
      *
      * @return void
@@ -64,36 +71,6 @@ abstract class Job
         $this->instance = $this->resolve($class);
 
         $this->instance->{$method}($this, $payload['data']);
-    }
-
-    /**
-     * Get the decoded body of the job.
-     *
-     * @return array
-     */
-    public function payload()
-    {
-        return json_decode($this->getRawBody(), true);
-    }
-
-    /**
-     * Get the raw body string for the job.
-     *
-     * @return string
-     */
-    abstract public function getRawBody();
-
-    /**
-     * Parse the job declaration into class and method.
-     *
-     * @param  string $job
-     * @return array
-     */
-    protected function parseJob($job)
-    {
-        $segments = explode('@', $job);
-
-        return count($segments) > 1 ? $segments : [$segments[0], 'fire'];
     }
 
     /**
@@ -118,27 +95,6 @@ abstract class Job
     }
 
     /**
-     * Release the job back into the queue.
-     *
-     * @param  int $delay
-     * @return void
-     */
-    public function release($delay = 0)
-    {
-        $this->released = true;
-    }
-
-    /**
-     * Determine if the job has been deleted or released.
-     *
-     * @return bool
-     */
-    public function isDeletedOrReleased()
-    {
-        return $this->isDeleted() || $this->isReleased();
-    }
-
-    /**
      * Determine if the job has been deleted.
      *
      * @return bool
@@ -149,6 +105,17 @@ abstract class Job
     }
 
     /**
+     * Release the job back into the queue.
+     *
+     * @param  int   $delay
+     * @return void
+     */
+    public function release($delay = 0)
+    {
+        $this->released = true;
+    }
+
+    /**
      * Determine if the job was released back into the queue.
      *
      * @return bool
@@ -156,6 +123,16 @@ abstract class Job
     public function isReleased()
     {
         return $this->released;
+    }
+
+    /**
+     * Determine if the job has been deleted or released.
+     *
+     * @return bool
+     */
+    public function isDeletedOrReleased()
+    {
+        return $this->isDeleted() || $this->isReleased();
     }
 
     /**
@@ -175,6 +152,54 @@ abstract class Job
         if (method_exists($this->instance, 'failed')) {
             $this->instance->failed($payload['data'], $e);
         }
+    }
+
+    /**
+     * Parse the job declaration into class and method.
+     *
+     * @param  string  $job
+     * @return array
+     */
+    protected function parseJob($job)
+    {
+        $segments = explode('@', $job);
+
+        return count($segments) > 1 ? $segments : [$segments[0], 'fire'];
+    }
+
+    /**
+     * Calculate the number of seconds with the given delay.
+     *
+     * @param  \DateTime|int  $delay
+     * @return int
+     */
+    protected function getSeconds($delay)
+    {
+        if ($delay instanceof DateTime) {
+            return max(0, $delay->getTimestamp() - $this->getTime());
+        }
+
+        return (int) $delay;
+    }
+
+    /**
+     * Get the current system time.
+     *
+     * @return int
+     */
+    protected function getTime()
+    {
+        return Carbon::now()->getTimestamp();
+    }
+
+    /**
+     * Get the name of the queued job class.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->payload()['job'];
     }
 
     /**
@@ -200,13 +225,13 @@ abstract class Job
     }
 
     /**
-     * Get the name of the queued job class.
+     * Get the decoded body of the job.
      *
-     * @return string
+     * @return array
      */
-    public function getName()
+    public function payload()
     {
-        return $this->payload()['job'];
+        return json_decode($this->getRawBody(), true);
     }
 
     /**
@@ -227,30 +252,5 @@ abstract class Job
     public function getContainer()
     {
         return $this->container;
-    }
-
-    /**
-     * Calculate the number of seconds with the given delay.
-     *
-     * @param  \DateTime|int $delay
-     * @return int
-     */
-    protected function getSeconds($delay)
-    {
-        if ($delay instanceof DateTime) {
-            return max(0, $delay->getTimestamp() - $this->getTime());
-        }
-
-        return (int)$delay;
-    }
-
-    /**
-     * Get the current system time.
-     *
-     * @return int
-     */
-    protected function getTime()
-    {
-        return Carbon::now()->getTimestamp();
     }
 }

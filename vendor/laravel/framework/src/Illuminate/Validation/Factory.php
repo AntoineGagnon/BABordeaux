@@ -80,22 +80,6 @@ class Factory implements FactoryContract
     }
 
     /**
-     * Validate the given data against the provided rules.
-     *
-     * @param  array $data
-     * @param  array $rules
-     * @param  array $messages
-     * @param  array $customAttributes
-     * @return void
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function validate(array $data, array $rules, array $messages = [], array $customAttributes = [])
-    {
-        $this->make($data, $rules, $messages, $customAttributes)->validate();
-    }
-
-    /**
      * Create a new Validator instance.
      *
      * @param  array  $data
@@ -128,21 +112,19 @@ class Factory implements FactoryContract
     }
 
     /**
-     * Resolve a new Validator instance.
+     * Validate the given data against the provided rules.
      *
      * @param  array  $data
      * @param  array  $rules
      * @param  array  $messages
      * @param  array  $customAttributes
-     * @return \Illuminate\Validation\Validator
+     * @return void
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
-    protected function resolve(array $data, array $rules, array $messages, array $customAttributes)
+    public function validate(array $data, array $rules, array $messages = [], array $customAttributes = [])
     {
-        if (is_null($this->resolver)) {
-            return new Validator($this->translator, $data, $rules, $messages, $customAttributes);
-        }
-
-        return call_user_func($this->resolver, $this->translator, $data, $rules, $messages, $customAttributes);
+        $this->make($data, $rules, $messages, $customAttributes)->validate();
     }
 
     /**
@@ -165,6 +147,24 @@ class Factory implements FactoryContract
         $validator->addReplacers($this->replacers);
 
         $validator->setFallbackMessages($this->fallbackMessages);
+    }
+
+    /**
+     * Resolve a new Validator instance.
+     *
+     * @param  array  $data
+     * @param  array  $rules
+     * @param  array  $messages
+     * @param  array  $customAttributes
+     * @return \Illuminate\Validation\Validator
+     */
+    protected function resolve(array $data, array $rules, array $messages, array $customAttributes)
+    {
+        if (is_null($this->resolver)) {
+            return new Validator($this->translator, $data, $rules, $messages, $customAttributes);
+        }
+
+        return call_user_func($this->resolver, $this->translator, $data, $rules, $messages, $customAttributes);
     }
 
     /**

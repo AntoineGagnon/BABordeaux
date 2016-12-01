@@ -27,6 +27,27 @@ class ControllerDispatcher
     }
 
     /**
+     * Dispatch a request to a given controller and method.
+     *
+     * @param  \Illuminate\Routing\Route  $route
+     * @param  mixed  $controller
+     * @param  string  $method
+     * @return mixed
+     */
+    public function dispatch(Route $route, $controller, $method)
+    {
+        $parameters = $this->resolveClassMethodDependencies(
+            $route->parametersWithoutNulls(), $controller, $method
+        );
+
+        if (method_exists($controller, 'callAction')) {
+            return $controller->callAction($method, $parameters);
+        }
+
+        return call_user_func_array([$controller, $method], $parameters);
+    }
+
+    /**
      * Get the middleware for the controller instance.
      *
      * @param  \Illuminate\Routing\Controller  $controller
@@ -55,26 +76,5 @@ class ControllerDispatcher
     {
         return (isset($options['only']) && ! in_array($method, (array) $options['only'])) ||
             (! empty($options['except']) && in_array($method, (array) $options['except']));
-    }
-
-    /**
-     * Dispatch a request to a given controller and method.
-     *
-     * @param  \Illuminate\Routing\Route $route
-     * @param  mixed $controller
-     * @param  string $method
-     * @return mixed
-     */
-    public function dispatch(Route $route, $controller, $method)
-    {
-        $parameters = $this->resolveClassMethodDependencies(
-            $route->parametersWithoutNulls(), $controller, $method
-        );
-
-        if (method_exists($controller, 'callAction')) {
-            return $controller->callAction($method, $parameters);
-        }
-
-        return call_user_func_array([$controller, $method], $parameters);
     }
 }

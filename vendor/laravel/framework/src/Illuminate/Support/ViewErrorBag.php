@@ -26,6 +26,17 @@ class ViewErrorBag implements Countable
     }
 
     /**
+     * Get a MessageBag instance from the bags.
+     *
+     * @param  string  $key
+     * @return \Illuminate\Contracts\Support\MessageBag
+     */
+    public function getBag($key)
+    {
+        return Arr::get($this->bags, $key) ?: new MessageBag;
+    }
+
+    /**
      * Get all the bags.
      *
      * @return array
@@ -36,6 +47,20 @@ class ViewErrorBag implements Countable
     }
 
     /**
+     * Add a new MessageBag instance to the bags.
+     *
+     * @param  string  $key
+     * @param  \Illuminate\Contracts\Support\MessageBag  $bag
+     * @return $this
+     */
+    public function put($key, MessageBagContract $bag)
+    {
+        $this->bags[$key] = $bag;
+
+        return $this;
+    }
+
+    /**
      * Get the number of messages in the default bag.
      *
      * @return int
@@ -43,17 +68,6 @@ class ViewErrorBag implements Countable
     public function count()
     {
         return $this->getBag('default')->count();
-    }
-
-    /**
-     * Get a MessageBag instance from the bags.
-     *
-     * @param  string $key
-     * @return \Illuminate\Contracts\Support\MessageBag
-     */
-    public function getBag($key)
-    {
-        return Arr::get($this->bags, $key) ?: new MessageBag;
     }
 
     /**
@@ -89,19 +103,5 @@ class ViewErrorBag implements Countable
     public function __set($key, $value)
     {
         $this->put($key, $value);
-    }
-
-    /**
-     * Add a new MessageBag instance to the bags.
-     *
-     * @param  string $key
-     * @param  \Illuminate\Contracts\Support\MessageBag $bag
-     * @return $this
-     */
-    public function put($key, MessageBagContract $bag)
-    {
-        $this->bags[$key] = $bag;
-
-        return $this;
     }
 }

@@ -7,6 +7,16 @@ use Illuminate\Console\Command;
 class BaseCommand extends Command
 {
     /**
+     * Get the path to the migration directory.
+     *
+     * @return string
+     */
+    protected function getMigrationPath()
+    {
+        return $this->laravel->databasePath().DIRECTORY_SEPARATOR.'migrations';
+    }
+
+    /**
      * Get all of the migration paths.
      *
      * @return array
@@ -23,15 +33,5 @@ class BaseCommand extends Command
         return array_merge(
             [$this->getMigrationPath()], $this->migrator->paths()
         );
-    }
-
-    /**
-     * Get the path to the migration directory.
-     *
-     * @return string
-     */
-    protected function getMigrationPath()
-    {
-        return $this->laravel->databasePath() . DIRECTORY_SEPARATOR . 'migrations';
     }
 }

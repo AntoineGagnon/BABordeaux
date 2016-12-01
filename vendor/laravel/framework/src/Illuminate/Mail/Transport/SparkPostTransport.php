@@ -142,7 +142,7 @@ class SparkPostTransport extends Transport
     /**
      * Set the transmission options being used by the transport.
      *
-     * @param  array $options
+     * @param  array  $options
      * @return array
      */
     public function setOptions(array $options)

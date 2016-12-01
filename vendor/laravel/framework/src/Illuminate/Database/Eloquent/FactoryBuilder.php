@@ -171,22 +171,6 @@ class FactoryBuilder
     }
 
     /**
-     * Evaluate any Closure attributes on the attribute array.
-     *
-     * @param  array $attributes
-     * @return array
-     */
-    protected function callClosureAttributes(array $attributes)
-    {
-        foreach ($attributes as &$attribute) {
-            $attribute = $attribute instanceof Closure
-                ? $attribute($attributes) : $attribute;
-        }
-
-        return $attributes;
-    }
-
-    /**
      * Apply the active states to the model definition array.
      *
      * @param  array  $definition
@@ -207,5 +191,21 @@ class FactoryBuilder
         }
 
         return $definition;
+    }
+
+    /**
+     * Evaluate any Closure attributes on the attribute array.
+     *
+     * @param  array  $attributes
+     * @return array
+     */
+    protected function callClosureAttributes(array $attributes)
+    {
+        foreach ($attributes as &$attribute) {
+            $attribute = $attribute instanceof Closure
+                            ? $attribute($attributes) : $attribute;
+        }
+
+        return $attributes;
     }
 }

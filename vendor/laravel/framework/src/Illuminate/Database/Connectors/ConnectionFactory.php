@@ -51,15 +51,18 @@ class ConnectionFactory
     }
 
     /**
-     * Parse and prepare the database configuration.
+     * Create a single database connection instance.
      *
-     * @param  array $config
-     * @param  string $name
-     * @return array
+     * @param  array  $config
+     * @return \Illuminate\Database\Connection
      */
-    protected function parseConfig(array $config, $name)
+    protected function createSingleConnection(array $config)
     {
-        return Arr::add(Arr::add($config, 'prefix', ''), 'name', $name);
+        $pdo = $this->createPdoResolver($config);
+
+        return $this->createConnection(
+            $config['driver'], $pdo, $config['database'], $config['prefix'], $config
+        );
     }
 
     /**
@@ -76,18 +79,14 @@ class ConnectionFactory
     }
 
     /**
-     * Create a single database connection instance.
+     * Create a new PDO instance for reading.
      *
      * @param  array  $config
-     * @return \Illuminate\Database\Connection
+     * @return \Closure
      */
-    protected function createSingleConnection(array $config)
+    protected function createReadPdo(array $config)
     {
-        $pdo = $this->createPdoResolver($config);
-
-        return $this->createConnection(
-            $config['driver'], $pdo, $config['database'], $config['prefix'], $config
-        );
+        return $this->createPdoResolver($this->getReadConfig($config));
     }
 
     /**
@@ -137,6 +136,85 @@ class ConnectionFactory
     }
 
     /**
+     * Create a new Closure that resolves to a PDO instance where there is no configured host.
+     *
+     * @param  array  $config
+     * @return \Closure
+     */
+    protected function createPdoResolverWithoutHosts(array $config)
+    {
+        return function () use ($config) {
+            return $this->createConnector($config)->connect($config);
+        };
+    }
+
+    /**
+     * Get the read configuration for a read / write connection.
+     *
+     * @param  array  $config
+     * @return array
+     */
+    protected function getReadConfig(array $config)
+    {
+        $readConfig = $this->getReadWriteConfig($config, 'read');
+
+        return $this->mergeReadWriteConfig($config, $readConfig);
+    }
+
+    /**
+     * Get the read configuration for a read / write connection.
+     *
+     * @param  array  $config
+     * @return array
+     */
+    protected function getWriteConfig(array $config)
+    {
+        $writeConfig = $this->getReadWriteConfig($config, 'write');
+
+        return $this->mergeReadWriteConfig($config, $writeConfig);
+    }
+
+    /**
+     * Get a read / write level configuration.
+     *
+     * @param  array   $config
+     * @param  string  $type
+     * @return array
+     */
+    protected function getReadWriteConfig(array $config, $type)
+    {
+        if (isset($config[$type][0])) {
+            return $config[$type][array_rand($config[$type])];
+        }
+
+        return $config[$type];
+    }
+
+    /**
+     * Merge a configuration for a read / write connection.
+     *
+     * @param  array  $config
+     * @param  array  $merge
+     * @return array
+     */
+    protected function mergeReadWriteConfig(array $config, array $merge)
+    {
+        return Arr::except(array_merge($config, $merge), ['read', 'write']);
+    }
+
+    /**
+     * Parse and prepare the database configuration.
+     *
+     * @param  array   $config
+     * @param  string  $name
+     * @return array
+     */
+    protected function parseConfig(array $config, $name)
+    {
+        return Arr::add(Arr::add($config, 'prefix', ''), 'name', $name);
+    }
+
+    /**
      * Create a connector instance based on the configuration.
      *
      * @param  array  $config
@@ -169,19 +247,6 @@ class ConnectionFactory
     }
 
     /**
-     * Create a new Closure that resolves to a PDO instance where there is no configured host.
-     *
-     * @param  array $config
-     * @return \Closure
-     */
-    protected function createPdoResolverWithoutHosts(array $config)
-    {
-        return function () use ($config) {
-            return $this->createConnector($config)->connect($config);
-        };
-    }
-
-    /**
      * Create a new connection instance.
      *
      * @param  string   $driver
@@ -211,70 +276,5 @@ class ConnectionFactory
         }
 
         throw new InvalidArgumentException("Unsupported driver [$driver]");
-    }
-
-    /**
-     * Get the read configuration for a read / write connection.
-     *
-     * @param  array $config
-     * @return array
-     */
-    protected function getWriteConfig(array $config)
-    {
-        $writeConfig = $this->getReadWriteConfig($config, 'write');
-
-        return $this->mergeReadWriteConfig($config, $writeConfig);
-    }
-
-    /**
-     * Get a read / write level configuration.
-     *
-     * @param  array $config
-     * @param  string $type
-     * @return array
-     */
-    protected function getReadWriteConfig(array $config, $type)
-    {
-        if (isset($config[$type][0])) {
-            return $config[$type][array_rand($config[$type])];
-        }
-
-        return $config[$type];
-    }
-
-    /**
-     * Merge a configuration for a read / write connection.
-     *
-     * @param  array $config
-     * @param  array $merge
-     * @return array
-     */
-    protected function mergeReadWriteConfig(array $config, array $merge)
-    {
-        return Arr::except(array_merge($config, $merge), ['read', 'write']);
-    }
-
-    /**
-     * Create a new PDO instance for reading.
-     *
-     * @param  array $config
-     * @return \Closure
-     */
-    protected function createReadPdo(array $config)
-    {
-        return $this->createPdoResolver($this->getReadConfig($config));
-    }
-
-    /**
-     * Get the read configuration for a read / write connection.
-     *
-     * @param  array $config
-     * @return array
-     */
-    protected function getReadConfig(array $config)
-    {
-        $readConfig = $this->getReadWriteConfig($config, 'read');
-
-        return $this->mergeReadWriteConfig($config, $readConfig);
     }
 }

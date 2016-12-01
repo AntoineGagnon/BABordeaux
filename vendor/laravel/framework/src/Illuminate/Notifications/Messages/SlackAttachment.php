@@ -100,7 +100,7 @@ class SlackAttachment
     /**
      * Set the color of the attachment.
      *
-     * @param  string $color
+     * @param  string  $color
      * @return $this
      */
     public function color($color)
@@ -150,7 +150,7 @@ class SlackAttachment
     /**
      * Set the fields containing markdown.
      *
-     * @param  array $fields
+     * @param  array  $fields
      * @return $this
      */
     public function markdown(array $fields)
@@ -163,7 +163,7 @@ class SlackAttachment
     /**
      * Set the footer content.
      *
-     * @param  string $footer
+     * @param  string  $footer
      * @return $this
      */
     public function footer($footer)
@@ -189,7 +189,7 @@ class SlackAttachment
     /**
      * Set the timestamp.
      *
-     * @param  Carbon $timestamp
+     * @param  Carbon  $timestamp
      * @return $this
      */
     public function timestamp(Carbon $timestamp)

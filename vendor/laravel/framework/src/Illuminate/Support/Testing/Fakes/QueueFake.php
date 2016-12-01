@@ -17,6 +17,21 @@ class QueueFake implements Queue
     /**
      * Assert if a job was pushed based on a truth-test callback.
      *
+     * @param  string  $job
+     * @param  callable|null  $callback
+     * @return void
+     */
+    public function assertPushed($job, $callback = null)
+    {
+        PHPUnit::assertTrue(
+            $this->pushed($job, $callback)->count() > 0,
+            "The expected [{$job}] job was not pushed."
+        );
+    }
+
+    /**
+     * Assert if a job was pushed based on a truth-test callback.
+     *
      * @param  string  $queue
      * @param  string  $job
      * @param  callable|null  $callback
@@ -38,17 +53,17 @@ class QueueFake implements Queue
     }
 
     /**
-     * Assert if a job was pushed based on a truth-test callback.
+     * Determine if a job was pushed based on a truth-test callback.
      *
      * @param  string  $job
      * @param  callable|null  $callback
      * @return void
      */
-    public function assertPushed($job, $callback = null)
+    public function assertNotPushed($job, $callback = null)
     {
         PHPUnit::assertTrue(
-            $this->pushed($job, $callback)->count() > 0,
-            "The expected [{$job}] job was not pushed."
+            $this->pushed($job, $callback)->count() === 0,
+            "The unexpected [{$job}] job was pushed."
         );
     }
 
@@ -86,21 +101,6 @@ class QueueFake implements Queue
     }
 
     /**
-     * Determine if a job was pushed based on a truth-test callback.
-     *
-     * @param  string $job
-     * @param  callable|null $callback
-     * @return void
-     */
-    public function assertNotPushed($job, $callback = null)
-    {
-        PHPUnit::assertTrue(
-            $this->pushed($job, $callback)->count() === 0,
-            "The unexpected [{$job}] job was pushed."
-        );
-    }
-
-    /**
      * Resolve a queue connection instance.
      *
      * @param  string  $name
@@ -120,6 +120,22 @@ class QueueFake implements Queue
     public function size($queue = null)
     {
         return 0;
+    }
+
+    /**
+     * Push a new job onto the queue.
+     *
+     * @param  string  $job
+     * @param  mixed   $data
+     * @param  string  $queue
+     * @return mixed
+     */
+    public function push($job, $data = '', $queue = null)
+    {
+        $this->jobs[get_class($job)][] = [
+            'job' => $job,
+            'queue' => $queue,
+        ];
     }
 
     /**
@@ -147,22 +163,6 @@ class QueueFake implements Queue
     public function later($delay, $job, $data = '', $queue = null)
     {
         return $this->push($job, $data, $queue);
-    }
-
-    /**
-     * Push a new job onto the queue.
-     *
-     * @param  string $job
-     * @param  mixed $data
-     * @param  string $queue
-     * @return mixed
-     */
-    public function push($job, $data = '', $queue = null)
-    {
-        $this->jobs[get_class($job)][] = [
-            'job' => $job,
-            'queue' => $queue,
-        ];
     }
 
     /**

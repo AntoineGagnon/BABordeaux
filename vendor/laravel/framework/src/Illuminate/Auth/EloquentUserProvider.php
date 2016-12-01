@@ -48,18 +48,6 @@ class EloquentUserProvider implements UserProvider
     }
 
     /**
-     * Create a new instance of the model.
-     *
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function createModel()
-    {
-        $class = '\\' . ltrim($this->model, '\\');
-
-        return new $class;
-    }
-
-    /**
      * Retrieve a user by their unique identifier and "remember me" token.
      *
      * @param  mixed  $identifier
@@ -128,6 +116,18 @@ class EloquentUserProvider implements UserProvider
         $plain = $credentials['password'];
 
         return $this->hasher->check($plain, $user->getAuthPassword());
+    }
+
+    /**
+     * Create a new instance of the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function createModel()
+    {
+        $class = '\\'.ltrim($this->model, '\\');
+
+        return new $class;
     }
 
     /**
