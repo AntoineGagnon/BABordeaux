@@ -63,6 +63,7 @@ class PollController extends Controller
     {
         $questionGroups = question_group::all();
 
+
         foreach ($questionGroups as $questionGroup) {
             $questionGroup['questions'] = question::where('question_group_id', $questionGroup->id)->orderBy('question_order', 'asc')->get();
             foreach ($questionGroup['questions'] as $question) {
@@ -84,8 +85,13 @@ class PollController extends Controller
         if(!Auth::check())
             return redirect()->intended('login');
 
+
         $questionGroups = question_group::all();
 
+        //fetch all question from database.
+        $questions = question::all();
+
+        //if a questionGroup is empty (i.e. has no question into) delete this questionGroup from the database.
         foreach($questionGroups as $questionGroup){
             if(question::where('question_group_id',$questionGroup->id)->count() == 0)
             {
@@ -93,7 +99,7 @@ class PollController extends Controller
             }
         }
 
-        return view('admin_poll_edit_view', ['questionGroups' => $questionGroups]);
+        return view('admin_poll_edit_view', ['questionGroups' => $questionGroups, 'questions' => $questions, ]);
     }
 
     /**

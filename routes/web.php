@@ -22,6 +22,10 @@ Route::get('admin/resultpoll', 'PollController@adminDisplayPollResults');
 Route::get('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults');
 Route::get('admin/change_password', 'AdminController@changePassword');
 Route::post('admin/postPasswordChange', 'AdminController@postPasswordChange');
+Route::post('admin/updateVisibility/{id}/{show}','QuestionController@updateVisibilityQuestion');
+Route::post('admin/updateRequired/{id}/{required}','QuestionController@updateRequiredQuestion');
+Route::post('/admin/updateLabel','QuestionController@updateLabelQuestion');
+
 
 // Pour les autres fonctions en rapport avec admin
 Route::resource('login', 'LoginController');
@@ -30,3 +34,4 @@ Route::post('login/authenticate', 'LoginController@authenticate');
 Route::resource('admin', 'AdminController');
 Route::resource('guestbook','GuestbookController');
 Route::resource('question','QuestionController');
+

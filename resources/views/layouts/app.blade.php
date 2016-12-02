@@ -3,11 +3,14 @@
 <html lang="en">
 <head>
     <title class="notranslate">Musée des Beaux Arts Bordeaux</title>
-    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="_token" content="{{ csrf_token() }}">
+    <script type="text/javascript" src="{{ asset('js/jquery-3.1.1.slim.min.js') }}"></script>
     <!-- CSS And JavaScript -->
+    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{asset('css/style.css')}}">
     <script type="text/javascript" src="{{ asset('js/app.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('js/jquery-3.1.1.slim.min.js') }}"></script>
+
+
     <script type="text/javascript">
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({
