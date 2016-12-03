@@ -7,6 +7,7 @@ use App\question_group;
 use App\submission;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -80,7 +81,9 @@ class PollController extends Controller
      */
     public function index()
     {
-        $questionGroups = question_group::all();
+        $questionGroups = question_group::whereExists(function ($query) {
+            $query->select(DB::raw(1))->from('questions')->whereRaw('questions.question_group_id = question_groups.id')->where('isVisible', 1);
+        })->get();
 
         foreach ($questionGroups as $questionGroup) {
             $questionGroup['questions'] = question::where('question_group_id', $questionGroup->id)->orderBy('question_order', 'asc')->get();
