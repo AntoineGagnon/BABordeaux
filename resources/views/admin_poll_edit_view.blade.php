@@ -10,15 +10,6 @@
         </div>
     @endif
 
-    <div class="modal fade" id="modalDeleteSuccess" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-body">
-                        Question supprimée de la base de données.
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="panel panel-default panel-primary notranslate">
         <div class="panel-heading">
             <h1>Édition du sondage</h1>
@@ -154,8 +145,10 @@
                                                             </div>
                                                             @endif
                                                             <div style="overflow: hidden; padding-right: .5em;">
-                                                                <input type="text" class="form-control" name="question_label" value="{{ $question->label }}" style="width: 100%"/>
-                                                                <input type="text" class="form-control" name="question_id" value="{{ $question->id }}" style="display: none "/>
+                                                                <php>
+
+                                                                </php>
+                                                                <input type="text" class="form-control Questionlabel" name="question_{{ $question->id }}" value="{{ $question->label }}" style="width: 100%"/>
                                                             </div>
                                                             </br>
                                                         @endforeach
@@ -306,6 +299,15 @@
                     }
                 });
             });
+
+            function labelChanged(){
+                var name = $(this).attr('name');
+                $(this).attr('name', name + '_changed');
+                console.log("changedlabel");
+            }
+            $(".Questionlabel").on("change", labelChanged);
+
+
         }
 
         $(document).ready(function(){

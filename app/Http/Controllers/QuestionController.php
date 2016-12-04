@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 //TODO NumGroup plante quand on supprime toutes les questions par ajax car le num groupe affiché (ex 42) n'existe plus en BD du coup
 //TODO faire un redirect sur le post update label question et pas return view sinon ajax marche plus
 //TODO Quand il y a deux question, update que la deuxieme (donc la derniere de la liste a chaque fois car ne prend pas le $request de la premiere je pense;
+//TODO confirm dialog lors d'appel ajax
 
 class QuestionController extends Controller
 {
@@ -114,6 +115,12 @@ class QuestionController extends Controller
 
     }
 
+    /**
+     * Update in database the visibility of a question
+     * @param $id
+     * @param $show
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function updateVisibilityQuestion($id, $show)
     {
         if(!Auth::check())
@@ -128,6 +135,12 @@ class QuestionController extends Controller
         $question->save();
     }
 
+    /**
+     * Update in database isRequired of a question
+     * @param $id
+     * @param $required
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function updateRequiredQuestion($id, $required){
         if(!Auth::check())
             return redirect()->intended('login');
@@ -141,15 +154,26 @@ class QuestionController extends Controller
         $question->save();
     }
 
+    /**
+     * Update in database the label of a question
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
+     */
     public function updateLabelQuestion(Request $request){
         if(!Auth::check())
             return redirect()->intended('login');
 
-        $question = question::find($request->question_id);
-        $question->label = $request->question_label;
-        $question->save();
+        $allresultsrequest = $request->all();
+        $allkeys = array_keys($allresultsrequest);
+        foreach($allkeys as $key){
+            if(ends_with($key,'changed')){
+                preg_match_all('!\d+!', $key, $questionIdToChanged);
+                $question = question::find($questionIdToChanged[0][0]);
+                $question->label = $request->input($key);
+                $question->save();
+            }
+        }
 
-        $questionUpdated = true;
         $questions = question::all();
         $questionGroups = question_group::all();
         foreach ($questionGroups as $questionGroup) {
@@ -158,7 +182,7 @@ class QuestionController extends Controller
             }
         }
 
-        return view('admin_poll_edit_view', ['questionUpdadated' => $questionUpdated ,'questionGroups' => $questionGroups, 'questions' => $questions]);
+        return view('admin_poll_edit_view', ['questionGroups' => $questionGroups, 'questions' => $questions]);
 
     }
 

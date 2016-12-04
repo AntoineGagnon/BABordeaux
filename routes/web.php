@@ -26,7 +26,6 @@ Route::post('admin/updateVisibility/{id}/{show}','QuestionController@updateVisib
 Route::post('admin/updateRequired/{id}/{required}','QuestionController@updateRequiredQuestion');
 Route::post('/admin/updateLabel','QuestionController@updateLabelQuestion');
 
-
 // Pour les autres fonctions en rapport avec admin
 Route::resource('login', 'LoginController');
 Route::get('logout', 'LoginController@logout');

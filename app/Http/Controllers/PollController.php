@@ -19,6 +19,7 @@ use App\Http\Requests;
 class PollController extends Controller
 {
 
+
     /**
      * Store a newly created resource in storage.
      *

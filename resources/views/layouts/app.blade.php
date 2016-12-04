@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="{{asset('css/style.css')}}">
     <script type="text/javascript" src="{{ asset('js/app.js') }}"></script>
 
-
     <script type="text/javascript">
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({
