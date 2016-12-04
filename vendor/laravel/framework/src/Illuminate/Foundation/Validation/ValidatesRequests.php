@@ -39,13 +39,40 @@ trait ValidatesRequests
     }
 
     /**
-     * Get a validation factory instance.
+     * Validate the given request with the given rules.
      *
-     * @return \Illuminate\Contracts\Validation\Factory
+     * @param  \Illuminate\Http\Request  $request
+     * @param  array  $rules
+     * @param  array  $messages
+     * @param  array  $customAttributes
+     * @return void
      */
-    protected function getValidationFactory()
+    public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = [])
     {
-        return app(Factory::class);
+        $validator = $this->getValidationFactory()->make($request->all(), $rules, $messages, $customAttributes);
+
+        if ($validator->fails()) {
+            $this->throwValidationException($request, $validator);
+        }
+    }
+
+    /**
+     * Validate the given request with the given rules.
+     *
+     * @param  string  $errorBag
+     * @param  \Illuminate\Http\Request  $request
+     * @param  array  $rules
+     * @param  array  $messages
+     * @param  array  $customAttributes
+     * @return void
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function validateWithBag($errorBag, Request $request, array $rules, array $messages = [], array $customAttributes = [])
+    {
+        $this->withErrorBag($errorBag, function () use ($request, $rules, $messages, $customAttributes) {
+            $this->validate($request, $rules, $messages, $customAttributes);
+        });
     }
 
     /**
@@ -83,6 +110,17 @@ trait ValidatesRequests
     }
 
     /**
+     * Format the validation errors to be returned.
+     *
+     * @param  \Illuminate\Contracts\Validation\Validator  $validator
+     * @return array
+     */
+    protected function formatValidationErrors(Validator $validator)
+    {
+        return $validator->errors()->getMessages();
+    }
+
+    /**
      * Get the URL we should redirect to.
      *
      * @return string
@@ -93,43 +131,13 @@ trait ValidatesRequests
     }
 
     /**
-     * Get the key to be used for the view error bag.
+     * Get a validation factory instance.
      *
-     * @return string
+     * @return \Illuminate\Contracts\Validation\Factory
      */
-    protected function errorBag()
+    protected function getValidationFactory()
     {
-        return $this->validatesRequestErrorBag ?: 'default';
-    }
-
-    /**
-     * Format the validation errors to be returned.
-     *
-     * @param  \Illuminate\Contracts\Validation\Validator $validator
-     * @return array
-     */
-    protected function formatValidationErrors(Validator $validator)
-    {
-        return $validator->errors()->getMessages();
-    }
-
-    /**
-     * Validate the given request with the given rules.
-     *
-     * @param  string $errorBag
-     * @param  \Illuminate\Http\Request $request
-     * @param  array $rules
-     * @param  array $messages
-     * @param  array $customAttributes
-     * @return void
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function validateWithBag($errorBag, Request $request, array $rules, array $messages = [], array $customAttributes = [])
-    {
-        $this->withErrorBag($errorBag, function () use ($request, $rules, $messages, $customAttributes) {
-            $this->validate($request, $rules, $messages, $customAttributes);
-        });
+        return app(Factory::class);
     }
 
     /**
@@ -149,20 +157,12 @@ trait ValidatesRequests
     }
 
     /**
-     * Validate the given request with the given rules.
+     * Get the key to be used for the view error bag.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  array $rules
-     * @param  array $messages
-     * @param  array $customAttributes
-     * @return void
+     * @return string
      */
-    public function validate(Request $request, array $rules, array $messages = [], array $customAttributes = [])
+    protected function errorBag()
     {
-        $validator = $this->getValidationFactory()->make($request->all(), $rules, $messages, $customAttributes);
-
-        if ($validator->fails()) {
-            $this->throwValidationException($request, $validator);
-        }
+        return $this->validatesRequestErrorBag ?: 'default';
     }
 }

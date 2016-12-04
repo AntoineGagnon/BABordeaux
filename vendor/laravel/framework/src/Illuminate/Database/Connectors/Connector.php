@@ -64,17 +64,24 @@ class Connector
     }
 
     /**
-     * Create a new PDO connection instance.
+     * Get the default PDO connection options.
      *
-     * @return \PDO
+     * @return array
      */
-    protected function createPdoConnection($dsn, $username, $password, $options)
+    public function getDefaultOptions()
     {
-        if (class_exists(PDOConnection::class)) {
-            return new PDOConnection($dsn, $username, $password, $options);
-        }
+        return $this->options;
+    }
 
-        return new PDO($dsn, $username, $password, $options);
+    /**
+     * Set the default PDO connection options.
+     *
+     * @param  array  $options
+     * @return void
+     */
+    public function setDefaultOptions(array $options)
+    {
+        $this->options = $options;
     }
 
     /**
@@ -99,23 +106,16 @@ class Connector
     }
 
     /**
-     * Get the default PDO connection options.
+     * Create a new PDO connection instance.
      *
-     * @return array
+     * @return \PDO
      */
-    public function getDefaultOptions()
+    protected function createPdoConnection($dsn, $username, $password, $options)
     {
-        return $this->options;
-    }
+        if (class_exists(PDOConnection::class)) {
+            return new PDOConnection($dsn, $username, $password, $options);
+        }
 
-    /**
-     * Set the default PDO connection options.
-     *
-     * @param  array $options
-     * @return void
-     */
-    public function setDefaultOptions(array $options)
-    {
-        $this->options = $options;
+        return new PDO($dsn, $username, $password, $options);
     }
 }

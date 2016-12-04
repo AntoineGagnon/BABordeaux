@@ -7,23 +7,12 @@ use Illuminate\Console\Application as Artisan;
 abstract class ServiceProvider
 {
     /**
-     * The paths that should be published.
-     *
-     * @var array
-     */
-    protected static $publishes = [];
-    /**
-     * The paths that should be published by group.
-     *
-     * @var array
-     */
-    protected static $publishGroups = [];
-    /**
      * The application instance.
      *
      * @var \Illuminate\Contracts\Foundation\Application
      */
     protected $app;
+
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -32,14 +21,124 @@ abstract class ServiceProvider
     protected $defer = false;
 
     /**
+     * The paths that should be published.
+     *
+     * @var array
+     */
+    protected static $publishes = [];
+
+    /**
+     * The paths that should be published by group.
+     *
+     * @var array
+     */
+    protected static $publishGroups = [];
+
+    /**
      * Create a new service provider instance.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application $app
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @return void
      */
     public function __construct($app)
     {
         $this->app = $app;
+    }
+
+    /**
+     * Merge the given configuration with the existing configuration.
+     *
+     * @param  string  $path
+     * @param  string  $key
+     * @return void
+     */
+    protected function mergeConfigFrom($path, $key)
+    {
+        $config = $this->app['config']->get($key, []);
+
+        $this->app['config']->set($key, array_merge(require $path, $config));
+    }
+
+    /**
+     * Load the given routes file if routes are not already cached.
+     *
+     * @param  string  $path
+     * @return void
+     */
+    protected function loadRoutesFrom($path)
+    {
+        if (! $this->app->routesAreCached()) {
+            require $path;
+        }
+    }
+
+    /**
+     * Register a view file namespace.
+     *
+     * @param  string  $path
+     * @param  string  $namespace
+     * @return void
+     */
+    protected function loadViewsFrom($path, $namespace)
+    {
+        if (is_dir($appPath = $this->app->resourcePath().'/views/vendor/'.$namespace)) {
+            $this->app['view']->addNamespace($namespace, $appPath);
+        }
+
+        $this->app['view']->addNamespace($namespace, $path);
+    }
+
+    /**
+     * Register a translation file namespace.
+     *
+     * @param  string  $path
+     * @param  string  $namespace
+     * @return void
+     */
+    protected function loadTranslationsFrom($path, $namespace)
+    {
+        $this->app['translator']->addNamespace($namespace, $path);
+    }
+
+    /**
+     * Register a database migration path.
+     *
+     * @param  array|string  $paths
+     * @return void
+     */
+    protected function loadMigrationsFrom($paths)
+    {
+        $this->app->afterResolving('migrator', function ($migrator) use ($paths) {
+            foreach ((array) $paths as $path) {
+                $migrator->path($path);
+            }
+        });
+    }
+
+    /**
+     * Register paths to be published by the publish command.
+     *
+     * @param  array  $paths
+     * @param  string  $group
+     * @return void
+     */
+    protected function publishes(array $paths, $group = null)
+    {
+        $class = static::class;
+
+        if (! array_key_exists($class, static::$publishes)) {
+            static::$publishes[$class] = [];
+        }
+
+        static::$publishes[$class] = array_merge(static::$publishes[$class], $paths);
+
+        if ($group) {
+            if (! array_key_exists($group, static::$publishGroups)) {
+                static::$publishGroups[$group] = [];
+            }
+
+            static::$publishGroups[$group] = array_merge(static::$publishGroups[$group], $paths);
+        }
     }
 
     /**
@@ -78,16 +177,6 @@ abstract class ServiceProvider
         }
 
         return $paths;
-    }
-
-    /**
-     * Get a list of files that should be compiled for the package.
-     *
-     * @return array
-     */
-    public static function compiles()
-    {
-        return [];
     }
 
     /**
@@ -136,98 +225,12 @@ abstract class ServiceProvider
     }
 
     /**
-     * Merge the given configuration with the existing configuration.
+     * Get a list of files that should be compiled for the package.
      *
-     * @param  string $path
-     * @param  string $key
-     * @return void
+     * @return array
      */
-    protected function mergeConfigFrom($path, $key)
+    public static function compiles()
     {
-        $config = $this->app['config']->get($key, []);
-
-        $this->app['config']->set($key, array_merge(require $path, $config));
-    }
-
-    /**
-     * Load the given routes file if routes are not already cached.
-     *
-     * @param  string $path
-     * @return void
-     */
-    protected function loadRoutesFrom($path)
-    {
-        if (!$this->app->routesAreCached()) {
-            require $path;
-        }
-    }
-
-    /**
-     * Register a view file namespace.
-     *
-     * @param  string $path
-     * @param  string $namespace
-     * @return void
-     */
-    protected function loadViewsFrom($path, $namespace)
-    {
-        if (is_dir($appPath = $this->app->resourcePath() . '/views/vendor/' . $namespace)) {
-            $this->app['view']->addNamespace($namespace, $appPath);
-        }
-
-        $this->app['view']->addNamespace($namespace, $path);
-    }
-
-    /**
-     * Register a translation file namespace.
-     *
-     * @param  string $path
-     * @param  string $namespace
-     * @return void
-     */
-    protected function loadTranslationsFrom($path, $namespace)
-    {
-        $this->app['translator']->addNamespace($namespace, $path);
-    }
-
-    /**
-     * Register a database migration path.
-     *
-     * @param  array|string $paths
-     * @return void
-     */
-    protected function loadMigrationsFrom($paths)
-    {
-        $this->app->afterResolving('migrator', function ($migrator) use ($paths) {
-            foreach ((array)$paths as $path) {
-                $migrator->path($path);
-            }
-        });
-    }
-
-    /**
-     * Register paths to be published by the publish command.
-     *
-     * @param  array $paths
-     * @param  string $group
-     * @return void
-     */
-    protected function publishes(array $paths, $group = null)
-    {
-        $class = static::class;
-
-        if (!array_key_exists($class, static::$publishes)) {
-            static::$publishes[$class] = [];
-        }
-
-        static::$publishes[$class] = array_merge(static::$publishes[$class], $paths);
-
-        if ($group) {
-            if (!array_key_exists($group, static::$publishGroups)) {
-                static::$publishGroups[$group] = [];
-            }
-
-            static::$publishGroups[$group] = array_merge(static::$publishGroups[$group], $paths);
-        }
+        return [];
     }
 }

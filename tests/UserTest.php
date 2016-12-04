@@ -30,4 +30,14 @@ class UserTest extends TestCase
     		->click('administrateur')
     		->seePageIs('/login');
     }
+
+    // Test de réponse au sondage
+    public function testReponse()
+    {
+        $this->visit('/')
+            ->select('1', 'question_1')
+            ->type('Ceci est un test', 'question_3')
+            ->press('Valider')
+            ->see('Avis ajoutÃ© aux rÃ©sultats !');
+    }
 }

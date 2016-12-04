@@ -62,6 +62,15 @@ abstract class AbstractUriElement
     }
 
     /**
+     * Sets current \DOMElement instance.
+     *
+     * @param \DOMElement $node A \DOMElement instance
+     *
+     * @throws \LogicException If given node is not an anchor
+     */
+    abstract protected function setNode(\DOMElement $node);
+
+    /**
      * Gets the method associated with this link.
      *
      * @return string The method
@@ -128,43 +137,20 @@ abstract class AbstractUriElement
     abstract protected function getRawUri();
 
     /**
-     * Returns the canonicalized URI path (see RFC 3986, section 5.2.4).
+     * Remove the anchor from the uri.
      *
-     * @param string $path URI path
+     * @param string $uri
      *
      * @return string
      */
-    protected function canonicalizePath($path)
+    private function cleanupAnchor($uri)
     {
-        if ('' === $path || '/' === $path) {
-            return $path;
+        if (false !== $pos = strpos($uri, '#')) {
+            return substr($uri, 0, $pos);
         }
 
-        if ('.' === substr($path, -1)) {
-            $path .= '/';
-        }
-
-        $output = array();
-
-        foreach (explode('/', $path) as $segment) {
-            if ('..' === $segment) {
-                array_pop($output);
-            } elseif ('.' !== $segment) {
-                $output[] = $segment;
-            }
-        }
-
-        return implode('/', $output);
+        return $uri;
     }
-
-    /**
-     * Sets current \DOMElement instance.
-     *
-     * @param \DOMElement $node A \DOMElement instance
-     *
-     * @throws \LogicException If given node is not an anchor
-     */
-    abstract protected function setNode(\DOMElement $node);
 
     /**
      * Removes the query string and the anchor from the given uri.
@@ -195,18 +181,32 @@ abstract class AbstractUriElement
     }
 
     /**
-     * Remove the anchor from the uri.
+     * Returns the canonicalized URI path (see RFC 3986, section 5.2.4).
      *
-     * @param string $uri
+     * @param string $path URI path
      *
      * @return string
      */
-    private function cleanupAnchor($uri)
+    protected function canonicalizePath($path)
     {
-        if (false !== $pos = strpos($uri, '#')) {
-            return substr($uri, 0, $pos);
+        if ('' === $path || '/' === $path) {
+            return $path;
         }
 
-        return $uri;
+        if ('.' === substr($path, -1)) {
+            $path .= '/';
+        }
+
+        $output = array();
+
+        foreach (explode('/', $path) as $segment) {
+            if ('..' === $segment) {
+                array_pop($output);
+            } elseif ('.' !== $segment) {
+                $output[] = $segment;
+            }
+        }
+
+        return implode('/', $output);
     }
 }

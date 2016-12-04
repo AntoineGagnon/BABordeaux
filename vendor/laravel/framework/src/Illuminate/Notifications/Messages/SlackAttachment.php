@@ -100,12 +100,36 @@ class SlackAttachment
     /**
      * Set the color of the attachment.
      *
-     * @param  string $color
+     * @param  string  $color
      * @return $this
      */
     public function color($color)
     {
         $this->color = $color;
+
+        return $this;
+    }
+
+    /**
+     * Add a field to the attachment.
+     *
+     * @param  \Closure|array $title
+     * @param  string $content
+     * @return $this
+     */
+    public function field($title, $content = '')
+    {
+        if (is_callable($title)) {
+            $callback = $title;
+
+            $callback($attachmentField = new SlackAttachmentField);
+
+            $this->fields[] = $attachmentField;
+
+            return $this;
+        }
+
+        $this->fields[$title] = $content;
 
         return $this;
     }
@@ -126,7 +150,7 @@ class SlackAttachment
     /**
      * Set the fields containing markdown.
      *
-     * @param  array $fields
+     * @param  array  $fields
      * @return $this
      */
     public function markdown(array $fields)
@@ -139,7 +163,7 @@ class SlackAttachment
     /**
      * Set the footer content.
      *
-     * @param  string $footer
+     * @param  string  $footer
      * @return $this
      */
     public function footer($footer)
@@ -165,7 +189,7 @@ class SlackAttachment
     /**
      * Set the timestamp.
      *
-     * @param  Carbon $timestamp
+     * @param  Carbon  $timestamp
      * @return $this
      */
     public function timestamp(Carbon $timestamp)

@@ -80,17 +80,6 @@ class FileViewFinder implements ViewFinderInterface
     }
 
     /**
-     * Returns whether or not the view specify a hint information.
-     *
-     * @param  string $name
-     * @return bool
-     */
-    public function hasHintInformation($name)
-    {
-        return strpos($name, static::HINT_PATH_DELIMITER) > 0;
-    }
-
-    /**
      * Get the path to a template with a named path.
      *
      * @param  string  $name
@@ -232,6 +221,17 @@ class FileViewFinder implements ViewFinderInterface
         }
 
         array_unshift($this->extensions, $extension);
+    }
+
+    /**
+     * Returns whether or not the view name has any hint information.
+     *
+     * @param  string  $name
+     * @return bool
+     */
+    public function hasHintInformation($name)
+    {
+        return strpos($name, static::HINT_PATH_DELIMITER) > 0;
     }
 
     /**

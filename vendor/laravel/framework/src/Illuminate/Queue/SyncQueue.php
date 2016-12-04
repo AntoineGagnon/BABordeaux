@@ -23,6 +23,53 @@ class SyncQueue extends Queue implements QueueContract
     }
 
     /**
+     * Push a new job onto the queue.
+     *
+     * @param  string  $job
+     * @param  mixed   $data
+     * @param  string  $queue
+     * @return mixed
+     *
+     * @throws \Exception|\Throwable
+     */
+    public function push($job, $data = '', $queue = null)
+    {
+        $queueJob = $this->resolveJob($this->createPayload($job, $data, $queue), $queue);
+
+        try {
+            $this->raiseBeforeJobEvent($queueJob);
+
+            $queueJob->fire();
+
+            $this->raiseAfterJobEvent($queueJob);
+        } catch (Exception $e) {
+            $this->handleSyncException($queueJob, $e);
+        } catch (Throwable $e) {
+            $this->handleSyncException($queueJob, new FatalThrowableError($e));
+        }
+
+        return 0;
+    }
+
+    /**
+     * Handle an exception that occurred while processing a job.
+     *
+     * @param  \Illuminate\Queue\Jobs\Job  $queueJob
+     * @param  \Exception  $e
+     * @return void
+     *
+     * @throws \Exception
+     */
+    protected function handleSyncException($queueJob, $e)
+    {
+        $this->raiseExceptionOccurredJobEvent($queueJob, $e);
+
+        $this->handleFailedJob($queueJob, $e);
+
+        throw $e;
+    }
+
+    /**
      * Push a raw payload onto the queue.
      *
      * @param  string  $payload
@@ -50,32 +97,14 @@ class SyncQueue extends Queue implements QueueContract
     }
 
     /**
-     * Push a new job onto the queue.
+     * Pop the next job off of the queue.
      *
-     * @param  string $job
-     * @param  mixed $data
      * @param  string  $queue
-     * @return mixed
-     *
-     * @throws \Exception|\Throwable
+     * @return \Illuminate\Contracts\Queue\Job|null
      */
-    public function push($job, $data = '', $queue = null)
+    public function pop($queue = null)
     {
-        $queueJob = $this->resolveJob($this->createPayload($job, $data, $queue), $queue);
-
-        try {
-            $this->raiseBeforeJobEvent($queueJob);
-
-            $queueJob->fire();
-
-            $this->raiseAfterJobEvent($queueJob);
-        } catch (Exception $e) {
-            $this->handleSyncException($queueJob, $e);
-        } catch (Throwable $e) {
-            $this->handleSyncException($queueJob, new FatalThrowableError($e));
-        }
-
-        return 0;
+        //
     }
 
     /**
@@ -114,24 +143,6 @@ class SyncQueue extends Queue implements QueueContract
         if ($this->container->bound('events')) {
             $this->container['events']->fire(new Events\JobProcessed('sync', $job));
         }
-    }
-
-    /**
-     * Handle an exception that occurred while processing a job.
-     *
-     * @param  \Illuminate\Queue\Jobs\Job $queueJob
-     * @param  \Exception $e
-     * @return void
-     *
-     * @throws \Exception
-     */
-    protected function handleSyncException($queueJob, $e)
-    {
-        $this->raiseExceptionOccurredJobEvent($queueJob, $e);
-
-        $this->handleFailedJob($queueJob, $e);
-
-        throw $e;
     }
 
     /**
@@ -174,16 +185,5 @@ class SyncQueue extends Queue implements QueueContract
         if ($this->container->bound('events')) {
             $this->container['events']->fire(new Events\JobFailed('sync', $job, $e));
         }
-    }
-
-    /**
-     * Pop the next job off of the queue.
-     *
-     * @param  string $queue
-     * @return \Illuminate\Contracts\Queue\Job|null
-     */
-    public function pop($queue = null)
-    {
-        //
     }
 }

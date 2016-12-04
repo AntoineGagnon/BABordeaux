@@ -43,8 +43,8 @@ class PusherBroadcaster extends Broadcaster
         }
 
         $channelName = Str::startsWith($request->channel_name, 'private-')
-            ? Str::replaceFirst('private-', '', $request->channel_name)
-            : Str::replaceFirst('presence-', '', $request->channel_name);
+                            ? Str::replaceFirst('private-', '', $request->channel_name)
+                            : Str::replaceFirst('presence-', '', $request->channel_name);
 
         return parent::verifyUserCanAccessChannel(
             $request, $channelName
@@ -95,11 +95,10 @@ class PusherBroadcaster extends Broadcaster
     {
         $socket = Arr::pull($payload, 'socket');
 
-        $response = $this->pusher->trigger($this->formatChannels($channels), $event, $payload, $socket);
+        $response = $this->pusher->trigger($this->formatChannels($channels), $event, $payload, $socket, true);
 
         if ((is_array($response) && $response['status'] >= 200 && $response['status'] <= 299)
-            || $response === true
-        ) {
+            || $response === true) {
             return;
         }
 

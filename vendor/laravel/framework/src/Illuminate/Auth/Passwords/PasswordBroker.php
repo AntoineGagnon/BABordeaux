@@ -74,27 +74,6 @@ class PasswordBroker implements PasswordBrokerContract
     }
 
     /**
-     * Get the user for the given credentials.
-     *
-     * @param  array $credentials
-     * @return \Illuminate\Contracts\Auth\CanResetPassword
-     *
-     * @throws \UnexpectedValueException
-     */
-    public function getUser(array $credentials)
-    {
-        $credentials = Arr::except($credentials, ['token']);
-
-        $user = $this->users->retrieveByCredentials($credentials);
-
-        if ($user && !$user instanceof CanResetPasswordContract) {
-            throw new UnexpectedValueException('User must implement CanResetPassword interface.');
-        }
-
-        return $user;
-    }
-
-    /**
      * Reset the password for the given token.
      *
      * @param  array  $credentials
@@ -148,6 +127,17 @@ class PasswordBroker implements PasswordBrokerContract
     }
 
     /**
+     * Set a custom password validator.
+     *
+     * @param  \Closure  $callback
+     * @return void
+     */
+    public function validator(Closure $callback)
+    {
+        $this->passwordValidator = $callback;
+    }
+
+    /**
      * Determine if the passwords match for the request.
      *
      * @param  array  $credentials
@@ -185,14 +175,24 @@ class PasswordBroker implements PasswordBrokerContract
     }
 
     /**
-     * Set a custom password validator.
+     * Get the user for the given credentials.
      *
-     * @param  \Closure $callback
-     * @return void
+     * @param  array  $credentials
+     * @return \Illuminate\Contracts\Auth\CanResetPassword
+     *
+     * @throws \UnexpectedValueException
      */
-    public function validator(Closure $callback)
+    public function getUser(array $credentials)
     {
-        $this->passwordValidator = $callback;
+        $credentials = Arr::except($credentials, ['token']);
+
+        $user = $this->users->retrieveByCredentials($credentials);
+
+        if ($user && ! $user instanceof CanResetPasswordContract) {
+            throw new UnexpectedValueException('User must implement CanResetPassword interface.');
+        }
+
+        return $user;
     }
 
     /**

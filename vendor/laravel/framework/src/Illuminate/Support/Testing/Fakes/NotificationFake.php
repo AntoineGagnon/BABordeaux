@@ -41,6 +41,30 @@ class NotificationFake implements NotificationFactory
     }
 
     /**
+     * Determine if a notification was sent based on a truth-test callback.
+     *
+     * @param  mixed  $notifiable
+     * @param  string  $notification
+     * @param  callable|null  $callback
+     * @return void
+     */
+    public function assertNotSentTo($notifiable, $notification, $callback = null)
+    {
+        if (is_array($notifiable) || $notifiable instanceof Collection) {
+            foreach ($notifiable as $singleNotifiable) {
+                $this->assertNotSentTo($singleNotifiable, $notification, $callback);
+            }
+
+            return;
+        }
+
+        PHPUnit::assertTrue(
+            $this->sent($notifiable, $notification, $callback)->count() === 0,
+            "The unexpected [{$notification}] notification was sent."
+        );
+    }
+
+    /**
      * Get all of the notifications matching a truth-test callback.
      *
      * @param  mixed  $notifiable
@@ -91,30 +115,6 @@ class NotificationFake implements NotificationFactory
         }
 
         return [];
-    }
-
-    /**
-     * Determine if a notification was sent based on a truth-test callback.
-     *
-     * @param  mixed $notifiable
-     * @param  string $notification
-     * @param  callable|null $callback
-     * @return void
-     */
-    public function assertNotSentTo($notifiable, $notification, $callback = null)
-    {
-        if (is_array($notifiable) || $notifiable instanceof Collection) {
-            foreach ($notifiable as $singleNotifiable) {
-                $this->assertNotSentTo($singleNotifiable, $notification, $callback);
-            }
-
-            return;
-        }
-
-        PHPUnit::assertTrue(
-            $this->sent($notifiable, $notification, $callback)->count() === 0,
-            "The unexpected [{$notification}] notification was sent."
-        );
     }
 
     /**

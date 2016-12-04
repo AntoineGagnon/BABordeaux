@@ -22,16 +22,6 @@ class Response
     }
 
     /**
-     * Get the string representation of the message.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->message();
-    }
-
-    /**
      * Get the response message.
      *
      * @return string|null
@@ -39,5 +29,15 @@ class Response
     public function message()
     {
         return $this->message;
+    }
+
+    /**
+     * Get the string representation of the message.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->message();
     }
 }

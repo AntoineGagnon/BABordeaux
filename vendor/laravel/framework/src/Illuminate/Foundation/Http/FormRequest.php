@@ -68,32 +68,6 @@ class FormRequest extends Request implements ValidatesWhenResolved
     protected $dontFlash = ['password', 'password_confirmation'];
 
     /**
-     * Set the Redirector instance.
-     *
-     * @param  \Illuminate\Routing\Redirector $redirector
-     * @return $this
-     */
-    public function setRedirector(Redirector $redirector)
-    {
-        $this->redirector = $redirector;
-
-        return $this;
-    }
-
-    /**
-     * Set the container implementation.
-     *
-     * @param  \Illuminate\Container\Container $container
-     * @return $this
-     */
-    public function setContainer(Container $container)
-    {
-        $this->container = $container;
-
-        return $this;
-    }
-
-    /**
      * Get the validator instance for the request.
      *
      * @return \Illuminate\Contracts\Validation\Validator
@@ -129,29 +103,9 @@ class FormRequest extends Request implements ValidatesWhenResolved
     }
 
     /**
-     * Get custom messages for validator errors.
-     *
-     * @return array
-     */
-    public function messages()
-    {
-        return [];
-    }
-
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array
-     */
-    public function attributes()
-    {
-        return [];
-    }
-
-    /**
      * Handle a failed validation attempt.
      *
-     * @param  \Illuminate\Contracts\Validation\Validator $validator
+     * @param  \Illuminate\Contracts\Validation\Validator  $validator
      * @return void
      *
      * @throws \Illuminate\Validation\ValidationException
@@ -161,54 +115,6 @@ class FormRequest extends Request implements ValidatesWhenResolved
         throw new ValidationException($validator, $this->response(
             $this->formatErrors($validator)
         ));
-    }
-
-    /**
-     * Get the proper failed validation response for the request.
-     *
-     * @param  array  $errors
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function response(array $errors)
-    {
-        if ($this->expectsJson()) {
-            return new JsonResponse($errors, 422);
-        }
-
-        return $this->redirector->to($this->getRedirectUrl())
-                                        ->withInput($this->except($this->dontFlash))
-                                        ->withErrors($errors, $this->errorBag);
-    }
-
-    /**
-     * Get the URL to redirect to on a validation error.
-     *
-     * @return string
-     */
-    protected function getRedirectUrl()
-    {
-        $url = $this->redirector->getUrlGenerator();
-
-        if ($this->redirect) {
-            return $url->to($this->redirect);
-        } elseif ($this->redirectRoute) {
-            return $url->route($this->redirectRoute);
-        } elseif ($this->redirectAction) {
-            return $url->action($this->redirectAction);
-        }
-
-        return $url->previous();
-    }
-
-    /**
-     * Format the errors from the given Validator instance.
-     *
-     * @param  \Illuminate\Contracts\Validation\Validator $validator
-     * @return array
-     */
-    protected function formatErrors(Validator $validator)
-    {
-        return $validator->getMessageBag()->toArray();
     }
 
     /**
@@ -238,6 +144,23 @@ class FormRequest extends Request implements ValidatesWhenResolved
     }
 
     /**
+     * Get the proper failed validation response for the request.
+     *
+     * @param  array  $errors
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function response(array $errors)
+    {
+        if ($this->expectsJson()) {
+            return new JsonResponse($errors, 422);
+        }
+
+        return $this->redirector->to($this->getRedirectUrl())
+                                        ->withInput($this->except($this->dontFlash))
+                                        ->withErrors($errors, $this->errorBag);
+    }
+
+    /**
      * Get the response for a forbidden operation.
      *
      * @return \Symfony\Component\HttpFoundation\Response
@@ -245,5 +168,82 @@ class FormRequest extends Request implements ValidatesWhenResolved
     public function forbiddenResponse()
     {
         return new Response('Forbidden', 403);
+    }
+
+    /**
+     * Format the errors from the given Validator instance.
+     *
+     * @param  \Illuminate\Contracts\Validation\Validator  $validator
+     * @return array
+     */
+    protected function formatErrors(Validator $validator)
+    {
+        return $validator->getMessageBag()->toArray();
+    }
+
+    /**
+     * Get the URL to redirect to on a validation error.
+     *
+     * @return string
+     */
+    protected function getRedirectUrl()
+    {
+        $url = $this->redirector->getUrlGenerator();
+
+        if ($this->redirect) {
+            return $url->to($this->redirect);
+        } elseif ($this->redirectRoute) {
+            return $url->route($this->redirectRoute);
+        } elseif ($this->redirectAction) {
+            return $url->action($this->redirectAction);
+        }
+
+        return $url->previous();
+    }
+
+    /**
+     * Set the Redirector instance.
+     *
+     * @param  \Illuminate\Routing\Redirector  $redirector
+     * @return $this
+     */
+    public function setRedirector(Redirector $redirector)
+    {
+        $this->redirector = $redirector;
+
+        return $this;
+    }
+
+    /**
+     * Set the container implementation.
+     *
+     * @param  \Illuminate\Container\Container  $container
+     * @return $this
+     */
+    public function setContainer(Container $container)
+    {
+        $this->container = $container;
+
+        return $this;
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array
+     */
+    public function attributes()
+    {
+        return [];
     }
 }

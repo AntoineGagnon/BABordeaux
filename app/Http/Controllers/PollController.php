@@ -7,6 +7,7 @@ use App\question_group;
 use App\submission;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -37,8 +38,17 @@ class PollController extends Controller
         for ($i = 0; $i <= $maxID; $i++) {
             if($request->has('question_' . $i)) {
                 $value = $request->input('question_' . $i);
-                // Non open question
-                if(is_numeric($value)){
+                // Checkbox question
+                if (is_array($value)) {
+                    foreach ($value as $checkboxChoice) {
+                        $choice = new choice();
+                        $choice->question_id = $i;
+                        $choice->answer_id = $checkboxChoice;
+                        $choice->submission_id = $sub->id;
+                        $choice->save();
+                    }
+                } // Radio question
+                elseif (is_numeric($value)) {
                     $choice = new choice();
                     $choice->question_id = $i;
                     $choice->answer_id = $value;
@@ -47,7 +57,17 @@ class PollController extends Controller
                 }
                 // Open question
                 else {
-                    //TODO Open answer
+                    $answer = new answer();
+                    $answer->question_id = $i;
+                    $answer->answer_order = 0;
+                    $answer->label = $value;
+                    $answer->save();
+
+                    $choice = new choice();
+                    $choice->question_id = $i;
+                    $choice->answer_id = $answer->id;
+                    $choice->submission_id = $sub->id;
+                    $choice->save();
                 }
             }
         }
@@ -62,7 +82,9 @@ class PollController extends Controller
      */
     public function index()
     {
-        $questionGroups = question_group::all();
+        $questionGroups = question_group::whereExists(function ($query) {
+            $query->select(DB::raw(1))->from('questions')->whereRaw('questions.question_group_id = question_groups.id')->where('isVisible', 1);
+        })->get();
 
 
         foreach ($questionGroups as $questionGroup) {

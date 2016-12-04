@@ -30,6 +30,21 @@ class EventFake implements Dispatcher
     }
 
     /**
+     * Determine if an event was fired based on a truth-test callback.
+     *
+     * @param  string  $event
+     * @param  callable|null  $callback
+     * @return void
+     */
+    public function assertNotFired($event, $callback = null)
+    {
+        PHPUnit::assertTrue(
+            $this->fired($event, $callback)->count() === 0,
+            "The unexpected [{$event}] event was fired."
+        );
+    }
+
+    /**
      * Get all of the events matching a truth-test callback.
      *
      * @param  string  $event
@@ -77,21 +92,6 @@ class EventFake implements Dispatcher
         } else {
             return [get_class($arguments[0]) => $arguments[0]];
         }
-    }
-
-    /**
-     * Determine if an event was fired based on a truth-test callback.
-     *
-     * @param  string $event
-     * @param  callable|null $callback
-     * @return void
-     */
-    public function assertNotFired($event, $callback = null)
-    {
-        PHPUnit::assertTrue(
-            $this->fired($event, $callback)->count() === 0,
-            "The unexpected [{$event}] event was fired."
-        );
     }
 
     /**
@@ -154,6 +154,17 @@ class EventFake implements Dispatcher
     }
 
     /**
+     * Flush a set of pushed events.
+     *
+     * @param  string  $event
+     * @return void
+     */
+    public function flush($event)
+    {
+        //
+    }
+
+    /**
      * Fire an event and call the listeners.
      *
      * @param  string|object  $event
@@ -166,17 +177,6 @@ class EventFake implements Dispatcher
         $name = is_object($event) ? get_class($event) : (string) $event;
 
         $this->events[$name][] = func_get_args();
-    }
-
-    /**
-     * Flush a set of pushed events.
-     *
-     * @param  string $event
-     * @return void
-     */
-    public function flush($event)
-    {
-        //
     }
 
     /**

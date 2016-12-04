@@ -147,6 +147,19 @@ class Mailer implements MailerContract, MailQueueContract
     }
 
     /**
+     * Send a new message when only a plain part.
+     *
+     * @param  string  $view
+     * @param  array  $data
+     * @param  mixed  $callback
+     * @return void
+     */
+    public function plain($view, array $data, $callback)
+    {
+        return $this->send(['text' => $view], $data, $callback);
+    }
+
+    /**
      * Send a new message using a view.
      *
      * @param  string|array  $view
@@ -181,6 +194,133 @@ class Mailer implements MailerContract, MailQueueContract
         $message = $message->getSwiftMessage();
 
         $this->sendSwiftMessage($message);
+    }
+
+    /**
+     * Queue a new e-mail message for sending.
+     *
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @param  string|null  $queue
+     * @return mixed
+     */
+    public function queue($view, array $data = [], $callback = null, $queue = null)
+    {
+        if ($view instanceof MailableContract) {
+            return $view->queue($this->queue);
+        }
+
+        return $this->queue->pushOn(
+            $queue, new Jobs\HandleQueuedMessage($view, $data, $callback)
+        );
+    }
+
+    /**
+     * Queue a new e-mail message for sending on the given queue.
+     *
+     * @param  string  $queue
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @return mixed
+     */
+    public function onQueue($queue, $view, array $data, $callback)
+    {
+        return $this->queue($view, $data, $callback, $queue);
+    }
+
+    /**
+     * Queue a new e-mail message for sending on the given queue.
+     *
+     * This method didn't match rest of framework's "onQueue" phrasing. Added "onQueue".
+     *
+     * @param  string  $queue
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @return mixed
+     */
+    public function queueOn($queue, $view, array $data, $callback)
+    {
+        return $this->onQueue($queue, $view, $data, $callback);
+    }
+
+    /**
+     * Queue a new e-mail message for sending after (n) seconds.
+     *
+     * @param  int  $delay
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @param  string|null  $queue
+     * @return mixed
+     */
+    public function later($delay, $view, array $data = [], $callback = null, $queue = null)
+    {
+        if ($view instanceof MailableContract) {
+            return $view->later($delay, $this->queue);
+        }
+
+        return $this->queue->laterOn(
+            $queue, $delay, new Jobs\HandleQueuedMessage($view, $data, $callback)
+        );
+    }
+
+    /**
+     * Queue a new e-mail message for sending after (n) seconds on the given queue.
+     *
+     * @param  string  $queue
+     * @param  int  $delay
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @return mixed
+     */
+    public function laterOn($queue, $delay, $view, array $data, $callback)
+    {
+        return $this->later($delay, $view, $data, $callback, $queue);
+    }
+
+    /**
+     * Force the transport to re-connect.
+     *
+     * This will prevent errors in daemon queue situations.
+     *
+     * @return void
+     */
+    protected function forceReconnection()
+    {
+        $this->getSwiftMailer()->getTransport()->stop();
+    }
+
+    /**
+     * Add the content to a given message.
+     *
+     * @param  \Illuminate\Mail\Message  $message
+     * @param  string  $view
+     * @param  string  $plain
+     * @param  string  $raw
+     * @param  array  $data
+     * @return void
+     */
+    protected function addContent($message, $view, $plain, $raw, $data)
+    {
+        if (isset($view)) {
+            $message->setBody($this->getView($view, $data), 'text/html');
+        }
+
+        if (isset($plain)) {
+            $method = isset($view) ? 'addPart' : 'setBody';
+
+            $message->$method($this->getView($plain, $data), 'text/plain');
+        }
+
+        if (isset($raw)) {
+            $method = (isset($view) || isset($plain)) ? 'addPart' : 'setBody';
+
+            $message->$method($raw, 'text/plain');
+        }
     }
 
     /**
@@ -219,88 +359,6 @@ class Mailer implements MailerContract, MailQueueContract
     }
 
     /**
-     * Create a new message instance.
-     *
-     * @return \Illuminate\Mail\Message
-     */
-    protected function createMessage()
-    {
-        $message = new Message(new Swift_Message);
-
-        // If a global from address has been specified we will set it on every message
-        // instances so the developer does not have to repeat themselves every time
-        // they create a new message. We will just go ahead and push the address.
-        if (!empty($this->from['address'])) {
-            $message->from($this->from['address'], $this->from['name']);
-        }
-
-        return $message;
-    }
-
-    /**
-     * Add the content to a given message.
-     *
-     * @param  \Illuminate\Mail\Message  $message
-     * @param  string  $view
-     * @param  string  $plain
-     * @param  string  $raw
-     * @param  array  $data
-     * @return void
-     */
-    protected function addContent($message, $view, $plain, $raw, $data)
-    {
-        if (isset($view)) {
-            $message->setBody($this->getView($view, $data), 'text/html');
-        }
-
-        if (isset($plain)) {
-            $method = isset($view) ? 'addPart' : 'setBody';
-
-            $message->$method($this->getView($plain, $data), 'text/plain');
-        }
-
-        if (isset($raw)) {
-            $method = (isset($view) || isset($plain)) ? 'addPart' : 'setBody';
-
-            $message->$method($raw, 'text/plain');
-        }
-    }
-
-    /**
-     * Render the given view.
-     *
-     * @param  string $view
-     * @param  array $data
-     * @return string
-     */
-    protected function getView($view, $data)
-    {
-        return $this->views->make($view, $data)->render();
-    }
-
-    /**
-     * Call the provided message builder.
-     *
-     * @param  \Closure|string $callback
-     * @param  \Illuminate\Mail\Message $message
-     * @return mixed
-     *
-     * @throws \InvalidArgumentException
-     */
-    protected function callMessageBuilder($callback, $message)
-    {
-        if ($callback instanceof Closure) {
-            return call_user_func($callback, $message);
-        }
-
-        if (is_string($callback)) {
-            return $this->container->make($callback)->mail($message);
-        }
-
-        throw new InvalidArgumentException('Callback is not valid.');
-    }
-
-    /**
      * Send a Swift Message instance.
      *
      * @param  \Swift_Message  $message
@@ -320,124 +378,56 @@ class Mailer implements MailerContract, MailQueueContract
     }
 
     /**
-     * Force the transport to re-connect.
+     * Call the provided message builder.
      *
-     * This will prevent errors in daemon queue situations.
-     *
-     * @return void
-     */
-    protected function forceReconnection()
-    {
-        $this->getSwiftMailer()->getTransport()->stop();
-    }
-
-    /**
-     * Get the Swift Mailer instance.
-     *
-     * @return \Swift_Mailer
-     */
-    public function getSwiftMailer()
-    {
-        return $this->swift;
-    }
-
-    /**
-     * Send a new message when only a plain part.
-     *
-     * @param  string $view
-     * @param  array $data
-     * @param  mixed $callback
-     * @return void
-     */
-    public function plain($view, array $data, $callback)
-    {
-        return $this->send(['text' => $view], $data, $callback);
-    }
-
-    /**
-     * Queue a new e-mail message for sending on the given queue.
-     *
-     * This method didn't match rest of framework's "onQueue" phrasing. Added "onQueue".
-     *
-     * @param  string $queue
-     * @param  string|array $view
-     * @param  array $data
-     * @param  \Closure|string $callback
+     * @param  \Closure|string  $callback
+     * @param  \Illuminate\Mail\Message  $message
      * @return mixed
-     */
-    public function queueOn($queue, $view, array $data, $callback)
-    {
-        return $this->onQueue($queue, $view, $data, $callback);
-    }
-
-    /**
-     * Queue a new e-mail message for sending on the given queue.
      *
-     * @param  string $queue
-     * @param  string|array $view
-     * @param  array $data
-     * @param  \Closure|string $callback
-     * @return mixed
+     * @throws \InvalidArgumentException
      */
-    public function onQueue($queue, $view, array $data, $callback)
+    protected function callMessageBuilder($callback, $message)
     {
-        return $this->queue($view, $data, $callback, $queue);
-    }
-
-    /**
-     * Queue a new e-mail message for sending.
-     *
-     * @param  string|array $view
-     * @param  array $data
-     * @param  \Closure|string $callback
-     * @param  string|null $queue
-     * @return mixed
-     */
-    public function queue($view, array $data = [], $callback = null, $queue = null)
-    {
-        if ($view instanceof MailableContract) {
-            return $view->queue($this->queue);
+        if ($callback instanceof Closure) {
+            return call_user_func($callback, $message);
         }
 
-        return $this->queue->pushOn(
-            $queue, new Jobs\HandleQueuedMessage($view, $data, $callback)
-        );
+        if (is_string($callback)) {
+            return $this->container->make($callback)->mail($message);
+        }
+
+        throw new InvalidArgumentException('Callback is not valid.');
     }
 
     /**
-     * Queue a new e-mail message for sending after (n) seconds on the given queue.
+     * Create a new message instance.
      *
-     * @param  string $queue
-     * @param  int $delay
-     * @param  string|array $view
+     * @return \Illuminate\Mail\Message
+     */
+    protected function createMessage()
+    {
+        $message = new Message(new Swift_Message);
+
+        // If a global from address has been specified we will set it on every message
+        // instances so the developer does not have to repeat themselves every time
+        // they create a new message. We will just go ahead and push the address.
+        if (! empty($this->from['address'])) {
+            $message->from($this->from['address'], $this->from['name']);
+        }
+
+        return $message;
+    }
+
+    /**
+     * Render the given view.
+     *
+     * @param  string  $view
      * @param  array  $data
-     * @param  \Closure|string $callback
-     * @return mixed
+     * @return string
      */
-    public function laterOn($queue, $delay, $view, array $data, $callback)
+    protected function getView($view, $data)
     {
-        return $this->later($delay, $view, $data, $callback, $queue);
-    }
-
-    /**
-     * Queue a new e-mail message for sending after (n) seconds.
-     *
-     * @param  int $delay
-     * @param  string|array $view
-     * @param  array $data
-     * @param  \Closure|string $callback
-     * @param  string|null $queue
-     * @return mixed
-     */
-    public function later($delay, $view, array $data = [], $callback = null, $queue = null)
-    {
-        if ($view instanceof MailableContract) {
-            return $view->later($delay, $this->queue);
-        }
-
-        return $this->queue->laterOn(
-            $queue, $delay, new Jobs\HandleQueuedMessage($view, $data, $callback)
-        );
+        return $this->views->make($view, $data)->render();
     }
 
     /**
@@ -448,6 +438,16 @@ class Mailer implements MailerContract, MailQueueContract
     public function getViewFactory()
     {
         return $this->views;
+    }
+
+    /**
+     * Get the Swift Mailer instance.
+     *
+     * @return \Swift_Mailer
+     */
+    public function getSwiftMailer()
+    {
+        return $this->swift;
     }
 
     /**

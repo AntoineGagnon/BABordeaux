@@ -71,7 +71,7 @@
                                                             <label class="form-check-label">
 
                                                                 <input class="form-check-input" type="checkbox"
-                                                                       name="question_{{ $question->id }}"
+                                                                       name="question_{{ $question->id }}[]"
                                                                        value="{{ $answer->id }}"> {{ $answer->label }}
                                                             </label>
                                                         </div>
@@ -89,12 +89,12 @@
 
                         @if(!($questionGroup == $questionGroups->first()))
                             <button type="button"
-                                    class="btn btn-info glyphicon glyphicon-arrow-left prev-button"></button>
+                                    class="btn btn-info glyphicon glyphicon-arrow-left prev-button" id="prevButton"></button>
                         @endif
 
                         @if(! ($questionGroup == $questionGroups->last()))
                             <button type="button"
-                                    class="btn btn-info pull-right glyphicon glyphicon-arrow-right next-button"></button>
+                                    class="btn btn-info pull-right glyphicon glyphicon-arrow-right next-button" id="nextButton"></button>
                         @else
                             <button type="submit" class="btn btn-primary pull-right btn-lg" id="submitBtn">Valider
                             </button>
@@ -152,10 +152,11 @@
         });
 
         function updateProgressBar() {
+            var progressBar = $('.progress-bar');
             var value = 0;
-            value = page / ({{$questionGroups->count()}} -1) * 100;
-            $('.progress-bar').css('width', value + '%').attr('aria-valuenow', value);
-            $('.progress-bar').text(value + "%");
+            value = Math.ceil(page / ({{$questionGroups->count()}} -1) * 100);
+            progressBar.css('width', value + '%').attr('aria-valuenow', value);
+            progressBar.text(value + "%");
         }
 
         function onPrevButtonClick() {

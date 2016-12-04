@@ -74,6 +74,23 @@ class ListenCommand extends Command
     }
 
     /**
+     * Get the name of the queue connection to listen on.
+     *
+     * @param  string  $connection
+     * @return string
+     */
+    protected function getQueue($connection)
+    {
+        if (is_null($connection)) {
+            $connection = $this->laravel['config']['queue.default'];
+        }
+
+        $queue = $this->laravel['config']->get("queue.connections.{$connection}.queue", 'default');
+
+        return $this->input->getOption('queue') ?: $queue;
+    }
+
+    /**
      * Set the options on the queue listener.
      *
      * @return void
@@ -89,23 +106,6 @@ class ListenCommand extends Command
         $this->listener->setOutputHandler(function ($type, $line) {
             $this->output->write($line);
         });
-    }
-
-    /**
-     * Get the name of the queue connection to listen on.
-     *
-     * @param  string $connection
-     * @return string
-     */
-    protected function getQueue($connection)
-    {
-        if (is_null($connection)) {
-            $connection = $this->laravel['config']['queue.default'];
-        }
-
-        $queue = $this->laravel['config']->get("queue.connections.{$connection}.queue", 'default');
-
-        return $this->input->getOption('queue') ?: $queue;
     }
 
     /**

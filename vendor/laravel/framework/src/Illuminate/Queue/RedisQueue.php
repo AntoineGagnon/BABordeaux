@@ -70,27 +70,6 @@ class RedisQueue extends Queue implements QueueContract
     }
 
     /**
-     * Get the queue or return the default.
-     *
-     * @param  string|null $queue
-     * @return string
-     */
-    protected function getQueue($queue)
-    {
-        return 'queues:' . ($queue ?: $this->default);
-    }
-
-    /**
-     * Get the connection for the queue.
-     *
-     * @return \Predis\ClientInterface
-     */
-    protected function getConnection()
-    {
-        return $this->redis->connection($this->connection);
-    }
-
-    /**
      * Push a new job onto the queue.
      *
      * @param  string  $job
@@ -116,33 +95,6 @@ class RedisQueue extends Queue implements QueueContract
         $this->getConnection()->rpush($this->getQueue($queue), $payload);
 
         return Arr::get(json_decode($payload, true), 'id');
-    }
-
-    /**
-     * Create a payload string from the given job and data.
-     *
-     * @param  string $job
-     * @param  mixed $data
-     * @param  string $queue
-     * @return string
-     */
-    protected function createPayload($job, $data = '', $queue = null)
-    {
-        $payload = $this->setMeta(
-            parent::createPayload($job, $data), 'id', $this->getRandomId()
-        );
-
-        return $this->setMeta($payload, 'attempts', 1);
-    }
-
-    /**
-     * Get a random ID string.
-     *
-     * @return string
-     */
-    protected function getRandomId()
-    {
-        return Str::random(32);
     }
 
     /**
@@ -193,20 +145,6 @@ class RedisQueue extends Queue implements QueueContract
     }
 
     /**
-     * Migrate the delayed jobs that are ready to the regular queue.
-     *
-     * @param  string $from
-     * @param  string $to
-     * @return void
-     */
-    public function migrateExpiredJobs($from, $to)
-    {
-        $this->getConnection()->eval(
-            LuaScripts::migrateExpiredJobs(), 2, $from, $to, $this->getTime()
-        );
-    }
-
-    /**
      * Delete a reserved job from the queue.
      *
      * @param  string  $queue
@@ -234,6 +172,68 @@ class RedisQueue extends Queue implements QueueContract
             LuaScripts::release(), 2, $queue.':delayed', $queue.':reserved',
             $job, $this->getTime() + $delay
         );
+    }
+
+    /**
+     * Migrate the delayed jobs that are ready to the regular queue.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return void
+     */
+    public function migrateExpiredJobs($from, $to)
+    {
+        $this->getConnection()->eval(
+            LuaScripts::migrateExpiredJobs(), 2, $from, $to, $this->getTime()
+        );
+    }
+
+    /**
+     * Create a payload string from the given job and data.
+     *
+     * @param  string  $job
+     * @param  mixed   $data
+     * @param  string  $queue
+     * @return string
+     */
+    protected function createPayload($job, $data = '', $queue = null)
+    {
+        $payload = $this->setMeta(
+            parent::createPayload($job, $data), 'id', $this->getRandomId()
+        );
+
+        return $this->setMeta($payload, 'attempts', 1);
+    }
+
+    /**
+     * Get a random ID string.
+     *
+     * @return string
+     */
+    protected function getRandomId()
+    {
+        return Str::random(32);
+    }
+
+    /**
+     * Get the queue or return the default.
+     *
+     * @param  string|null  $queue
+     * @return string
+     */
+    protected function getQueue($queue)
+    {
+        return 'queues:'.($queue ?: $this->default);
+    }
+
+    /**
+     * Get the connection for the queue.
+     *
+     * @return \Predis\ClientInterface
+     */
+    protected function getConnection()
+    {
+        return $this->redis->connection($this->connection);
     }
 
     /**

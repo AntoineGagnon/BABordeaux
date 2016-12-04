@@ -140,26 +140,6 @@ class Command extends SymfonyCommand
     }
 
     /**
-     * Get the console command arguments.
-     *
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [];
-    }
-
-    /**
-     * Get the console command options.
-     *
-     * @return array
-     */
-    protected function getOptions()
-    {
-        return [];
-    }
-
-    /**
      * Run the console command.
      *
      * @param  \Symfony\Component\Console\Input\InputInterface  $input
@@ -173,6 +153,20 @@ class Command extends SymfonyCommand
         $this->output = new OutputStyle($input, $output);
 
         return parent::run($input, $output);
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @param  \Symfony\Component\Console\Input\InputInterface  $input
+     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
+     * @return mixed
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $method = method_exists($this, 'handle') ? 'handle' : 'fire';
+
+        return $this->laravel->call([$this, $method]);
     }
 
     /**
@@ -219,16 +213,6 @@ class Command extends SymfonyCommand
     }
 
     /**
-     * Get all of the arguments passed to the command.
-     *
-     * @return array
-     */
-    public function arguments()
-    {
-        return $this->argument();
-    }
-
-    /**
      * Get the value of a command argument.
      *
      * @param  string  $key
@@ -244,24 +228,24 @@ class Command extends SymfonyCommand
     }
 
     /**
+     * Get all of the arguments passed to the command.
+     *
+     * @return array
+     */
+    public function arguments()
+    {
+        return $this->argument();
+    }
+
+    /**
      * Determine if the given option is present.
      *
-     * @param  string $name
+     * @param  string  $name
      * @return bool
      */
     public function hasOption($name)
     {
         return $this->input->hasOption($name);
-    }
-
-    /**
-     * Get all of the options passed to the command.
-     *
-     * @return array
-     */
-    public function options()
-    {
-        return $this->option();
     }
 
     /**
@@ -277,6 +261,16 @@ class Command extends SymfonyCommand
         }
 
         return $this->input->getOption($key);
+    }
+
+    /**
+     * Get all of the options passed to the command.
+     *
+     * @return array
+     */
+    public function options()
+    {
+        return $this->option();
     }
 
     /**
@@ -415,23 +409,6 @@ class Command extends SymfonyCommand
     }
 
     /**
-     * Get the verbosity level in terms of Symfony's OutputInterface level.
-     *
-     * @param  string|int $level
-     * @return int
-     */
-    protected function parseVerbosity($level = null)
-    {
-        if (isset($this->verbosityMap[$level])) {
-            $level = $this->verbosityMap[$level];
-        } elseif (!is_int($level)) {
-            $level = $this->verbosity;
-        }
-
-        return $level;
-    }
-
-    /**
      * Write a string as comment output.
      *
      * @param  string  $string
@@ -486,6 +463,54 @@ class Command extends SymfonyCommand
     }
 
     /**
+     * Get the verbosity level in terms of Symfony's OutputInterface level.
+     *
+     * @param  string|int  $level
+     * @return int
+     */
+    protected function parseVerbosity($level = null)
+    {
+        if (isset($this->verbosityMap[$level])) {
+            $level = $this->verbosityMap[$level];
+        } elseif (! is_int($level)) {
+            $level = $this->verbosity;
+        }
+
+        return $level;
+    }
+
+    /**
+     * Set the verbosity level.
+     *
+     * @param string|int $level
+     * @return void
+     */
+    protected function setVerbosity($level)
+    {
+        $this->verbosity = $this->parseVerbosity($level);
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [];
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [];
+    }
+
+    /**
      * Get the output implementation.
      *
      * @return \Symfony\Component\Console\Output\OutputInterface
@@ -508,36 +533,11 @@ class Command extends SymfonyCommand
     /**
      * Set the Laravel application instance.
      *
-     * @param  \Illuminate\Contracts\Container\Container $laravel
+     * @param  \Illuminate\Contracts\Container\Container  $laravel
      * @return void
      */
     public function setLaravel($laravel)
     {
         $this->laravel = $laravel;
-    }
-
-    /**
-     * Execute the console command.
-     *
-     * @param  \Symfony\Component\Console\Input\InputInterface $input
-     * @param  \Symfony\Component\Console\Output\OutputInterface $output
-     * @return mixed
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        $method = method_exists($this, 'handle') ? 'handle' : 'fire';
-
-        return $this->laravel->call([$this, $method]);
-    }
-
-    /**
-     * Set the verbosity level.
-     *
-     * @param string|int $level
-     * @return void
-     */
-    protected function setVerbosity($level)
-    {
-        $this->verbosity = $this->parseVerbosity($level);
     }
 }

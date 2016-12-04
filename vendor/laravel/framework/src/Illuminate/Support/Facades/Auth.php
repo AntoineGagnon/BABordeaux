@@ -11,16 +11,6 @@ namespace Illuminate\Support\Facades;
 class Auth extends Facade
 {
     /**
-     * Register the typical authentication routes for an application.
-     *
-     * @return void
-     */
-    public static function routes()
-    {
-        static::$app->make('router')->auth();
-    }
-
-    /**
      * Get the registered name of the component.
      *
      * @return string
@@ -28,5 +18,15 @@ class Auth extends Facade
     protected static function getFacadeAccessor()
     {
         return 'auth';
+    }
+
+    /**
+     * Register the typical authentication routes for an application.
+     *
+     * @return void
+     */
+    public static function routes()
+    {
+        static::$app->make('router')->auth();
     }
 }
