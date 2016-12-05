@@ -214,18 +214,20 @@
             //delete question
             $('.divdeletequestion').on("click", ".btnRemoveQuestion",function(){
                 var question_id = $(this).val();
-                $.ajax({
-                    type: "POST",
-                    url: '/question/'+question_id,
-                    data: {_method:'delete', _id:question_id},
-                    success: function(data) {
-                        $(".editform").load(location.href + " .editform*","");
-                        console.log("ok delete");
-                    },
-                    error: function(data) {
-                        console.log("error ajax delete: " + data);
-                    }
-                });
+                if (confirm("Êtes-vous sûr de vouloir supprimer cette question ? (irréversible) ")) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/question/' + question_id,
+                        data: {_method: 'delete', _id: question_id},
+                        success: function (data) {
+                            $(".editform").load(location.href + " .editform*", "");
+                            console.log("ok delete");
+                        },
+                        error: function (data) {
+                            console.log("error ajax delete: " + data);
+                        }
+                    })
+                };
             });
 
             //hide question

@@ -12,13 +12,7 @@ use App\answer;
 use App\question;
 use App\question_group;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
-
-//TODO NumGroup plante quand on supprime toutes les questions par ajax car le num groupe affiché (ex 42) n'existe plus en BD du coup
-//TODO faire un redirect sur le post update label question et pas return view sinon ajax marche plus
-//TODO Quand il y a deux question, update que la deuxieme (donc la derniere de la liste a chaque fois car ne prend pas le $request de la premiere je pense;
-//TODO confirm dialog lors d'appel ajax
 
 class QuestionController extends Controller
 {
@@ -37,57 +31,48 @@ class QuestionController extends Controller
         if(!empty($request->delete)){
             $this->postDeleteQuestion($request);
         } else {
-
-
-            $question = new question();
-            /*if($request->num_group_questions != "new_question_group"): {
-                empty(question::where('question_group_id', $request->num_group_questions)
-                    ->where('question_order', $request->order_num)->get()) ? $question->question_order = $request->order_num
-                    : $question->question_order = $request->order_num + 1;
-            }else:
-            {
+                $question = new question();
                 $question->question_order = $request->order_num;
-            }
-            endif;*/
-            $question->question_order = $request->order_num;
-            $question->label = $request->question_label;
-            $question->questionType = $request->question_type;
-            $question->isRequired = $request->is_required;
+                $question->label = $request->question_label;
+                $question->questionType = $request->question_type;
+                $question->isRequired = $request->is_required;
 
-            if ($request->num_group_questions == "new_question_group") {
+            if ($request->num_group_questions == "new_question_group" || question_group::find($request->num_group_questions) == null ) {
                 $question_group = new question_group();
                 $max_questionGroup_groupOrder = question_group::all()->max("group_order");
                 $question_group->group_order = $max_questionGroup_groupOrder + 1;
                 $question_group->save();
                 $question->question_group_id = $question_group->id;
+
             } else {
                 $question->question_group_id = $request->num_group_questions;
             }
 
-            $question->save();
-
-            if ($question->questionType == "singleChoice" || $question->questionType == "multipleChoice") {
-                $nbchoices = $request->nb_choices;
-                for ($x = 0; $x <= $nbchoices; $x++) {
-                    $answer = new answer();
-                    $answer->question_id = $question->id;
-                    $answer->answer_order = $x;
-                    $answer->label = $request->input("choice" . $x);
-                    $answer->save();
-                }
-            }
-
-            $questionAddedWorked = true;
-            $questions = question::all();
-            $questionGroups = question_group::all();
-            foreach ($questionGroups as $questionGroup) {
-                if (question::where('question_group_id', $questionGroup->id)->count() == 0) {
-                    $questionGroup->destroy($questionGroup->id);
-                }
-            }
-            return redirect()->action('PollController@adminEditPoll')->with(['questionAdded' => $questionAddedWorked, 'questionGroups' => $questionGroups, 'questions' => $questions]);
-            //return view('admin_poll_edit_view', ['questionAdded' => $questionAddedWorked, 'questionGroups' => $questionGroups, 'questions' => $questions]);
         }
+
+        $question->save();
+
+        if ($question->questionType == "singleChoice" || $question->questionType == "multipleChoice") {
+            $nbchoices = $request->nb_choices;
+            for ($x = 0; $x <= $nbchoices; $x++) {
+                $answer = new answer();
+                $answer->question_id = $question->id;
+                $answer->answer_order = $x;
+                $answer->label = $request->input("choice" . $x);
+                $answer->save();
+            }
+        }
+
+        $questionAddedWorked = true;
+        $questions = question::all();
+        $questionGroups = question_group::all();
+        foreach ($questionGroups as $questionGroup) {
+            if (question::where('question_group_id', $questionGroup->id)->count() == 0) {
+                $questionGroup->destroy($questionGroup->id);
+            }
+        }
+
+        return redirect()->action('PollController@adminEditPoll')->with(['questionAdded' => $questionAddedWorked, 'questionGroups' => $questionGroups, 'questions' => $questions]);
     }
 
     /**
@@ -182,8 +167,7 @@ class QuestionController extends Controller
             }
         }
 
-        return view('admin_poll_edit_view', ['questionGroups' => $questionGroups, 'questions' => $questions]);
-
+        return redirect()->action('PollController@adminEditPoll')->with(['questionGroups' => $questionGroups, 'questions' => $questions]);
     }
 
 }

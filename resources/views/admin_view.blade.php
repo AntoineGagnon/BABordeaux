@@ -17,7 +17,7 @@
                     questionnaire</a>
                 <a href="/admin/resultpoll" type="button" class="btn btn-default btn-info btn-block">Visualiser les
                     résultats du questionnaire</a>
-                <a href="" type="button" class="btn btn-default btn-success btn-block">Exporter les résultats du
+                <a href="/admin/exportresults" type="button" class="btn btn-default btn-success btn-block">Exporter les résultats du
                     questionnaire</a>
                 <a href="/admin/resultguestbook" type="button" class="btn btn-default btn-warning btn-block">Visualiser
                     le Livre d'or</a>
