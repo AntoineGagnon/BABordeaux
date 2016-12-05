@@ -20,6 +20,7 @@ use App\Http\Requests;
 class PollController extends Controller
 {
 
+
     /**
      * Store a newly created resource in storage.
      *
@@ -85,6 +86,7 @@ class PollController extends Controller
             $query->select(DB::raw(1))->from('questions')->whereRaw('questions.question_group_id = question_groups.id')->where('isVisible', 1);
         })->get();
 
+
         foreach ($questionGroups as $questionGroup) {
             $questionGroup['questions'] = question::where('question_group_id', $questionGroup->id)->orderBy('question_order', 'asc')->get();
             foreach ($questionGroup['questions'] as $question) {
@@ -98,7 +100,6 @@ class PollController extends Controller
     /**
      * ADMIN: Edit a poll
      *
-     * @param int $idPoll The poll to edit
      * @return \Illuminate\Http\Response
      */
     public function adminEditPoll()
@@ -106,8 +107,13 @@ class PollController extends Controller
         if(!Auth::check())
             return redirect()->intended('login');
 
+
         $questionGroups = question_group::all();
 
+        //fetch all question from database.
+        $questions = question::all();
+
+        //if a questionGroup is empty (i.e. has no question into) delete this questionGroup from the database.
         foreach($questionGroups as $questionGroup){
             if(question::where('question_group_id',$questionGroup->id)->count() == 0)
             {
@@ -115,21 +121,7 @@ class PollController extends Controller
             }
         }
 
-        return view('admin_poll_edit_view', ['questionGroups' => $questionGroups]);
-    }
-
-    /**
-     * ADMIN: Display a poll
-     *
-     * @param int $idPoll The poll to display
-     * @return \Illuminate\Http\Response
-     */
-    public function adminDisplayPoll()
-    {
-        if(!Auth::check())
-            return redirect()->intended('login');
-
-        return view('admin_poll_display', []);
+        return view('admin_poll_edit_view', ['questionGroups' => $questionGroups, 'questions' => $questions, ]);
     }
 
     /**
@@ -144,6 +136,13 @@ class PollController extends Controller
             return redirect()->intended('login');
 
         return view('admin_poll_display_results', []);
+    }
+
+    /**
+     * ADMIN: Export (Excel)the results of the poll
+     */
+    public function adminExportResults(){
+
     }
 
 }
