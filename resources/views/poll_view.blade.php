@@ -153,8 +153,7 @@
 
         function updateProgressBar() {
             var progressBar = $('.progress-bar');
-            var value = 0;
-            value = Math.ceil(page / ({{$questionGroups->count()}} -1) * 100);
+            var value = Math.ceil((page / {{$questionGroups->count()}} ) * 100);
             progressBar.css('width', value + '%').attr('aria-valuenow', value);
             progressBar.text(value + "%");
         }
