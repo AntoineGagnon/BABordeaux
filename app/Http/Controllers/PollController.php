@@ -3,19 +3,19 @@ namespace App\Http\Controllers;
 
 use App\answer;
 use App\choice;
-use App\question_group;
-use App\submission;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use App\Sondage;
-use App\question;
 use App\Choix;
-use App\Reponse;
 use App\Http\Requests;
+use App\question;
+use App\question_group;
+use App\Reponse;
+use App\Sondage;
+use App\guestbook_submission;
+use App\submission;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class PollController extends Controller
 {
@@ -139,10 +139,75 @@ class PollController extends Controller
     }
 
     /**
-     * ADMIN: Export (Excel)the results of the poll
+     * ADMIN: Exports results of the guestbook to the specified format
+     *
+     * @param Format of the file exported (PDF or Excel)
      */
-    public function adminExportResults(){
+    public function adminExportGuestBookResults($format){
 
+        $guestbook_submission = guestbook_submission::select('created_at AS Date','username AS Auteur','text AS Message')->get();
+
+        // Generate and return the spreadsheet
+        $spreadsheet = Excel::create('resultats_livre_d_or', function($excel) use ($guestbook_submission) {
+
+            // Set the spreadsheet title, creator, and description
+            $excel->setTitle("Résultats livre d'or");
+            $excel->setCreator('MBA')->setCompany('Musée des Beaux-Arts, Bordeaux');
+            $excel->setDescription("Fichier contenant les résultats du livre d'or");
+
+            // Build the spreadsheet, passing in the array
+            $excel->sheet('sheet1', function($sheet) use ($guestbook_submission) {
+                $sheet->setStyle(array(
+                    'font' => array(
+                        'name'      =>  'Calibri',
+                        'size'      =>  16,
+                    )
+                ));
+                $sheet->fromArray($guestbook_submission);
+                //$sheet->loadView('admin_guestbook_results')->with('guestbook_submissions',$guestbook_submission);
+            });
+
+
+        });
+        if($format == "pdf")
+            $spreadsheet->download('pdf');
+        else
+            $spreadsheet->download('xlsx');
+    }
+
+    /**
+     * ADMIN: Exports results of the poll to the specified format
+     * @param Format of the file exported (PDF or Excel)
+     */
+    public function adminExportPollResults($format){
+
+
+        // Generate and return the spreadsheet
+        $spreadsheet = Excel::create('resultats_sondage', function($excel) {
+
+            // Set the spreadsheet title, creator, and description
+            $excel->setTitle('Résultats sondage');
+            $excel->setCreator('MBA')->setCompany('Musée des Beaux-Arts, Bordeaux');
+            $excel->setDescription('Fichier contenant les résultats du sondage public');
+
+            // Build the spreadsheet, passing in the array
+            $excel->sheet('sheet1', function($sheet) {
+                $sheet->setStyle(array(
+                    'font' => array(
+                        'name'      =>  'Calibri',
+                        'size'      =>  16,
+                    )
+                ));
+
+                $sheet->loadView('admin_poll_display_results');
+            });
+
+
+        });
+        if($format == "pdf")
+            $spreadsheet->download('pdf');
+        else
+            $spreadsheet->download('xlsx');
     }
 
 }

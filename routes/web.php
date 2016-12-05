@@ -17,7 +17,8 @@ Route::resource('poll','PollController');
 // Fonctions spécifiques à l'admin
 Route::post('login/authenticate', 'LoginController@authenticate');
 Route::get('admin/editpoll', 'PollController@adminEditPoll');
-Route::get('admin/exportresults','PollController@adminExportResults');
+Route::get('admin/exportguestbookresults/{format}','PollController@adminExportGuestBookResults');
+Route::get('admin/exportpollresults','PollController@adminExportPollResults');
 Route::get('admin/resultpoll', 'PollController@adminDisplayPollResults');
 Route::get('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults');
 Route::get('admin/change_password', 'AdminController@changePassword');
