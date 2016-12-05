@@ -168,6 +168,7 @@ return [
          * Package Service Providers...
          */
         'Maatwebsite\Excel\ExcelServiceProvider',
+        'Khill\Lavacharts\Laravel\LavachartsServiceProvider',
         //
 
         /*
