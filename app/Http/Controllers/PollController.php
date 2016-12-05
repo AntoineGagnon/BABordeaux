@@ -100,7 +100,6 @@ class PollController extends Controller
     /**
      * ADMIN: Edit a poll
      *
-     * @param int $idPoll The poll to edit
      * @return \Illuminate\Http\Response
      */
     public function adminEditPoll()
@@ -126,20 +125,6 @@ class PollController extends Controller
     }
 
     /**
-     * ADMIN: Display a poll
-     *
-     * @param int $idPoll The poll to display
-     * @return \Illuminate\Http\Response
-     */
-    public function adminDisplayPoll()
-    {
-        if(!Auth::check())
-            return redirect()->intended('login');
-
-        return view('admin_poll_display', []);
-    }
-
-    /**
      * ADMIN: Display the results of a poll
      *
      * @param int $idPoll The poll
@@ -151,6 +136,13 @@ class PollController extends Controller
             return redirect()->intended('login');
 
         return view('admin_poll_display_results', []);
+    }
+
+    /**
+     * ADMIN: Export (Excel)the results of the poll
+     */
+    public function adminExportResults(){
+
     }
 
 }
