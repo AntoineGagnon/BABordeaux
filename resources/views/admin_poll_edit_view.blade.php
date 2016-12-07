@@ -23,16 +23,16 @@
             <!-- Question add form -->
             <div class="row">
                 <div class="col-md-12">
-                    <div class="panel-group" id="accordion">
+                    <div class="panel-group">
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                    <span class="glyphicon glyphicon-question-sign"></span>AJOUTER UNE QUESTION</a>
+                                    <span class="glyphicon glyphicon-question-sign"></span>AJOUTER UNE QUESTION
                                 </h4>
                             </div>
                             <form action="/question" method="POST">
                                 {{ csrf_field() }}
-                                <div id="collapseOne" class="panel-collapse collapse in">
+                                <div class="panel-collapse collapse in">
                                     <div class="panel-body">
                                         <div class="row">
                                             <div class="col-md-6">
@@ -79,36 +79,36 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        </br>
+                                        <br>
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <label class="form-check-label">Question obligatoire: </label>
-                                                    <label for="is_required_true"> Oui </label><input type="radio" name="is_required" required value="1" />
-                                                    <label for="is_required_false"> Non </label><input type="radio" name="is_required" value="0" />
+                                                    <label> Oui </label><input type="radio" name="is_required" required value="1" />
+                                                    <label> Non </label><input type="radio" name="is_required" value="0" />
                                                 </div>
                                             </div>
                                         </div>
                                         <button type="submit" class="btn btn-success pull-right btn-lg" style="margin-top: 1%">Valider</button>
                                     </div>
                                 </div>
-                                <input value="0" type="number" class="form-control" id="nb_choices" name="nb_choices" style="display: none"/>
+                                <input value="0" type="hidden" class="form-control" id="nb_choices" name="nb_choices"/>
 
                             </form>
                         </div>
                     </div>
 
-                    <div class="panel-group" id="accordion">
+                    <div class="panel-group">
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                 <span class="glyphicon glyphicon-th-list"></span>MODIFIER OU SUPPRIMER DES QUESTIONS</a>
+                                 <span class="glyphicon glyphicon-th-list"></span>MODIFIER OU SUPPRIMER DES QUESTIONS
                                 </h4>
                             </div>
-                            <div id="collapseOne" class="panel-collapse collapse in ">
+                            <div class="panel-collapse collapse in ">
                                 <form action="/admin/updateLabel" method="POST">
                                     {{ csrf_field() }}
-                                    <div id="collapseOne" class="panel-collapse collapse in ">
+                                    <div class="panel-collapse collapse in ">
                                         <div class="panel-body editform">
                                             <div class="row col-md-12">
                                                     <div class="form-group" >
@@ -145,12 +145,9 @@
                                                             </div>
                                                             @endif
                                                             <div style="overflow: hidden; padding-right: .5em;">
-                                                                <php>
-
-                                                                </php>
                                                                 <input type="text" class="form-control Questionlabel" name="question_{{ $question->id }}" value="{{ $question->label }}" style="width: 100%"/>
                                                             </div>
-                                                            </br>
+                                                            <br>
                                                         @endforeach
                                                     </div>
                                             </div>
@@ -238,7 +235,7 @@
                     type: "POST",
                     url: '/admin/updateVisibility/'+question_id+'/'+show_visibility,
                     data: {_id:question_id,_show:show_visibility},
-                    success: function(data) {
+                    success: function() {
                         $(".editform").load(location.href + " .editform*","");
                         console.log("ok hide");
                     },
