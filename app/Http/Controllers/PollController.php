@@ -198,7 +198,7 @@ class PollController extends Controller
      * ADMIN: Exports results of the guestbook to the specified format
      *
      * @param Format of the file exported (PDF or Excel)
-     * @return  \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function adminExportGuestBookResults($format){
 
@@ -238,7 +238,8 @@ class PollController extends Controller
     /**
      * ADMIN: Exports results of the poll to the specified format
      * @param Format of the file exported (PDF or Excel)
-     * @return
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function adminExportPollResults($format){
 
