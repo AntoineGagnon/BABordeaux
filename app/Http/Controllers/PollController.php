@@ -198,8 +198,12 @@ class PollController extends Controller
      * ADMIN: Exports results of the guestbook to the specified format
      *
      * @param Format of the file exported (PDF or Excel)
+     * @return  \Illuminate\Http\Response
      */
     public function adminExportGuestBookResults($format){
+
+        if(!Auth::check())
+            return redirect()->intended('login');
 
         $guestbook_submission = guestbook_submission::select('created_at AS Date','username AS Auteur','text AS Message')->get();
 
@@ -234,8 +238,12 @@ class PollController extends Controller
     /**
      * ADMIN: Exports results of the poll to the specified format
      * @param Format of the file exported (PDF or Excel)
+     * @return
      */
     public function adminExportPollResults($format){
+
+        if(!Auth::check())
+            return redirect()->intended('login');
 
 
         // Generate and return the spreadsheet
