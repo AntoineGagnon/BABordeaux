@@ -13,9 +13,9 @@ use App\guestbook_submission;
 use App\submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Khill\Lavacharts\Lavacharts as Lava;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-
 
 class PollController extends Controller
 {
@@ -134,6 +134,62 @@ class PollController extends Controller
     {
         if(!Auth::check())
             return redirect()->intended('login');
+
+        $questionGroups = question_group::whereExists(function ($query) {
+            $query->select(DB::raw(1))->from('questions')->whereRaw('questions.question_group_id = question_groups.id')->where('isVisible', 1);
+        })->get();
+
+        foreach ($questionGroups as $questionGroup) {
+            $questionGroup['questions'] = question::where('question_group_id', $questionGroup->id)->orderBy('question_order', 'asc')->get();
+            foreach ($questionGroup['questions'] as $question) {
+                $questions[$question['attributes']['id']]['id'] = $question['attributes']['id'];
+                $questions[$question['attributes']['id']]['label'] = $question['attributes']['label'];
+                $questions[$question['attributes']['id']]['type'] = $question['attributes']['questionType'];
+            }
+        }
+
+        foreach($questions as $quest)
+        {
+            if($quest['type'] == 'singleChoice')
+            {
+
+                $choices = DB::table('choices')
+                     ->select(DB::raw('id, question_id, answer_id'))
+                     ->where('question_id', '=', $quest['id'])
+                     ->get();
+
+                foreach($choices as $choice)
+                {
+                    $choiceArray = json_decode(json_encode($choice), true);
+                    $count[$choiceArray['answer_id']] = 0;
+                }
+
+                foreach($choices as $choice)
+                {
+                    $choiceArray = json_decode(json_encode($choice), true);
+                    $count[$choiceArray['answer_id']] = $count[$choiceArray['answer_id']]+1;
+                }
+
+                $total = 0;
+
+                foreach($count as $test)
+                    $total = $total + $test;
+
+                $age = \Lava::DataTable();
+                $age->addStringColumn('Tranche Age')
+                    ->addNumberColumn('Pourcentage');
+
+                $age->addRow(['0-25', ($count[1]*100)/$total])
+                    ->addRow(['25-50', ($count[2]*100)/$total])
+                    ->addRow(['+50', 0]);
+
+                \Lava::PieChart('Age', $age, [
+                    'title' => 'Tranches d\'âge des visiteurs',
+                    'is3D' => true,
+                    'sliceVisibilityThreshold' => 0
+                    ]);
+                    }
+        }
 
         return view('admin_poll_display_results', []);
     }
