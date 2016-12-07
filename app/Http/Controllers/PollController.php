@@ -135,6 +135,9 @@ class PollController extends Controller
         if(!Auth::check())
             return redirect()->intended('login');
 
+        $piecharts = array();
+        $taille = 0;
+
         $questionGroups = question_group::whereExists(function ($query) {
             $query->select(DB::raw(1))->from('questions')->whereRaw('questions.question_group_id = question_groups.id')->where('isVisible', 1);
         })->get();
@@ -145,23 +148,41 @@ class PollController extends Controller
                 $questions[$question['attributes']['id']]['id'] = $question['attributes']['id'];
                 $questions[$question['attributes']['id']]['label'] = $question['attributes']['label'];
                 $questions[$question['attributes']['id']]['type'] = $question['attributes']['questionType'];
+                $questions[$question['attributes']['id']]['noAnswer'] = 0;
             }
         }
 
         foreach($questions as $quest)
         {
             if($quest['type'] == 'singleChoice')
+            {    
+                $piecharts[$taille] = NULL;
+                $taille++;
+            }
+        }
+
+        $index = 0;
+
+        foreach($questions as $quest)
+        {
+            if($quest['type'] == 'singleChoice')
             {
+                $answers = DB::table('answers')
+                     ->select(DB::raw('id, question_id, answer_order, label'))
+                     ->where('question_id', '=', $quest['id'])
+                     ->get();
 
                 $choices = DB::table('choices')
                      ->select(DB::raw('id, question_id, answer_id'))
                      ->where('question_id', '=', $quest['id'])
                      ->get();
 
-                foreach($choices as $choice)
+                $count = array();
+
+                foreach($answers as $answer)
                 {
-                    $choiceArray = json_decode(json_encode($choice), true);
-                    $count[$choiceArray['answer_id']] = 0;
+                    $answerArray = json_decode(json_encode($answer), true);
+                    $count[$answerArray['id']] = 0;
                 }
 
                 foreach($choices as $choice)
@@ -173,25 +194,40 @@ class PollController extends Controller
                 $total = 0;
 
                 foreach($count as $test)
+
                     $total = $total + $test;
 
-                $age = \Lava::DataTable();
-                $age->addStringColumn('Tranche Age')
-                    ->addNumberColumn('Pourcentage');
+                if($total == 0)
+                {
+                    $quest['noAnswer'] = 1;
+                }
 
-                $age->addRow(['0-25', ($count[1]*100)/$total])
-                    ->addRow(['25-50', ($count[2]*100)/$total])
-                    ->addRow(['+50', 0]);
+                if($quest['noAnswer'] == 0)
+                {
+                    $piecharts[$index] = \Lava::DataTable();
+                    $piecharts[$index]->addStringColumn($quest['label'])
+                                        ->addNumberColumn('Pourcentage');
 
-                \Lava::PieChart('Age', $age, [
-                    'title' => 'Tranches d\'âge des visiteurs',
-                    'is3D' => true,
-                    'sliceVisibilityThreshold' => 0
-                    ]);
+                    foreach($answers as $answer)
+                    {
+                        $answerArray = json_decode(json_encode($answer), true);
+                        $piecharts[$index]->addRow([$answerArray['label'], ($count[$answerArray['id']]*100)/1]);
                     }
+
+                    \Lava::PieChart($quest['label'], $piecharts[$index], [
+                        'title' => $quest['label'],
+                        'is3D' => true,
+                        'sliceVisibilityThreshold' => 0
+                        ]);
+
+                    $index++;
+                }
+
+                $questFinal[$quest['id']] = $quest;
+            }
         }
 
-        return view('admin_poll_display_results', []);
+        return view('admin_poll_display_results', ['questions' => $questFinal]);
     }
 
     /**
