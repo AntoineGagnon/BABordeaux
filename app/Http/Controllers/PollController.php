@@ -165,7 +165,7 @@ class PollController extends Controller
 
         foreach($questions as $quest)
         {
-            if($quest['type'] == 'singleChoice')
+            if($quest['type'] == 'singleChoice' || $quest['type'] == 'multipleChoice')
             {
                 $answers = DB::table('answers')
                      ->select(DB::raw('id, question_id, answer_order, label'))
@@ -222,6 +222,27 @@ class PollController extends Controller
 
                     $index++;
                 }
+
+                $questFinal[$quest['id']] = $quest;
+            }
+
+            else if($quest['type'] == 'openAnswer')
+            {
+                $answers = DB::table('answers')
+                     ->select(DB::raw('id, question_id, answer_order, label'))
+                     ->where('question_id', '=', $quest['id'])
+                     ->get();
+
+                $j = 0;
+
+                foreach($answers as $answer)
+                {
+                    $answerArray = json_decode(json_encode($answer), true);
+                    $quest['answers'][$j] = $answerArray['label'];
+                    $j++;
+                }
+
+                $quest['nbAnswers'] = $j;
 
                 $questFinal[$quest['id']] = $quest;
             }
