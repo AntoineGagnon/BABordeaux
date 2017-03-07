@@ -19,16 +19,13 @@
                     résultats du questionnaire</a>
                 <a href="/admin/resultguestbook" type="button" class="btn btn-default btn-info btn-block">Visualiser
                     le Livre d'or</a>
-                <a href="/admin/exportguestbookresults/excel" type="button"
-                   class="btn btn-default btn-success btn-block">Exporter les résultats du
+                <a href="/admin/exportguestbookresults/excel" type="button" class="btn btn-default btn-success btn-block">Exporter les résultats du
                     Livre d'or (Excel)</a>
-                <a href="/admin/exportguestbookresults/pdf" type="button" class="btn btn-default btn-success btn-block">Exporter
-                    les résultats du
+                <a href="/admin/exportguestbookresults/pdf" type="button" class="btn btn-default btn-success btn-block">Exporter les résultats du
                     Livre d'or (PDF)</a>
-                <a href="" type="button" class="btn btn-default btn-success btn-block">Exporter les résultats du
-                    questionnaire</a>
-                <a href="/admin/change_password" type="button" class="btn btn-default btn-warning btn-block">Modifier le
-                    mot de passe d'administration</a>
+                <!--a href="" type="button" class="btn btn-default btn-success btn-block">Exporter les résultats du
+                    questionnaire</a>-->
+                <a href="/admin/change_password" type="button" class="btn btn-default btn-warning btn-block">Modifier le mot de passe d'administration</a>
                 <a href="/logout" type="button" class="btn btn-default btn-warning btn-block">Déconnexion</a>
             </div>
         </div>
