@@ -690,7 +690,7 @@ class Swift_Transport_LoadBalancedTransportTest extends \SwiftMailerTestCase
         $t1->shouldReceive('send')
            ->once()
            ->with($message, \Mockery::on(function (&$var) use (&$failures, $testCase) {
-                return $testCase->varsAreReferences($var, $failures);
+               return $testCase->varsAreReferences($var, $failures);
            }))
            ->andReturnUsing(function () use (&$connectionState) {
                if ($connectionState) {
@@ -709,7 +709,7 @@ class Swift_Transport_LoadBalancedTransportTest extends \SwiftMailerTestCase
     public function varsAreReferences(&$ref1, &$ref2)
     {
         if (is_object($ref2)) {
-            return ($ref1 === $ref2);
+            return $ref1 === $ref2;
         }
         if ($ref1 !== $ref2) {
             return false;
@@ -723,8 +723,6 @@ class Swift_Transport_LoadBalancedTransportTest extends \SwiftMailerTestCase
 
         return $isRef;
     }
-
-    // -- Private helpers
 
     public function testRegisterPluginDelegatesToLoadedTransports()
     {

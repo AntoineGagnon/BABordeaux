@@ -279,8 +279,6 @@ class Swift_Mime_AttachmentTest extends Swift_Mime_AbstractMimeEntityTest
         $attachment->setFile($file);
     }
 
-    // -- Private helpers
-
     public function testDataCanBeReadFromFile()
     {
         $file = $this->_createFileStream('/foo/file.ext', '<some data>');

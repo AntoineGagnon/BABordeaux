@@ -15,25 +15,23 @@ use Illuminate\Contracts\Console\Application as ApplicationContract;
 class Application extends SymfonyApplication implements ApplicationContract
 {
     /**
+     * The console application bootstrappers.
+     *
+     * @var array
+     */
+    protected static $bootstrappers = [];
+    /**
      * The Laravel application instance.
      *
      * @var \Illuminate\Contracts\Container\Container
      */
     protected $laravel;
-
     /**
      * The output from the previous command.
      *
      * @var \Symfony\Component\Console\Output\BufferedOutput
      */
     protected $lastOutput;
-
-    /**
-     * The console application bootstrappers.
-     *
-     * @var array
-     */
-    protected static $bootstrappers = [];
 
     /**
      * Create a new Artisan console application.
@@ -80,6 +78,16 @@ class Application extends SymfonyApplication implements ApplicationContract
     }
 
     /**
+     * Clear the console application bootstrappers.
+     *
+     * @return void
+     */
+    public static function forgetBootstrappers()
+    {
+        static::$bootstrappers = [];
+    }
+
+    /**
      * Run an Artisan console command by name.
      *
      * @param  string  $command
@@ -112,6 +120,34 @@ class Application extends SymfonyApplication implements ApplicationContract
     }
 
     /**
+     * Resolve an array of commands through the application.
+     *
+     * @param  array|mixed $commands
+     * @return $this
+     */
+    public function resolveCommands($commands)
+    {
+        $commands = is_array($commands) ? $commands : func_get_args();
+
+        foreach ($commands as $command) {
+            $this->resolve($command);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a command, resolving through the application.
+     *
+     * @param  string $command
+     * @return \Symfony\Component\Console\Command\Command
+     */
+    public function resolve($command)
+    {
+        return $this->add($this->laravel->make($command));
+    }
+
+    /**
      * Add a command to the console.
      *
      * @param  \Symfony\Component\Console\Command\Command  $command
@@ -138,31 +174,13 @@ class Application extends SymfonyApplication implements ApplicationContract
     }
 
     /**
-     * Add a command, resolving through the application.
+     * Get the Laravel application instance.
      *
-     * @param  string  $command
-     * @return \Symfony\Component\Console\Command\Command
+     * @return \Illuminate\Contracts\Foundation\Application
      */
-    public function resolve($command)
+    public function getLaravel()
     {
-        return $this->add($this->laravel->make($command));
-    }
-
-    /**
-     * Resolve an array of commands through the application.
-     *
-     * @param  array|mixed  $commands
-     * @return $this
-     */
-    public function resolveCommands($commands)
-    {
-        $commands = is_array($commands) ? $commands : func_get_args();
-
-        foreach ($commands as $command) {
-            $this->resolve($command);
-        }
-
-        return $this;
+        return $this->laravel;
     }
 
     /**
@@ -191,15 +209,5 @@ class Application extends SymfonyApplication implements ApplicationContract
         $message = 'The environment the command should run under';
 
         return new InputOption('--env', null, InputOption::VALUE_OPTIONAL, $message);
-    }
-
-    /**
-     * Get the Laravel application instance.
-     *
-     * @return \Illuminate\Contracts\Foundation\Application
-     */
-    public function getLaravel()
-    {
-        return $this->laravel;
     }
 }

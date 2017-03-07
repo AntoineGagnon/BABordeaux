@@ -38,8 +38,8 @@
         if (o)for (o = o.slice(0), t = o.length, n; t > n; n += 1)o[n].apply(this, e);
         return this
     }, "function" == typeof t.define && void 0 !== t.define.amd ? t.define("Jvent", [], function () {
-        return e
-    }) : "undefined" != typeof module && void 0 !== module.exports ? module.exports = e : t.Jvent = e
+            return e
+        }) : "undefined" != typeof module && void 0 !== module.exports ? module.exports = e : t.Jvent = e
 }(this);
 
 /**
@@ -304,7 +304,7 @@ var lava = lava || {};
     this.run = function (window) {
         var s = document.createElement('script');
         s.type = 'text/javascript';
-        s.src = '//www.google.com/jsapi';
+        s.src = 'https://www.google.com/jsapi';
         s.onload = s.onreadystatechange = function (event) {
             event = event || window.event;
 

@@ -96,7 +96,7 @@ class QuestionHelperTest extends \PHPUnit_Framework_TestCase
 
     protected function createInputInterfaceMock($interactive = true)
     {
-        $mock = $this->getMock('Symfony\Component\Console\Input\InputInterface');
+        $mock = $this->getMockBuilder('Symfony\Component\Console\Input\InputInterface')->getMock();
         $mock->expects($this->any())
             ->method('isInteractive')
             ->will($this->returnValue($interactive));
@@ -419,7 +419,7 @@ class QuestionHelperTest extends \PHPUnit_Framework_TestCase
             '  [<info>żółw  </info>] bar',
             '  [<info>łabądź</info>] baz',
         );
-        $output = $this->getMock('\Symfony\Component\Console\Output\OutputInterface');
+        $output = $this->getMockBuilder('\Symfony\Component\Console\Output\OutputInterface')->getMock();
         $output->method('getFormatter')->willReturn(new OutputFormatter());
 
         $dialog = new QuestionHelper();

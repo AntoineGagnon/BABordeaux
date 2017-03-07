@@ -171,7 +171,7 @@ class FormFieldRegistry
      * @param string $base   The fully qualified name of the base field
      * @param array  $values The values of the fields
      *
-     * @return FormFieldRegistry
+     * @return static
      */
     private static function create($base, array $values)
     {

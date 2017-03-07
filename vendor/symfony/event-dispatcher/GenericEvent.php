@@ -57,6 +57,44 @@ class GenericEvent extends Event implements \ArrayAccess, \IteratorAggregate
     }
 
     /**
+     * Getter for all arguments.
+     *
+     * @return array
+     */
+    public function getArguments()
+    {
+        return $this->arguments;
+    }
+
+    /**
+     * Set args property.
+     *
+     * @param array $args Arguments
+     *
+     * @return $this
+     */
+    public function setArguments(array $args = array())
+    {
+        $this->arguments = $args;
+
+        return $this;
+    }
+
+    /**
+     * ArrayAccess for argument getter.
+     *
+     * @param string $key Array key
+     *
+     * @return mixed
+     *
+     * @throws \InvalidArgumentException If key does not exist in $this->args.
+     */
+    public function offsetGet($key)
+    {
+        return $this->getArgument($key);
+    }
+
+    /**
      * Get argument by key.
      *
      * @param string $key Key
@@ -75,45 +113,6 @@ class GenericEvent extends Event implements \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Add argument to event.
-     *
-     * @param string $key   Argument name
-     * @param mixed  $value Value
-     *
-     * @return GenericEvent
-     */
-    public function setArgument($key, $value)
-    {
-        $this->arguments[$key] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Getter for all arguments.
-     *
-     * @return array
-     */
-    public function getArguments()
-    {
-        return $this->arguments;
-    }
-
-    /**
-     * Set args property.
-     *
-     * @param array $args Arguments
-     *
-     * @return GenericEvent
-     */
-    public function setArguments(array $args = array())
-    {
-        $this->arguments = $args;
-
-        return $this;
-    }
-
-    /**
      * Has argument.
      *
      * @param string $key Key of arguments array
@@ -126,20 +125,6 @@ class GenericEvent extends Event implements \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * ArrayAccess for argument getter.
-     *
-     * @param string $key Array key
-     *
-     * @return mixed
-     *
-     * @throws \InvalidArgumentException If key does not exist in $this->args.
-     */
-    public function offsetGet($key)
-    {
-        return $this->getArgument($key);
-    }
-
-    /**
      * ArrayAccess for argument setter.
      *
      * @param string $key   Array key to set
@@ -148,6 +133,21 @@ class GenericEvent extends Event implements \ArrayAccess, \IteratorAggregate
     public function offsetSet($key, $value)
     {
         $this->setArgument($key, $value);
+    }
+
+    /**
+     * Add argument to event.
+     *
+     * @param string $key Argument name
+     * @param mixed $value Value
+     *
+     * @return $this
+     */
+    public function setArgument($key, $value)
+    {
+        $this->arguments[$key] = $value;
+
+        return $this;
     }
 
     /**

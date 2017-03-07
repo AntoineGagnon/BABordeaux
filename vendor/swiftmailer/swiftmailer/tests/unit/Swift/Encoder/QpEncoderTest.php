@@ -377,8 +377,6 @@ class Swift_Encoder_QpEncoderTest extends \SwiftMailerTestCase
             );
     }
 
-    // -- Creation methods
-
     public function testTextIsPreWrapped()
     {
         $encoder = $this->createEncoder();

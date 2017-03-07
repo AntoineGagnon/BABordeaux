@@ -90,8 +90,6 @@ class Swift_MailerTest extends \SwiftMailerTestCase
         $this->assertEquals(57, $mailer->send($message));
     }
 
-    // -- Creation methods
-
     public function testFailedRecipientReferenceIsPassedToTransport()
     {
         $failures = array();

@@ -96,6 +96,16 @@ abstract class MorphOneOrMany extends HasOneOrMany
     }
 
     /**
+     * Get the plain morph type name without the table.
+     *
+     * @return string
+     */
+    public function getPlainMorphType()
+    {
+        return last(explode('.', $this->morphType));
+    }
+
+    /**
      * Find a related model by its primary key or return new instance of the related model.
      *
      * @param  mixed  $id
@@ -112,6 +122,72 @@ abstract class MorphOneOrMany extends HasOneOrMany
             // the parent model. This makes the polymorphic item unique in the table.
             $this->setForeignAttributesForCreate($instance);
         }
+
+        return $instance;
+    }
+
+    /**
+     * Set the foreign ID and type for creating a related model.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model $model
+     * @return void
+     */
+    protected function setForeignAttributesForCreate(Model $model)
+    {
+        $model->{$this->getPlainForeignKey()} = $this->getParentKey();
+
+        $model->{last(explode('.', $this->morphType))} = $this->morphClass;
+    }
+
+    /**
+     * Get the first related record matching the attributes or create it.
+     *
+     * @param  array  $attributes
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function firstOrCreate(array $attributes)
+    {
+        if (is_null($instance = $this->where($attributes)->first())) {
+            $instance = $this->create($attributes);
+        }
+
+        return $instance;
+    }
+
+    /**
+     * Create a new instance of the related model.
+     *
+     * @param  array $attributes
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function create(array $attributes)
+    {
+        $instance = $this->related->newInstance($attributes);
+
+        // When saving a polymorphic relationship, we need to set not only the foreign
+        // key, but also the foreign key type, which is typically the class name of
+        // the parent model. This makes the polymorphic item unique in the table.
+        $this->setForeignAttributesForCreate($instance);
+
+        $instance->save();
+
+        return $instance;
+    }
+
+    /**
+     * Create or update a related record matching the attributes, and fill it with values.
+     *
+     * @param  array  $attributes
+     * @param  array  $values
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function updateOrCreate(array $attributes, array $values = [])
+    {
+        $instance = $this->firstOrNew($attributes);
+
+        $instance->fill($values);
+
+        $instance->save();
 
         return $instance;
     }
@@ -137,72 +213,6 @@ abstract class MorphOneOrMany extends HasOneOrMany
     }
 
     /**
-     * Get the first related record matching the attributes or create it.
-     *
-     * @param  array  $attributes
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function firstOrCreate(array $attributes)
-    {
-        if (is_null($instance = $this->where($attributes)->first())) {
-            $instance = $this->create($attributes);
-        }
-
-        return $instance;
-    }
-
-    /**
-     * Create or update a related record matching the attributes, and fill it with values.
-     *
-     * @param  array  $attributes
-     * @param  array  $values
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function updateOrCreate(array $attributes, array $values = [])
-    {
-        $instance = $this->firstOrNew($attributes);
-
-        $instance->fill($values);
-
-        $instance->save();
-
-        return $instance;
-    }
-
-    /**
-     * Create a new instance of the related model.
-     *
-     * @param  array  $attributes
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function create(array $attributes)
-    {
-        $instance = $this->related->newInstance($attributes);
-
-        // When saving a polymorphic relationship, we need to set not only the foreign
-        // key, but also the foreign key type, which is typically the class name of
-        // the parent model. This makes the polymorphic item unique in the table.
-        $this->setForeignAttributesForCreate($instance);
-
-        $instance->save();
-
-        return $instance;
-    }
-
-    /**
-     * Set the foreign ID and type for creating a related model.
-     *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
-     */
-    protected function setForeignAttributesForCreate(Model $model)
-    {
-        $model->{$this->getPlainForeignKey()} = $this->getParentKey();
-
-        $model->{last(explode('.', $this->morphType))} = $this->morphClass;
-    }
-
-    /**
      * Get the foreign key "type" name.
      *
      * @return string
@@ -210,16 +220,6 @@ abstract class MorphOneOrMany extends HasOneOrMany
     public function getMorphType()
     {
         return $this->morphType;
-    }
-
-    /**
-     * Get the plain morph type name without the table.
-     *
-     * @return string
-     */
-    public function getPlainMorphType()
-    {
-        return last(explode('.', $this->morphType));
     }
 
     /**

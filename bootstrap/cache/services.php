@@ -43,11 +43,10 @@
     8 => 'Illuminate\\Session\\SessionServiceProvider',
     9 => 'Illuminate\\View\\ViewServiceProvider',
       10 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
-      11 => 'Khill\\Lavacharts\\Laravel\\LavachartsServiceProvider',
-      12 => 'App\\Providers\\AppServiceProvider',
-      13 => 'App\\Providers\\AuthServiceProvider',
-      14 => 'App\\Providers\\EventServiceProvider',
-      15 => 'App\\Providers\\RouteServiceProvider',
+      11 => 'App\\Providers\\AppServiceProvider',
+      12 => 'App\\Providers\\AuthServiceProvider',
+      13 => 'App\\Providers\\EventServiceProvider',
+      14 => 'App\\Providers\\RouteServiceProvider',
   ),
   'deferred' => 
   array (
@@ -138,6 +137,7 @@
     'translation.loader' => 'Illuminate\\Translation\\TranslationServiceProvider',
     'validator' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'validation.presence' => 'Illuminate\\Validation\\ValidationServiceProvider',
+      'lavacharts' => 'Khill\\Lavacharts\\Laravel\\LavachartsServiceProvider',
   ),
   'when' => 
   array (
@@ -175,7 +175,8 @@
     array (
     ),
     'Illuminate\\Validation\\ValidationServiceProvider' => 
-    array (
-    ),
+    array (),
+      'Khill\\Lavacharts\\Laravel\\LavachartsServiceProvider' =>
+          array(),
   ),
 );

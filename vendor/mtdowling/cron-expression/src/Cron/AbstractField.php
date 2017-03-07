@@ -27,18 +27,6 @@ abstract class AbstractField implements FieldInterface
     }
 
     /**
-     * Check if a value is a range
-     *
-     * @param string $value Value to test
-     *
-     * @return bool
-     */
-    public function isRange($value)
-    {
-        return strpos($value, '-') !== false;
-    }
-
-    /**
      * Check if a value is an increments of ranges
      *
      * @param string $value Value to test
@@ -48,21 +36,6 @@ abstract class AbstractField implements FieldInterface
     public function isIncrementsOfRanges($value)
     {
         return strpos($value, '/') !== false;
-    }
-
-    /**
-     * Test if a value is within a range
-     *
-     * @param string $dateValue Set date value
-     * @param string $value     Value to test
-     *
-     * @return bool
-     */
-    public function isInRange($dateValue, $value)
-    {
-        $parts = array_map('trim', explode('-', $value, 2));
-
-        return $dateValue >= $parts[0] && $dateValue <= $parts[1];
     }
 
     /**
@@ -76,8 +49,13 @@ abstract class AbstractField implements FieldInterface
     public function isInIncrementsOfRanges($dateValue, $value)
     {
         $parts = array_map('trim', explode('/', $value, 2));
-        $stepSize = isset($parts[1]) ? $parts[1] : 0;
-        if (($parts[0] == '*' || $parts[0] === '0') && 0 !== $stepSize) {
+        $stepSize = isset($parts[1]) ? (int)$parts[1] : 0;
+
+        if ($stepSize === 0) {
+            return false;
+        }
+
+        if (($parts[0] == '*' || $parts[0] === '0')) {
             return (int) $dateValue % $stepSize == 0;
         }
 
@@ -100,6 +78,33 @@ abstract class AbstractField implements FieldInterface
         }
 
         return false;
+    }
+
+    /**
+     * Check if a value is a range
+     *
+     * @param string $value Value to test
+     *
+     * @return bool
+     */
+    public function isRange($value)
+    {
+        return strpos($value, '-') !== false;
+    }
+
+    /**
+     * Test if a value is within a range
+     *
+     * @param string $dateValue Set date value
+     * @param string $value Value to test
+     *
+     * @return bool
+     */
+    public function isInRange($dateValue, $value)
+    {
+        $parts = array_map('trim', explode('-', $value, 2));
+
+        return $dateValue >= $parts[0] && $dateValue <= $parts[1];
     }
 
     /**

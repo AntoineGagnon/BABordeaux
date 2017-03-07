@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,6 +18,11 @@ use Symfony\Component\Finder\Finder;
  */
 class Compiler
 {
+    const STUB_AUTOLOAD = <<<'EOS'
+    Phar::mapPhar('psysh.phar');
+    require 'phar://psysh.phar/build-vendor/autoload.php';
+EOS;
+
     /**
      * Compiles psysh into a single phar file.
      *
@@ -53,6 +58,9 @@ class Compiler
             ->ignoreVCS(true)
             ->name('*.php')
             ->exclude('Tests')
+            ->exclude('tests')
+            ->exclude('Test')
+            ->exclude('test')
             ->in(__DIR__ . '/../../build-vendor');
 
         foreach ($finder as $file) {
@@ -70,9 +78,9 @@ class Compiler
     /**
      * Add a file to the psysh Phar.
      *
-     * @param Phar        $phar
-     * @param SplFileInfo $file
-     * @param bool        $strip (default: true)
+     * @param \Phar $phar
+     * @param \SplFileInfo $file
+     * @param bool $strip (default: true)
      */
     private function addFile($phar, $file, $strip = true)
     {
@@ -123,20 +131,6 @@ class Compiler
         return $output;
     }
 
-    private static function getStubLicense()
-    {
-        $license = file_get_contents(__DIR__ . '/../../LICENSE');
-        $license = str_replace('The MIT License (MIT)', '', $license);
-        $license = str_replace("\n", "\n * ", trim($license));
-
-        return $license;
-    }
-
-    const STUB_AUTOLOAD = <<<'EOS'
-    Phar::mapPhar('psysh.phar');
-    require 'phar://psysh.phar/build-vendor/autoload.php';
-EOS;
-
     /**
      * Get a Phar stub for psysh.
      *
@@ -147,11 +141,23 @@ EOS;
     private function getStub()
     {
         $content = file_get_contents(__DIR__ . '/../../bin/psysh');
+        if (version_compare(PHP_VERSION, '5.4', '<')) {
+            $content = str_replace('#!/usr/bin/env php', '#!/usr/bin/env php -d detect_unicode=Off', $content);
+        }
         $content = preg_replace('{/\* <<<.*?>>> \*/}sm', self::STUB_AUTOLOAD, $content);
         $content = preg_replace('/\\(c\\) .*?with this source code./sm', self::getStubLicense(), $content);
 
         $content .= '__HALT_COMPILER();';
 
         return $content;
+    }
+
+    private static function getStubLicense()
+    {
+        $license = file_get_contents(__DIR__ . '/../../LICENSE');
+        $license = str_replace('The MIT License (MIT)', '', $license);
+        $license = str_replace("\n", "\n * ", trim($license));
+
+        return $license;
     }
 }

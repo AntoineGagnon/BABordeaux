@@ -50,8 +50,6 @@ class Swift_Encoding
         return self::_lookup('mime.qpcontentencoder');
     }
 
-    // -- Private Static Methods
-
     /**
      * Get the Encoder that provides Base64 encoding.
      *

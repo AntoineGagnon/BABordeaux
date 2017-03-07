@@ -531,8 +531,6 @@ abstract class Swift_Transport_AbstractSmtpEventSupportTest extends Swift_Transp
         }
     }
 
-    // -- Creation Methods
-
     public function testExceptionBubblesCanBeCancelled()
     {
         $buf = $this->_getBuffer();

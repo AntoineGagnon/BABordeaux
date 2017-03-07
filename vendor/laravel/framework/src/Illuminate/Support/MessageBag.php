@@ -65,6 +65,20 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     }
 
     /**
+     * Determine if a key and message combination already exists.
+     *
+     * @param  string $key
+     * @param  string $message
+     * @return bool
+     */
+    protected function isUnique($key, $message)
+    {
+        $messages = (array)$this->messages;
+
+        return !isset($messages[$key]) || !in_array($message, $messages[$key]);
+    }
+
+    /**
      * Merge a new array of messages into the bag.
      *
      * @param  \Illuminate\Contracts\Support\MessageProvider|array  $messages
@@ -82,17 +96,20 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     }
 
     /**
-     * Determine if a key and message combination already exists.
+     * Determine if messages exist for any of the given keys.
      *
-     * @param  string  $key
-     * @param  string  $message
+     * @param  array $keys
      * @return bool
      */
-    protected function isUnique($key, $message)
+    public function hasAny($keys = [])
     {
-        $messages = (array) $this->messages;
+        foreach ($keys as $key) {
+            if ($this->has($key)) {
+                return true;
+            }
+        }
 
-        return ! isset($messages[$key]) || ! in_array($message, $messages[$key]);
+        return false;
     }
 
     /**
@@ -119,20 +136,23 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     }
 
     /**
-     * Determine if messages exist for any of the given keys.
+     * Determine if the message bag has any messages.
      *
-     * @param  array  $keys
      * @return bool
      */
-    public function hasAny($keys = [])
+    public function any()
     {
-        foreach ($keys as $key) {
-            if ($this->has($key)) {
-                return true;
-            }
-        }
+        return $this->count() > 0;
+    }
 
-        return false;
+    /**
+     * Get the number of messages in the container.
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->messages, COUNT_RECURSIVE) - count($this->messages);
     }
 
     /**
@@ -147,6 +167,60 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
         $messages = is_null($key) ? $this->all($format) : $this->get($key, $format);
 
         return count($messages) > 0 ? $messages[0] : '';
+    }
+
+    /**
+     * Get all of the messages for every key in the bag.
+     *
+     * @param  string $format
+     * @return array
+     */
+    public function all($format = null)
+    {
+        $format = $this->checkFormat($format);
+
+        $all = [];
+
+        foreach ($this->messages as $key => $messages) {
+            $all = array_merge($all, $this->transform($messages, $format, $key));
+        }
+
+        return $all;
+    }
+
+    /**
+     * Get the appropriate format based on the given format.
+     *
+     * @param  string $format
+     * @return string
+     */
+    protected function checkFormat($format)
+    {
+        return $format ?: $this->format;
+    }
+
+    /**
+     * Format an array of messages.
+     *
+     * @param  array $messages
+     * @param  string $format
+     * @param  string $messageKey
+     * @return array
+     */
+    protected function transform($messages, $format, $messageKey)
+    {
+        $messages = (array)$messages;
+
+        // We will simply spin through the given messages and transform each one
+        // replacing the :message place holder with the real message allowing
+        // the messages to be easily formatted to each developer's desires.
+        $replace = [':message', ':key'];
+
+        foreach ($messages as &$message) {
+            $message = str_replace($replace, [$message, $messageKey], $format);
+        }
+
+        return $messages;
     }
 
     /**
@@ -195,25 +269,6 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     }
 
     /**
-     * Get all of the messages for every key in the bag.
-     *
-     * @param  string  $format
-     * @return array
-     */
-    public function all($format = null)
-    {
-        $format = $this->checkFormat($format);
-
-        $all = [];
-
-        foreach ($this->messages as $key => $messages) {
-            $all = array_merge($all, $this->transform($messages, $format, $key));
-        }
-
-        return $all;
-    }
-
-    /**
      * Get all of the unique messages for every key in the bag.
      *
      * @param  string  $format
@@ -222,61 +277,6 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     public function unique($format = null)
     {
         return array_unique($this->all($format));
-    }
-
-    /**
-     * Format an array of messages.
-     *
-     * @param  array   $messages
-     * @param  string  $format
-     * @param  string  $messageKey
-     * @return array
-     */
-    protected function transform($messages, $format, $messageKey)
-    {
-        $messages = (array) $messages;
-
-        // We will simply spin through the given messages and transform each one
-        // replacing the :message place holder with the real message allowing
-        // the messages to be easily formatted to each developer's desires.
-        $replace = [':message', ':key'];
-
-        foreach ($messages as &$message) {
-            $message = str_replace($replace, [$message, $messageKey], $format);
-        }
-
-        return $messages;
-    }
-
-    /**
-     * Get the appropriate format based on the given format.
-     *
-     * @param  string  $format
-     * @return string
-     */
-    protected function checkFormat($format)
-    {
-        return $format ?: $this->format;
-    }
-
-    /**
-     * Get the raw messages in the container.
-     *
-     * @return array
-     */
-    public function messages()
-    {
-        return $this->messages;
-    }
-
-    /**
-     * Get the raw messages in the container.
-     *
-     * @return array
-     */
-    public function getMessages()
-    {
-        return $this->messages();
     }
 
     /**
@@ -323,43 +323,13 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     }
 
     /**
-     * Determine if the message bag has any messages.
+     * Convert the message bag to its string representation.
      *
-     * @return bool
+     * @return string
      */
-    public function any()
+    public function __toString()
     {
-        return $this->count() > 0;
-    }
-
-    /**
-     * Get the number of messages in the container.
-     *
-     * @return int
-     */
-    public function count()
-    {
-        return count($this->messages, COUNT_RECURSIVE) - count($this->messages);
-    }
-
-    /**
-     * Get the instance as an array.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->getMessages();
-    }
-
-    /**
-     * Convert the object into something JSON serializable.
-     *
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return $this->toArray();
+        return $this->toJson();
     }
 
     /**
@@ -374,12 +344,42 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     }
 
     /**
-     * Convert the message bag to its string representation.
+     * Convert the object into something JSON serializable.
      *
-     * @return string
+     * @return array
      */
-    public function __toString()
+    public function jsonSerialize()
     {
-        return $this->toJson();
+        return $this->toArray();
+    }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->getMessages();
+    }
+
+    /**
+     * Get the raw messages in the container.
+     *
+     * @return array
+     */
+    public function getMessages()
+    {
+        return $this->messages();
+    }
+
+    /**
+     * Get the raw messages in the container.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return $this->messages;
     }
 }

@@ -48,7 +48,7 @@ class AcceptHeader
      *
      * @param AcceptHeaderItem $item
      *
-     * @return AcceptHeader
+     * @return $this
      */
     public function add(AcceptHeaderItem $item)
     {
@@ -63,7 +63,7 @@ class AcceptHeader
      *
      * @param string $headerValue
      *
-     * @return AcceptHeader
+     * @return self
      */
     public static function fromString($headerValue)
     {
@@ -149,7 +149,7 @@ class AcceptHeader
      *
      * @param string $pattern
      *
-     * @return AcceptHeader
+     * @return self
      */
     public function filter($pattern)
     {

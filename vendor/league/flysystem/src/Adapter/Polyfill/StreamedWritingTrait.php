@@ -8,6 +8,20 @@ use League\Flysystem\Util;
 trait StreamedWritingTrait
 {
     /**
+     * Write using a stream.
+     *
+     * @param string $path
+     * @param resource $resource
+     * @param Config $config
+     *
+     * @return mixed false or file metadata
+     */
+    public function writeStream($path, $resource, Config $config)
+    {
+        return $this->stream($path, $resource, $config, 'write');
+    }
+
+    /**
      * Stream fallback delegator.
      *
      * @param string   $path
@@ -24,20 +38,6 @@ trait StreamedWritingTrait
         $fallbackCall = [$this, $fallback];
 
         return call_user_func($fallbackCall, $path, $contents, $config);
-    }
-
-    /**
-     * Write using a stream.
-     *
-     * @param string   $path
-     * @param resource $resource
-     * @param Config   $config
-     *
-     * @return mixed false or file metadata
-     */
-    public function writeStream($path, $resource, Config $config)
-    {
-        return $this->stream($path, $resource, $config, 'write');
     }
 
     /**

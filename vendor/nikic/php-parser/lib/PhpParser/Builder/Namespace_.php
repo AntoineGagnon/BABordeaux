@@ -21,19 +21,6 @@ class Namespace_ extends PhpParser\BuilderAbstract
     }
 
     /**
-     * Adds a statement.
-     *
-     * @param Node|PhpParser\Builder $stmt The statement to add
-     *
-     * @return $this The builder instance (for fluid interface)
-     */
-    public function addStmt($stmt) {
-        $this->stmts[] = $this->normalizeNode($stmt);
-
-        return $this;
-    }
-
-    /**
      * Adds multiple statements.
      *
      * @param array $stmts The statements to add
@@ -44,6 +31,20 @@ class Namespace_ extends PhpParser\BuilderAbstract
         foreach ($stmts as $stmt) {
             $this->addStmt($stmt);
         }
+
+        return $this;
+    }
+
+    /**
+     * Adds a statement.
+     *
+     * @param Node|PhpParser\Builder $stmt The statement to add
+     *
+     * @return $this The builder instance (for fluid interface)
+     */
+    public function addStmt($stmt)
+    {
+        $this->stmts[] = $this->normalizeNode($stmt);
 
         return $this;
     }

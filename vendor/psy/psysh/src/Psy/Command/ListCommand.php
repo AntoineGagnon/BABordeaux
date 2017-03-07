@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -133,98 +133,17 @@ HELP
         if ($input->getOption('long')) {
             $output->stopPaging();
         }
-    }
 
-    /**
-     * Initialize Enumerators.
-     */
-    protected function initEnumerators()
-    {
-        if (!isset($this->enumerators)) {
-            $mgr = $this->presenter;
-
-            $this->enumerators = array(
-                new ClassConstantEnumerator($mgr),
-                new ClassEnumerator($mgr),
-                new ConstantEnumerator($mgr),
-                new FunctionEnumerator($mgr),
-                new GlobalVariableEnumerator($mgr),
-                new InterfaceEnumerator($mgr),
-                new PropertyEnumerator($mgr),
-                new MethodEnumerator($mgr),
-                new TraitEnumerator($mgr),
-                new VariableEnumerator($mgr, $this->context),
-            );
+        // Set some magic local variables
+        if ($reflector !== null) {
+            $this->setCommandScopeVariables($reflector);
         }
-    }
-
-    /**
-     * Write the list items to $output.
-     *
-     * @param OutputInterface $output
-     * @param null|array      $result List of enumerated items.
-     */
-    protected function write(OutputInterface $output, array $result = null)
-    {
-        if ($result === null) {
-            return;
-        }
-
-        foreach ($result as $label => $items) {
-            $names = array_map(array($this, 'formatItemName'), $items);
-            $output->writeln(sprintf('<strong>%s</strong>: %s', $label, implode(', ', $names)));
-        }
-    }
-
-    /**
-     * Write the list items to $output.
-     *
-     * Items are listed one per line, and include the item signature.
-     *
-     * @param OutputInterface $output
-     * @param null|array      $result List of enumerated items.
-     */
-    protected function writeLong(OutputInterface $output, array $result = null)
-    {
-        if ($result === null) {
-            return;
-        }
-
-        $table = $this->getTable($output);
-
-        foreach ($result as $label => $items) {
-            $output->writeln('');
-            $output->writeln(sprintf('<strong>%s:</strong>', $label));
-
-            $table->setRows(array());
-            foreach ($items as $item) {
-                $table->addRow(array($this->formatItemName($item), $item['value']));
-            }
-
-            if ($table instanceof TableHelper) {
-                $table->render($output);
-            } else {
-                $table->render();
-            }
-        }
-    }
-
-    /**
-     * Format an item name given its visibility.
-     *
-     * @param array $item
-     *
-     * @return string
-     */
-    private function formatItemName($item)
-    {
-        return sprintf('<%s>%s</%s>', $item['style'], OutputFormatter::escape($item['name']), $item['style']);
     }
 
     /**
      * Validate that input options make sense, provide defaults when called without options.
      *
-     * @throws RuntimeException if options are inconsistent.
+     * @throws RuntimeException if options are inconsistent
      *
      * @param InputInterface $input
      */
@@ -270,9 +189,95 @@ HELP
             }
 
             // default to --constants --properties --methods if no other options are passed
-            $input->setOption('constants',  true);
+            $input->setOption('constants', true);
             $input->setOption('properties', true);
-            $input->setOption('methods',    true);
+            $input->setOption('methods', true);
         }
+    }
+
+    /**
+     * Initialize Enumerators.
+     */
+    protected function initEnumerators()
+    {
+        if (!isset($this->enumerators)) {
+            $mgr = $this->presenter;
+
+            $this->enumerators = array(
+                new ClassConstantEnumerator($mgr),
+                new ClassEnumerator($mgr),
+                new ConstantEnumerator($mgr),
+                new FunctionEnumerator($mgr),
+                new GlobalVariableEnumerator($mgr),
+                new InterfaceEnumerator($mgr),
+                new PropertyEnumerator($mgr),
+                new MethodEnumerator($mgr),
+                new TraitEnumerator($mgr),
+                new VariableEnumerator($mgr, $this->context),
+            );
+        }
+    }
+
+    /**
+     * Write the list items to $output.
+     *
+     * @param OutputInterface $output
+     * @param null|array $result List of enumerated items
+     */
+    protected function write(OutputInterface $output, array $result = null)
+    {
+        if ($result === null) {
+            return;
+        }
+
+        foreach ($result as $label => $items) {
+            $names = array_map(array($this, 'formatItemName'), $items);
+            $output->writeln(sprintf('<strong>%s</strong>: %s', $label, implode(', ', $names)));
+        }
+    }
+
+    /**
+     * Write the list items to $output.
+     *
+     * Items are listed one per line, and include the item signature.
+     *
+     * @param OutputInterface $output
+     * @param null|array $result List of enumerated items
+     */
+    protected function writeLong(OutputInterface $output, array $result = null)
+    {
+        if ($result === null) {
+            return;
+        }
+
+        $table = $this->getTable($output);
+
+        foreach ($result as $label => $items) {
+            $output->writeln('');
+            $output->writeln(sprintf('<strong>%s:</strong>', $label));
+
+            $table->setRows(array());
+            foreach ($items as $item) {
+                $table->addRow(array($this->formatItemName($item), $item['value']));
+            }
+
+            if ($table instanceof TableHelper) {
+                $table->render($output);
+            } else {
+                $table->render();
+            }
+        }
+    }
+
+    /**
+     * Format an item name given its visibility.
+     *
+     * @param array $item
+     *
+     * @return string
+     */
+    private function formatItemName($item)
+    {
+        return sprintf('<%s>%s</%s>', $item['style'], OutputFormatter::escape($item['name']), $item['style']);
     }
 }

@@ -89,12 +89,14 @@
 
                         @if(!($questionGroup == $questionGroups->first()))
                             <button type="button"
-                                    class="btn btn-info glyphicon glyphicon-arrow-left prev-button" id="prevButton"></button>
+                                    class="btn btn-info glyphicon glyphicon-arrow-left prev-button"
+                                    id="prevButton"></button>
                         @endif
 
                         @if(! ($questionGroup == $questionGroups->last()))
                             <button type="button"
-                                    class="btn btn-info pull-right glyphicon glyphicon-arrow-right next-button" id="nextButton"></button>
+                                    class="btn btn-info pull-right glyphicon glyphicon-arrow-right next-button"
+                                    id="nextButton"></button>
                         @else
                             <button type="submit" class="btn btn-primary pull-right btn-lg" id="submitBtn">Valider
                             </button>
@@ -136,8 +138,8 @@
 
         var i = 0;
         @foreach($questionGroups as $questionGroup)
-                questionGroupsList[i] = {{$questionGroup->id}}
-                i++;
+            questionGroupsList[i] = {{$questionGroup->id}}
+            i++;
         @endforeach
 
         $(document).ready(function () {

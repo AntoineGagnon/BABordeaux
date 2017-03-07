@@ -81,8 +81,6 @@ class Swift_Plugins_DecoratorPluginTest extends \SwiftMailerTestCase
         return $evt;
     }
 
-    // -- Creation methods
-
     public function testReplacementsCanBeAppliedToSameMessageMultipleTimes()
     {
         $message = $this->_createMessage(

@@ -1,7 +1,6 @@
 <?php
 
-class Swift_Transport_SendmailTransportTest
-    extends Swift_Transport_AbstractSmtpEventSupportTest
+class Swift_Transport_SendmailTransportTest extends Swift_Transport_AbstractSmtpEventSupportTest
 {
     public function testCommandCanBeSetAndFetched()
     {

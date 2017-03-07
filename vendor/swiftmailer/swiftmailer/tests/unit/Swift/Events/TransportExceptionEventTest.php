@@ -18,11 +18,9 @@ class Swift_Events_TransportExceptionEventTest extends \PHPUnit_Framework_TestCa
         return new Swift_TransportException('');
     }
 
-    // -- Creation Methods
-
     private function _createTransport()
     {
-        return $this->getMock('Swift_Transport');
+        return $this->getMockBuilder('Swift_Transport')->getMock();
     }
 
     private function _createEvent(Swift_Transport $transport, Swift_TransportException $ex)

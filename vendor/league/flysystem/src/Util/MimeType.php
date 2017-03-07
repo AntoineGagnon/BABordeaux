@@ -3,6 +3,7 @@
 namespace League\Flysystem\Util;
 
 use Finfo;
+use ErrorException;
 
 /**
  * @internal
@@ -21,11 +22,25 @@ class MimeType
         if ( ! class_exists('Finfo') || ! is_string($content)) {
             return;
         }
+        try {
+            $finfo = new Finfo(FILEINFO_MIME_TYPE);
 
-        $finfo = new Finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->buffer($content);
+            return $finfo->buffer($content) ?: null;
+        } catch (ErrorException $e) {
+            // This is caused by an array to string conversion error.
+        }
+    }
 
-        return $mimeType ?: null;
+    /**
+     * @param string $filename
+     *
+     * @return string
+     */
+    public static function detectByFilename($filename)
+    {
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        return empty($extension) ? 'text/plain' : static::detectByFileExtension($extension);
     }
 
     /**
@@ -48,18 +63,6 @@ class MimeType
         }
 
         return 'text/plain';
-    }
-
-    /**
-     * @param string $filename
-     *
-     * @return string
-     */
-    public static function detectByFilename($filename)
-    {
-        $extension = pathinfo($filename, PATHINFO_EXTENSION);
-
-        return empty($extension) ? 'text/plain' : static::detectByFileExtension($extension);
     }
 
     /**

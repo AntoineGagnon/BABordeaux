@@ -40,16 +40,6 @@ trait GuardHelpers
     }
 
     /**
-     * Determine if the current user is authenticated.
-     *
-     * @return bool
-     */
-    public function check()
-    {
-        return ! is_null($this->user());
-    }
-
-    /**
      * Determine if the current user is a guest.
      *
      * @return bool
@@ -57,6 +47,16 @@ trait GuardHelpers
     public function guest()
     {
         return ! $this->check();
+    }
+
+    /**
+     * Determine if the current user is authenticated.
+     *
+     * @return bool
+     */
+    public function check()
+    {
+        return !is_null($this->user());
     }
 
     /**

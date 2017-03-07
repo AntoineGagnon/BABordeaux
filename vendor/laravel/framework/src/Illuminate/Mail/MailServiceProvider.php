@@ -48,24 +48,17 @@ class MailServiceProvider extends ServiceProvider
                 $mailer->alwaysTo($to['address'], $to['name']);
             }
 
+            // If a "reply to" address is set, we will set it on the mailer so that each
+            // message sent by the application will utilize the same address for this
+            // setting. This is more convenient than specifying it on each message.
+            $replyTo = $app['config']['mail.reply_to'];
+
+            if (is_array($replyTo) && isset($replyTo['address'])) {
+                $mailer->alwaysReplyTo($replyTo['address'], $replyTo['name']);
+            }
+
             return $mailer;
         });
-    }
-
-    /**
-     * Set a few dependencies on the mailer instance.
-     *
-     * @param  \Illuminate\Mail\Mailer  $mailer
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return void
-     */
-    protected function setMailerDependencies($mailer, $app)
-    {
-        $mailer->setContainer($app);
-
-        if ($app->bound('queue')) {
-            $mailer->setQueue($app['queue']);
-        }
     }
 
     /**
@@ -95,6 +88,22 @@ class MailServiceProvider extends ServiceProvider
         $this->app['swift.transport'] = $this->app->share(function ($app) {
             return new TransportManager($app);
         });
+    }
+
+    /**
+     * Set a few dependencies on the mailer instance.
+     *
+     * @param  \Illuminate\Mail\Mailer $mailer
+     * @param  \Illuminate\Foundation\Application $app
+     * @return void
+     */
+    protected function setMailerDependencies($mailer, $app)
+    {
+        $mailer->setContainer($app);
+
+        if ($app->bound('queue')) {
+            $mailer->setQueue($app['queue']);
+        }
     }
 
     /**

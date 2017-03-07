@@ -4,11 +4,6 @@ class Swift_Transport_Esmtp_Auth_CramMd5AuthenticatorTest extends \SwiftMailerTe
 {
     private $_agent;
 
-    public function setUp()
-    {
-        $this->_agent = $this->getMockery('Swift_Transport_SmtpAgent')->shouldIgnoreMissing();
-    }
-
     public function testKeywordIsCramMd5()
     {
         /* -- RFC 2195, 2.
@@ -41,8 +36,6 @@ class Swift_Transport_Esmtp_Auth_CramMd5AuthenticatorTest extends \SwiftMailerTe
             );
     }
 
-    // -- Private helpers
-
     public function testAuthenticationFailureSendRsetAndReturnFalse()
     {
         $cram = $this->_getAuthenticator();
@@ -62,5 +55,10 @@ class Swift_Transport_Esmtp_Auth_CramMd5AuthenticatorTest extends \SwiftMailerTe
         $this->assertFalse($cram->authenticate($this->_agent, 'jack', 'pass'),
             '%s: Authentication fails, so RSET should be sent'
             );
+    }
+
+    protected function setUp()
+    {
+        $this->_agent = $this->getMockery('Swift_Transport_SmtpAgent')->shouldIgnoreMissing();
     }
 }

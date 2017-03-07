@@ -58,7 +58,7 @@ class Cookie
         } elseif (!is_numeric($expire)) {
             $expire = strtotime($expire);
 
-            if (false === $expire || -1 === $expire) {
+            if (false === $expire) {
                 throw new \InvalidArgumentException('The cookie expiration time is not valid.');
             }
         }
@@ -66,7 +66,7 @@ class Cookie
         $this->name = $name;
         $this->value = $value;
         $this->domain = $domain;
-        $this->expire = $expire;
+        $this->expire = 0 < $expire ? (int)$expire : 0;
         $this->path = empty($path) ? '/' : $path;
         $this->secure = (bool) $secure;
         $this->httpOnly = (bool) $httpOnly;
@@ -80,20 +80,20 @@ class Cookie
      */
     public function __toString()
     {
-        $str = urlencode($this->getName()).'=';
+        $str = ($this->isRaw() ? $this->getName() : urlencode($this->getName())) . '=';
 
         if ('' === (string) $this->getValue()) {
             $str .= 'deleted; expires='.gmdate('D, d-M-Y H:i:s T', time() - 31536001);
         } else {
-            $str .= urlencode($this->getValue());
+            $str .= $this->isRaw() ? $this->getValue() : urlencode($this->getValue());
 
-            if ($this->getExpiresTime() !== 0) {
+            if (0 !== $this->getExpiresTime()) {
                 $str .= '; expires='.gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime());
             }
         }
 
-        if ($this->path) {
-            $str .= '; path='.$this->path;
+        if ($this->getPath()) {
+            $str .= '; path=' . $this->getPath();
         }
 
         if ($this->getDomain()) {
@@ -112,6 +112,16 @@ class Cookie
     }
 
     /**
+     * Checks if the cookie value should be sent with no url encoding.
+     *
+     * @return bool
+     */
+    public function isRaw()
+    {
+        return $this->raw;
+    }
+
+    /**
      * Gets the name of the cookie.
      *
      * @return string
@@ -124,7 +134,7 @@ class Cookie
     /**
      * Gets the value of the cookie.
      *
-     * @return string
+     * @return string|null
      */
     public function getValue()
     {
@@ -142,9 +152,19 @@ class Cookie
     }
 
     /**
-     * Gets the domain that the cookie is available to.
+     * Gets the path on the server in which the cookie will be available on.
      *
      * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Gets the domain that the cookie is available to.
+     *
+     * @return string|null
      */
     public function getDomain()
     {
@@ -172,16 +192,6 @@ class Cookie
     }
 
     /**
-     * Gets the path on the server in which the cookie will be available on.
-     *
-     * @return string
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
      * Whether this cookie is about to be cleared.
      *
      * @return bool
@@ -189,15 +199,5 @@ class Cookie
     public function isCleared()
     {
         return $this->expire < time();
-    }
-
-    /**
-     * Checks if the cookie value should be sent with no url encoding.
-     *
-     * @return bool
-     */
-    public function isRaw()
-    {
-        return $this->raw;
     }
 }

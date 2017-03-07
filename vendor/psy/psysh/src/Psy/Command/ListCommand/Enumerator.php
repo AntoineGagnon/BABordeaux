@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -62,39 +62,6 @@ abstract class Enumerator
         return $this->listItems($input, $reflector, $target);
     }
 
-    /**
-     * Enumerate specific items with the given input options and target.
-     *
-     * Implementing classes should return an array of arrays:
-     *
-     *     [
-     *         'Constants' => [
-     *             'FOO' => [
-     *                 'name'  => 'FOO',
-     *                 'style' => 'public',
-     *                 'value' => '123',
-     *             ],
-     *         ],
-     *     ]
-     *
-     * @param InputInterface $input
-     * @param Reflector      $reflector
-     * @param mixed          $target
-     *
-     * @return array
-     */
-    abstract protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null);
-
-    protected function presentRef($value)
-    {
-        return $this->presenter->presentRef($value);
-    }
-
-    protected function showItem($name)
-    {
-        return $this->filter === false || (preg_match($this->pattern, $name) xor $this->invertFilter);
-    }
-
     private function setFilter(InputInterface $input)
     {
         if ($pattern = $input->getOption('grep')) {
@@ -132,6 +99,39 @@ abstract class Enumerator
             throw new RuntimeException(str_replace('preg_match(): ', 'Invalid regular expression: ', $e->getRawMessage()));
         }
         restore_error_handler();
+    }
+
+    /**
+     * Enumerate specific items with the given input options and target.
+     *
+     * Implementing classes should return an array of arrays:
+     *
+     *     [
+     *         'Constants' => [
+     *             'FOO' => [
+     *                 'name'  => 'FOO',
+     *                 'style' => 'public',
+     *                 'value' => '123',
+     *             ],
+     *         ],
+     *     ]
+     *
+     * @param InputInterface $input
+     * @param Reflector $reflector
+     * @param mixed $target
+     *
+     * @return array
+     */
+    abstract protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null);
+
+    protected function presentRef($value)
+    {
+        return $this->presenter->presentRef($value);
+    }
+
+    protected function showItem($name)
+    {
+        return $this->filter === false || (preg_match($this->pattern, $name) xor $this->invertFilter);
     }
 
     protected function presentSignature($target)

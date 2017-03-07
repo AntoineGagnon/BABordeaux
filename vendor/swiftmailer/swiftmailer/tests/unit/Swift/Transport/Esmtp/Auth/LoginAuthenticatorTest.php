@@ -4,11 +4,6 @@ class Swift_Transport_Esmtp_Auth_LoginAuthenticatorTest extends \SwiftMailerTest
 {
     private $_agent;
 
-    public function setUp()
-    {
-        $this->_agent = $this->getMockery('Swift_Transport_SmtpAgent')->shouldIgnoreMissing();
-    }
-
     public function testKeywordIsLogin()
     {
         $login = $this->_getAuthenticator();
@@ -39,8 +34,6 @@ class Swift_Transport_Esmtp_Auth_LoginAuthenticatorTest extends \SwiftMailerTest
             );
     }
 
-    // -- Private helpers
-
     public function testAuthenticationFailureSendRsetAndReturnFalse()
     {
         $login = $this->_getAuthenticator();
@@ -62,5 +55,10 @@ class Swift_Transport_Esmtp_Auth_LoginAuthenticatorTest extends \SwiftMailerTest
         $this->assertFalse($login->authenticate($this->_agent, 'jack', 'pass'),
             '%s: Authentication fails, so RSET should be sent'
             );
+    }
+
+    protected function setUp()
+    {
+        $this->_agent = $this->getMockery('Swift_Transport_SmtpAgent')->shouldIgnoreMissing();
     }
 }

@@ -5,12 +5,6 @@ class Swift_Mime_ContentEncoder_PlainContentEncoderAcceptanceTest extends \PHPUn
     private $_samplesDir;
     private $_encoder;
 
-    public function setUp()
-    {
-        $this->_samplesDir = realpath(__DIR__.'/../../../../_samples/charsets');
-        $this->_encoder = new Swift_Mime_ContentEncoder_PlainContentEncoder('8bit');
-    }
-
     public function testEncodingAndDecodingSamplesString()
     {
         $sampleFp = opendir($this->_samplesDir);
@@ -84,5 +78,11 @@ class Swift_Mime_ContentEncoder_PlainContentEncoderAcceptanceTest extends \PHPUn
             }
         }
         closedir($sampleFp);
+    }
+
+    protected function setUp()
+    {
+        $this->_samplesDir = realpath(__DIR__ . '/../../../../_samples/charsets');
+        $this->_encoder = new Swift_Mime_ContentEncoder_PlainContentEncoder('8bit');
     }
 }

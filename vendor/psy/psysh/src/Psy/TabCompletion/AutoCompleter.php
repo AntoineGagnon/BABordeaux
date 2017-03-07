@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,7 +20,7 @@ use Psy\TabCompletion\Matcher\AbstractMatcher;
  */
 class AutoCompleter
 {
-    /** @var Matcher\AbstractMatcher[]  */
+    /** @var Matcher\AbstractMatcher[] */
     protected $matchers;
 
     /**
@@ -39,6 +39,21 @@ class AutoCompleter
     public function activate()
     {
         readline_completion_function(array(&$this, 'callback'));
+    }
+
+    /**
+     * The readline_completion_function callback handler.
+     *
+     * @see processCallback
+     *
+     * @param $input
+     * @param $index
+     *
+     * @return array
+     */
+    public function callback($input, $index)
+    {
+        return $this->processCallback($input, $index, readline_info());
     }
 
     /**
@@ -69,21 +84,6 @@ class AutoCompleter
         $matches = array_unique($matches);
 
         return !empty($matches) ? $matches : array('');
-    }
-
-    /**
-     * The readline_completion_function callback handler.
-     *
-     * @see processCallback
-     *
-     * @param $input
-     * @param $index
-     *
-     * @return array
-     */
-    public function callback($input, $index)
-    {
-        return $this->processCallback($input, $index, readline_info());
     }
 
     /**

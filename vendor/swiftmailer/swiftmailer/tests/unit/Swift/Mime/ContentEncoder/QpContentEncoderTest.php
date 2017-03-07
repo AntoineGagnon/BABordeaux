@@ -443,8 +443,6 @@ class Swift_Mime_ContentEncoder_QpContentEncoderTest extends \SwiftMailerTestCas
         }
     }
 
-    // -- Creation Methods
-
     public function testFirstLineLengthCanBeDifferent()
     {
         $os = $this->_createOutputByteStream(true);

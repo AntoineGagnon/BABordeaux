@@ -204,7 +204,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
      *
      * @param string $id
      *
-     * @return Swift_Mime_SimpleMimeEntity
+     * @return $this
      */
     public function setId($id)
     {
@@ -243,7 +243,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
      *
      * @param string $description
      *
-     * @return Swift_Mime_SimpleMimeEntity
+     * @return $this
      */
     public function setDescription($description)
     {
@@ -284,7 +284,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
      * @param Swift_Mime_MimeEntity[] $children
      * @param int                     $compoundLevel For internal use only
      *
-     * @return Swift_Mime_SimpleMimeEntity
+     * @return $this
      */
     public function setChildren(array $children, $compoundLevel = null)
     {
@@ -361,7 +361,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
      *
      * @param Swift_Mime_ContentEncoder $encoder
      *
-     * @return Swift_Mime_SimpleMimeEntity
+     * @return $this
      */
     public function setEncoder(Swift_Mime_ContentEncoder $encoder)
     {
@@ -486,7 +486,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
      * @param mixed $body
      * @param string $contentType optional
      *
-     * @return Swift_Mime_SimpleMimeEntity
+     * @return $this
      */
     public function setBody($body, $contentType = null)
     {
@@ -527,7 +527,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
      *
      * @param string $type
      *
-     * @return Swift_Mime_SimpleMimeEntity
+     * @return $this
      */
     public function setContentType($type)
     {
@@ -563,7 +563,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
      *
      * @param int $length
      *
-     * @return Swift_Mime_SimpleMimeEntity
+     * @return $this
      */
     public function setMaxLineLength($length)
     {
@@ -593,7 +593,7 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
      *
      * @throws Swift_RfcComplianceException
      *
-     * @return Swift_Mime_SimpleMimeEntity
+     * @return $this
      */
     public function setBoundary($boundary)
     {
@@ -671,7 +671,9 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
      */
     public function __destruct()
     {
-        $this->_cache->clearAll($this->_cacheKey);
+        if ($this->_cache instanceof Swift_KeyCache) {
+            $this->_cache->clearAll($this->_cacheKey);
+        }
     }
 
     /**
@@ -789,8 +791,6 @@ class Swift_Mime_SimpleMimeEntity implements Swift_Mime_MimeEntity
 
         return $realLevel;
     }
-
-    // -- Destructor
 
     private function _createChild()
     {

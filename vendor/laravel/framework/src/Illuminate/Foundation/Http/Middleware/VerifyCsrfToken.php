@@ -69,6 +69,27 @@ class VerifyCsrfToken
     }
 
     /**
+     * Determine if the HTTP request uses a ‘read’ verb.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return bool
+     */
+    protected function isReading($request)
+    {
+        return in_array($request->method(), ['HEAD', 'GET', 'OPTIONS']);
+    }
+
+    /**
+     * Determine if the application is running unit tests.
+     *
+     * @return bool
+     */
+    protected function runningUnitTests()
+    {
+        return $this->app->runningInConsole() && $this->app->runningUnitTests();
+    }
+
+    /**
      * Determine if the request has a URI that should pass through CSRF verification.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -87,16 +108,6 @@ class VerifyCsrfToken
         }
 
         return false;
-    }
-
-    /**
-     * Determine if the application is running unit tests.
-     *
-     * @return bool
-     */
-    protected function runningUnitTests()
-    {
-        return $this->app->runningInConsole() && $this->app->runningUnitTests();
     }
 
     /**
@@ -141,16 +152,5 @@ class VerifyCsrfToken
         );
 
         return $response;
-    }
-
-    /**
-     * Determine if the HTTP request uses a ‘read’ verb.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return bool
-     */
-    protected function isReading($request)
-    {
-        return in_array($request->method(), ['HEAD', 'GET', 'OPTIONS']);
     }
 }

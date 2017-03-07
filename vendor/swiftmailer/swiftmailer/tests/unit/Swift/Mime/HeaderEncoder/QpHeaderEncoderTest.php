@@ -129,8 +129,6 @@ class Swift_Mime_HeaderEncoder_QpHeaderEncoderTest extends \SwiftMailerTestCase
             );
     }
 
-    // -- Creation Methods
-
     public function testOnlyCharactersAllowedInPhrasesAreUsed()
     {
         /* -- RFC 2047, 5.

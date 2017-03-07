@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,8 +17,8 @@ use Psy\Util\Mirror;
 class MirrorTest extends \PHPUnit_Framework_TestCase
 {
     const FOO           = 1;
-    private $bar        = 2;
     private static $baz = 3;
+    private $bar = 2;
 
     public function aPublicMethod()
     {

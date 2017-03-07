@@ -779,8 +779,6 @@ class Swift_Mime_SimpleMessageTest extends Swift_Mime_MimePartTest
         $this->assertEquals('cid:foo@bar', $message->embed($child));
     }
 
-    // -- Private helpers
-
     //abstract
 
     public function testFluidInterface()

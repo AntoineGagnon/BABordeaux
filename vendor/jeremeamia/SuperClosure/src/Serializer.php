@@ -2,6 +2,7 @@
 
 use SuperClosure\Analyzer\AstAnalyzer as DefaultAnalyzer;
 use SuperClosure\Analyzer\ClosureAnalyzer;
+use SuperClosure\Exception\ClosureSerializationException;
 use SuperClosure\Exception\ClosureUnserializationException;
 
 /**
@@ -61,86 +62,6 @@ class Serializer implements SerializerInterface
     }
 
     /**
-     * @inheritDoc
-     */
-    public function serialize(\Closure $closure)
-    {
-        $serialized = serialize(new SerializableClosure($closure, $this));
-
-        if ($this->signingKey) {
-            $signature = $this->calculateSignature($serialized);
-            $serialized = '%' . base64_encode($signature) . $serialized;
-        }
-
-        return $serialized;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function unserialize($serialized)
-    {
-        // Strip off the signature from the front of the string.
-        $signature = null;
-        if ($serialized[0] === '%') {
-            $signature = base64_decode(substr($serialized, 1, 44));
-            $serialized = substr($serialized, 45);
-        }
-
-        // If a key was provided, then verify the signature.
-        if ($this->signingKey) {
-            $this->verifySignature($signature, $serialized);
-        }
-
-        set_error_handler(function () {});
-        $unserialized = unserialize($serialized);
-        restore_error_handler();
-        if ($unserialized === false) {
-            throw new ClosureUnserializationException(
-                'The closure could not be unserialized.'
-            );
-        } elseif (!$unserialized instanceof SerializableClosure) {
-            throw new ClosureUnserializationException(
-                'The closure did not unserialize to a SuperClosure.'
-            );
-        }
-
-        return $unserialized->getClosure();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getData(\Closure $closure, $forSerialization = false)
-    {
-        // Use the closure analyzer to get data about the closure.
-        $data = $this->analyzer->analyze($closure);
-
-        // If the closure data is getting retrieved solely for the purpose of
-        // serializing the closure, then make some modifications to the data.
-        if ($forSerialization) {
-            // If there is no reference to the binding, don't serialize it.
-            if (!$data['hasThis']) {
-                $data['binding'] = null;
-            }
-
-            // Remove data about the closure that does not get serialized.
-            $data = array_intersect_key($data, self::$dataToKeep);
-
-            // Wrap any other closures within the context.
-            foreach ($data['context'] as &$value) {
-                if ($value instanceof \Closure) {
-                    $value = ($value === $closure)
-                        ? self::RECURSION
-                        : new SerializableClosure($value, $this);
-                }
-            }
-        }
-
-        return $data;
-    }
-
-    /**
      * Recursively traverses and wraps all Closure objects within the value.
      *
      * NOTE: THIS MAY NOT WORK IN ALL USE CASES, SO USE AT YOUR OWN RISK.
@@ -182,6 +103,27 @@ class Serializer implements SerializerInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function serialize(\Closure $closure)
+    {
+        $serialized = serialize(new SerializableClosure($closure, $this));
+
+        if ($serialized === null) {
+            throw new ClosureSerializationException(
+                'The closure could not be serialized.'
+            );
+        }
+
+        if ($this->signingKey) {
+            $signature = $this->calculateSignature($serialized);
+            $serialized = '%' . base64_encode($signature) . $serialized;
+        }
+
+        return $serialized;
+    }
+
+    /**
      * Calculates a signature for a closure's serialized data.
      *
      * @param string $data Serialized closure data.
@@ -194,10 +136,43 @@ class Serializer implements SerializerInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function unserialize($serialized)
+    {
+        // Strip off the signature from the front of the string.
+        $signature = null;
+        if ($serialized[0] === '%') {
+            $signature = base64_decode(substr($serialized, 1, 44));
+            $serialized = substr($serialized, 45);
+        }
+
+        // If a key was provided, then verify the signature.
+        if ($this->signingKey) {
+            $this->verifySignature($signature, $serialized);
+        }
+
+        set_error_handler(function () {});
+        $unserialized = unserialize($serialized);
+        restore_error_handler();
+        if ($unserialized === false) {
+            throw new ClosureUnserializationException(
+                'The closure could not be unserialized.'
+            );
+        } elseif (!$unserialized instanceof SerializableClosure) {
+            throw new ClosureUnserializationException(
+                'The closure did not unserialize to a SuperClosure.'
+            );
+        }
+
+        return $unserialized->getClosure();
+    }
+
+    /**
      * Verifies the signature for a closure's serialized data.
      *
      * @param string $signature The provided signature of the data.
-     * @param string $data      The data for which to verify the signature.
+     * @param string $data The data for which to verify the signature.
      *
      * @throws ClosureUnserializationException if the signature is invalid.
      */
@@ -210,5 +185,37 @@ class Serializer implements SerializerInterface
                 . 'closure has been modified and is unsafe to unserialize.'
             );
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getData(\Closure $closure, $forSerialization = false)
+    {
+        // Use the closure analyzer to get data about the closure.
+        $data = $this->analyzer->analyze($closure);
+
+        // If the closure data is getting retrieved solely for the purpose of
+        // serializing the closure, then make some modifications to the data.
+        if ($forSerialization) {
+            // If there is no reference to the binding, don't serialize it.
+            if (!$data['hasThis']) {
+                $data['binding'] = null;
+            }
+
+            // Remove data about the closure that does not get serialized.
+            $data = array_intersect_key($data, self::$dataToKeep);
+
+            // Wrap any other closures within the context.
+            foreach ($data['context'] as &$value) {
+                if ($value instanceof \Closure) {
+                    $value = ($value === $closure)
+                        ? self::RECURSION
+                        : new SerializableClosure($value, $this);
+                }
+            }
+        }
+
+        return $data;
     }
 }

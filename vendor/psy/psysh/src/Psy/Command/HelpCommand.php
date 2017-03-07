@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,6 +26,16 @@ class HelpCommand extends Command
     private $command;
 
     /**
+     * Helper for setting a subcommand to retrieve help for.
+     *
+     * @param Command $command
+     */
+    public function setCommand($command)
+    {
+        $this->command = $command;
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -38,16 +48,6 @@ class HelpCommand extends Command
             ))
             ->setDescription('Show a list of commands. Type `help [foo]` for information about [foo].')
             ->setHelp('My. How meta.');
-    }
-
-    /**
-     * Helper for setting a subcommand to retrieve help for.
-     *
-     * @param Command $command
-     */
-    public function setCommand($command)
-    {
-        $this->command = $command;
     }
 
     /**

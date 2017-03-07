@@ -107,8 +107,6 @@ class Swift_Mime_ContentEncoder_PlainContentEncoderTest extends \SwiftMailerTest
             );
     }
 
-    // -- Private helpers
-
     public function testencodeStringGeneratesCorrectCrlf()
     {
         $encoder = $this->_getEncoder('7bit', true);

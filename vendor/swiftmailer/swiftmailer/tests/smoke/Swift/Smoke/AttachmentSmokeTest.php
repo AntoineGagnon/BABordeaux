@@ -7,12 +7,6 @@ class Swift_Smoke_AttachmentSmokeTest extends SwiftMailerSmokeTestCase
 {
     private $_attFile;
 
-    public function setUp()
-    {
-        parent::setup(); // For skip
-        $this->_attFile = __DIR__.'/../../../_samples/files/textfile.zip';
-    }
-
     public function testAttachmentSending()
     {
         $mailer = $this->_getMailer();
@@ -29,5 +23,11 @@ class Swift_Smoke_AttachmentSmokeTest extends SwiftMailerSmokeTestCase
         $this->assertEquals(1, $mailer->send($message),
             '%s: The smoke test should send a single message'
             );
+    }
+
+    protected function setUp()
+    {
+        parent::setup(); // For skip
+        $this->_attFile = __DIR__ . '/../../../_samples/files/textfile.zip';
     }
 }

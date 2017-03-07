@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -51,6 +51,41 @@ class ShellOutput extends ConsoleOutput
     }
 
     /**
+     * Initialize output formatter styles.
+     */
+    private function initFormatters()
+    {
+        $formatter = $this->getFormatter();
+
+        $formatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
+        $formatter->setStyle('error', new OutputFormatterStyle('black', 'red', array('bold')));
+        $formatter->setStyle('aside', new OutputFormatterStyle('blue'));
+        $formatter->setStyle('strong', new OutputFormatterStyle(null, null, array('bold')));
+        $formatter->setStyle('return', new OutputFormatterStyle('cyan'));
+        $formatter->setStyle('urgent', new OutputFormatterStyle('red'));
+        $formatter->setStyle('hidden', new OutputFormatterStyle('black'));
+
+        // Visibility
+        $formatter->setStyle('public', new OutputFormatterStyle(null, null, array('bold')));
+        $formatter->setStyle('protected', new OutputFormatterStyle('yellow'));
+        $formatter->setStyle('private', new OutputFormatterStyle('red'));
+        $formatter->setStyle('global', new OutputFormatterStyle('cyan', null, array('bold')));
+        $formatter->setStyle('const', new OutputFormatterStyle('cyan'));
+        $formatter->setStyle('class', new OutputFormatterStyle('blue', null, array('underscore')));
+        $formatter->setStyle('function', new OutputFormatterStyle(null));
+        $formatter->setStyle('default', new OutputFormatterStyle(null));
+
+        // Types
+        $formatter->setStyle('number', new OutputFormatterStyle('magenta'));
+        $formatter->setStyle('string', new OutputFormatterStyle('green'));
+        $formatter->setStyle('bool', new OutputFormatterStyle('cyan'));
+        $formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));
+        $formatter->setStyle('comment', new OutputFormatterStyle('blue'));
+        $formatter->setStyle('object', new OutputFormatterStyle('blue'));
+        $formatter->setStyle('resource', new OutputFormatterStyle('yellow'));
+    }
+
+    /**
      * Page multiple lines of output.
      *
      * The output pager is started
@@ -60,8 +95,8 @@ class ShellOutput extends ConsoleOutput
      *
      * Upon completion, the output pager is flushed.
      *
-     * @param string|array|Closure $messages A string, array of strings or a callback.
-     * @param int                  $type     (default: 0)
+     * @param string|array|\Closure $messages A string, array of strings or a callback
+     * @param int $type (default: 0)
      */
     public function page($messages, $type = 0)
     {
@@ -90,15 +125,6 @@ class ShellOutput extends ConsoleOutput
     public function startPaging()
     {
         $this->paging++;
-    }
-
-    /**
-     * Stop paging output and flush the output pager.
-     */
-    public function stopPaging()
-    {
-        $this->paging--;
-        $this->closePager();
     }
 
     /**
@@ -141,6 +167,25 @@ class ShellOutput extends ConsoleOutput
     }
 
     /**
+     * Stop paging output and flush the output pager.
+     */
+    public function stopPaging()
+    {
+        $this->paging--;
+        $this->closePager();
+    }
+
+    /**
+     * Flush and close the output pager.
+     */
+    private function closePager()
+    {
+        if ($this->paging <= 0) {
+            $this->pager->close();
+        }
+    }
+
+    /**
      * Writes a message to the output.
      *
      * Handles paged output, or writes directly to the output stream.
@@ -155,49 +200,5 @@ class ShellOutput extends ConsoleOutput
         } else {
             parent::doWrite($message, $newline);
         }
-    }
-
-    /**
-     * Flush and close the output pager.
-     */
-    private function closePager()
-    {
-        if ($this->paging <= 0) {
-            $this->pager->close();
-        }
-    }
-
-    /**
-     * Initialize output formatter styles.
-     */
-    private function initFormatters()
-    {
-        $formatter = $this->getFormatter();
-
-        $formatter->setStyle('warning', new OutputFormatterStyle('black', 'yellow'));
-        $formatter->setStyle('aside',   new OutputFormatterStyle('blue'));
-        $formatter->setStyle('strong',  new OutputFormatterStyle(null, null, array('bold')));
-        $formatter->setStyle('return',  new OutputFormatterStyle('cyan'));
-        $formatter->setStyle('urgent',  new OutputFormatterStyle('red'));
-        $formatter->setStyle('hidden',  new OutputFormatterStyle('black'));
-
-        // Visibility
-        $formatter->setStyle('public',    new OutputFormatterStyle(null, null, array('bold')));
-        $formatter->setStyle('protected', new OutputFormatterStyle('yellow'));
-        $formatter->setStyle('private',   new OutputFormatterStyle('red'));
-        $formatter->setStyle('global',    new OutputFormatterStyle('cyan', null, array('bold')));
-        $formatter->setStyle('const',     new OutputFormatterStyle('cyan'));
-        $formatter->setStyle('class',     new OutputFormatterStyle('blue', null, array('underscore')));
-        $formatter->setStyle('function',  new OutputFormatterStyle(null));
-        $formatter->setStyle('default',   new OutputFormatterStyle(null));
-
-        // Types
-        $formatter->setStyle('number',   new OutputFormatterStyle('magenta'));
-        $formatter->setStyle('string',   new OutputFormatterStyle('green'));
-        $formatter->setStyle('bool',     new OutputFormatterStyle('cyan'));
-        $formatter->setStyle('keyword',  new OutputFormatterStyle('yellow'));
-        $formatter->setStyle('comment',  new OutputFormatterStyle('blue'));
-        $formatter->setStyle('object',   new OutputFormatterStyle('blue'));
-        $formatter->setStyle('resource', new OutputFormatterStyle('yellow'));
     }
 }

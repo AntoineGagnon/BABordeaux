@@ -366,8 +366,6 @@ class Swift_Mime_Headers_ParameterizedHeaderTest extends \SwiftMailerTestCase
         $this->assertEquals('text/html', $header->getValue());
     }
 
-    // -- Private helper
-
     public function testGetBodyModel()
     {
         $header = $this->_getHeader('Content-Type',

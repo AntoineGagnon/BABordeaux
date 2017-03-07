@@ -4,11 +4,6 @@ class Swift_Transport_Esmtp_AuthHandlerTest extends \SwiftMailerTestCase
 {
     private $_agent;
 
-    public function setUp()
-    {
-        $this->_agent = $this->getMockery('Swift_Transport_SmtpAgent')->shouldIgnoreMissing();
-    }
-
     public function testKeywordIsAuth()
     {
         $auth = $this->_createHandler(array());
@@ -115,8 +110,6 @@ class Swift_Transport_Esmtp_AuthHandlerTest extends \SwiftMailerTestCase
         $auth->afterEhlo($this->_agent);
     }
 
-    // -- Private helpers
-
     public function testSeveralAuthenticatorsAreTriedIfNeeded()
     {
         $a1 = $this->_createMockAuthenticator('PLAIN');
@@ -163,5 +156,10 @@ class Swift_Transport_Esmtp_AuthHandlerTest extends \SwiftMailerTestCase
 
         $auth->setKeywordParams(array('PLAIN', 'LOGIN', 'CRAM-MD5'));
         $auth->afterEhlo($this->_agent);
+    }
+
+    protected function setUp()
+    {
+        $this->_agent = $this->getMockery('Swift_Transport_SmtpAgent')->shouldIgnoreMissing();
     }
 }

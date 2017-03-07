@@ -2,11 +2,6 @@
 
 class Swift_Mime_SimpleMessageAcceptanceTest extends \PHPUnit_Framework_TestCase
 {
-    public function setUp()
-    {
-        Swift_Preferences::getInstance()->setCharset(null); //TODO: Test with the charset defined
-    }
-
     public function testBasicHeaders()
     {
         /* -- RFC 2822, 3.6.
@@ -1071,8 +1066,6 @@ class Swift_Mime_SimpleMessageAcceptanceTest extends \PHPUnit_Framework_TestCase
             );
     }
 
-    // -- Private helpers
-
     public function testBodyCanBeSetWithAttachments()
     {
         $message = $this->_createMessage();
@@ -1247,5 +1240,10 @@ class Swift_Mime_SimpleMessageAcceptanceTest extends \PHPUnit_Framework_TestCase
             'with a new line',
             $message->toString()
             );
+    }
+
+    protected function setUp()
+    {
+        Swift_Preferences::getInstance()->setCharset(null); //TODO: Test with the charset defined
     }
 }

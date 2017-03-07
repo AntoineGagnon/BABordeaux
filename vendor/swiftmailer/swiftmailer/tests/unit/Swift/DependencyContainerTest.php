@@ -2,7 +2,9 @@
 
 class One
 {
-    public $arg1, $arg2;
+    public $arg1;
+    public $arg2;
+
     public function __construct($arg1 = null, $arg2 = null)
     {
         $this->arg1 = $arg1;
@@ -13,11 +15,6 @@ class One
 class Swift_DependencyContainerTest extends \PHPUnit_Framework_TestCase
 {
     private $_container;
-
-    public function setUp()
-    {
-        $this->_container = new Swift_DependencyContainer();
-    }
 
     public function testRegisterAndLookupValue()
     {
@@ -170,5 +167,10 @@ class Swift_DependencyContainerTest extends \PHPUnit_Framework_TestCase
         $this->_container->register('button')->asAliasOf('zip');
 
         $this->assertSame('FOO', $this->_container->lookup('button'));
+    }
+
+    protected function setUp()
+    {
+        $this->_container = new Swift_DependencyContainer();
     }
 }

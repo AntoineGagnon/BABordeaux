@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -53,29 +53,6 @@ class PropertyEnumerator extends Enumerator
     }
 
     /**
-     * Get defined properties for the given class or object Reflector.
-     *
-     * @param bool       $showAll   Include private and protected properties.
-     * @param \Reflector $reflector
-     *
-     * @return array
-     */
-    protected function getProperties($showAll, \Reflector $reflector)
-    {
-        $properties = array();
-        foreach ($reflector->getProperties() as $property) {
-            if ($showAll || $property->isPublic()) {
-                $properties[$property->getName()] = $property;
-            }
-        }
-
-        // TODO: this should be natcasesort
-        ksort($properties);
-
-        return $properties;
-    }
-
-    /**
      * Prepare formatted property array.
      *
      * @param array $properties
@@ -99,24 +76,6 @@ class PropertyEnumerator extends Enumerator
         }
 
         return $ret;
-    }
-
-    /**
-     * Get a label for the particular kind of "class" represented.
-     *
-     * @param \ReflectionClass $reflector
-     *
-     * @return string
-     */
-    protected function getKindLabel(\ReflectionClass $reflector)
-    {
-        if ($reflector->isInterface()) {
-            return 'Interface Properties';
-        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
-            return 'Trait Properties';
-        } else {
-            return 'Class Properties';
-        }
     }
 
     /**
@@ -157,5 +116,46 @@ class PropertyEnumerator extends Enumerator
         $value = $property->getValue($target);
 
         return $this->presentRef($value);
+    }
+
+    /**
+     * Get defined properties for the given class or object Reflector.
+     *
+     * @param bool $showAll Include private and protected properties
+     * @param \Reflector $reflector
+     *
+     * @return array
+     */
+    protected function getProperties($showAll, \Reflector $reflector)
+    {
+        $properties = array();
+        foreach ($reflector->getProperties() as $property) {
+            if ($showAll || $property->isPublic()) {
+                $properties[$property->getName()] = $property;
+            }
+        }
+
+        // TODO: this should be natcasesort
+        ksort($properties);
+
+        return $properties;
+    }
+
+    /**
+     * Get a label for the particular kind of "class" represented.
+     *
+     * @param \ReflectionClass $reflector
+     *
+     * @return string
+     */
+    protected function getKindLabel(\ReflectionClass $reflector)
+    {
+        if ($reflector->isInterface()) {
+            return 'Interface Properties';
+        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+            return 'Trait Properties';
+        } else {
+            return 'Class Properties';
+        }
     }
 }

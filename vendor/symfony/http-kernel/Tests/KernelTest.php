@@ -91,7 +91,7 @@ class KernelTest extends \PHPUnit_Framework_TestCase
 
     public function testBootSetsTheContainerToTheBundles()
     {
-        $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+        $bundle = $this->getMockBuilder('Symfony\Component\HttpKernel\Bundle\Bundle')->getMock();
         $bundle->expects($this->once())
             ->method('setContainer');
 
@@ -201,7 +201,7 @@ class KernelTest extends \PHPUnit_Framework_TestCase
 
     public function testShutdownCallsShutdownOnAllBundles()
     {
-        $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+        $bundle = $this->getMockBuilder('Symfony\Component\HttpKernel\Bundle\Bundle')->getMock();
         $bundle->expects($this->once())
             ->method('shutdown');
 
@@ -213,7 +213,7 @@ class KernelTest extends \PHPUnit_Framework_TestCase
 
     public function testShutdownGivesNullContainerToAllBundles()
     {
-        $bundle = $this->getMock('Symfony\Component\HttpKernel\Bundle\Bundle');
+        $bundle = $this->getMockBuilder('Symfony\Component\HttpKernel\Bundle\Bundle')->getMock();
         $bundle->expects($this->at(3))
             ->method('setContainer')
             ->with(null);

@@ -88,7 +88,7 @@ class FragmentListener implements EventSubscriberInterface
     protected function validateRequest(Request $request)
     {
         // is the Request safe?
-        if (!$request->isMethodSafe()) {
+        if (!$request->isMethodSafe(false)) {
             throw new AccessDeniedHttpException();
         }
 

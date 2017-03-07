@@ -27,10 +27,6 @@ class LNumber extends Scalar
         $this->value = $value;
     }
 
-    public function getSubNodeNames() {
-        return array('value');
-    }
-
     /**
      * Constructs an LNumber node from a string number literal.
      *
@@ -63,5 +59,10 @@ class LNumber extends Scalar
         // use intval instead of octdec to get proper cutting behavior with malformed numbers
         $attributes['kind'] = LNumber::KIND_OCT;
         return new LNumber(intval($str, 8), $attributes);
+    }
+
+    public function getSubNodeNames()
+    {
+        return array('value');
     }
 }

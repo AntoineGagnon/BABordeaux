@@ -24,8 +24,6 @@ class Swift_StreamFilters_StringReplacementFilterFactoryTest extends \PHPUnit_Fr
         $this->assertSame($filter1, $filter2, '%s: Instances should be cached');
     }
 
-    // -- Creation methods
-
     public function testDifferingInstancesAreNotCached()
     {
         $factory = $this->_createFactory();

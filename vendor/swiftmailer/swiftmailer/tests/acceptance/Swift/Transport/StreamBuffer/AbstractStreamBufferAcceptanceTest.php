@@ -1,23 +1,8 @@
 <?php
 
-abstract class Swift_Transport_StreamBuffer_AbstractStreamBufferAcceptanceTest
-    extends \PHPUnit_Framework_TestCase
+abstract class Swift_Transport_StreamBuffer_AbstractStreamBufferAcceptanceTest extends \PHPUnit_Framework_TestCase
 {
     protected $_buffer;
-
-    public function setUp()
-    {
-        if (true == getenv('TRAVIS')) {
-            $this->markTestSkipped(
-                'Will fail on travis-ci if not skipped due to travis blocking '.
-                'socket mailing tcp connections.'
-             );
-        }
-
-        $this->_buffer = new Swift_Transport_StreamBuffer(
-            $this->getMock('Swift_ReplacementFilterFactory')
-        );
-    }
 
     public function testReadLine()
     {
@@ -82,7 +67,7 @@ abstract class Swift_Transport_StreamBuffer_AbstractStreamBufferAcceptanceTest
 
     private function _createMockInputStream()
     {
-        return $this->getMock('Swift_InputByteStream');
+        return $this->getMockBuilder('Swift_InputByteStream')->getMock();
     }
 
     public function testBindingOtherStreamsMirrorsFlushOperations()
@@ -102,8 +87,6 @@ abstract class Swift_Transport_StreamBuffer_AbstractStreamBufferAcceptanceTest
 
         $this->_buffer->flushBuffers();
     }
-
-    // -- Creation Methods
 
     public function testUnbindingStreamPreventsFurtherWrites()
     {
@@ -130,5 +113,19 @@ abstract class Swift_Transport_StreamBuffer_AbstractStreamBufferAcceptanceTest
         $this->_buffer->unbind($is2);
 
         $this->_buffer->write('y');
+    }
+
+    protected function setUp()
+    {
+        if (true == getenv('TRAVIS')) {
+            $this->markTestSkipped(
+                'Will fail on travis-ci if not skipped due to travis blocking ' .
+                'socket mailing tcp connections.'
+            );
+        }
+
+        $this->_buffer = new Swift_Transport_StreamBuffer(
+            $this->getMockBuilder('Swift_ReplacementFilterFactory')->getMock()
+        );
     }
 }

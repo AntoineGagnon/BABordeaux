@@ -23,9 +23,9 @@ class SimpleMessage
     /**
      * The notification's greeting.
      *
-     * @var string|null
+     * @var string
      */
-    public $greeting = null;
+    public $greeting;
 
     /**
      * The "intro" lines of the notification.
@@ -149,21 +149,6 @@ class SimpleMessage
     }
 
     /**
-     * Format the given line of text.
-     *
-     * @param  string|array  $line
-     * @return string
-     */
-    protected function formatLine($line)
-    {
-        if (is_array($line)) {
-            return implode(' ', array_map('trim', $line));
-        }
-
-        return trim(implode(' ', array_map('trim', preg_split('/\\r\\n|\\r|\\n/', $line))));
-    }
-
-    /**
      * Configure the "call to action" button.
      *
      * @param  string  $text
@@ -176,6 +161,21 @@ class SimpleMessage
         $this->actionUrl = $url;
 
         return $this;
+    }
+
+    /**
+     * Format the given line of text.
+     *
+     * @param  string|array $line
+     * @return string
+     */
+    protected function formatLine($line)
+    {
+        if (is_array($line)) {
+            return implode(' ', array_map('trim', $line));
+        }
+
+        return trim(implode(' ', array_map('trim', preg_split('/\\r\\n|\\r|\\n/', $line))));
     }
 
     /**

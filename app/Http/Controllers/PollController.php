@@ -13,7 +13,8 @@ use App\guestbook_submission;
 use App\submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Khill\Lavacharts\Lavacharts as Lava;
+use Illuminate\Support\Facades\Log;
+use Khill\Lavacharts\Laravel\LavachartsFacade as Lava;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -36,7 +37,7 @@ class PollController extends Controller
 
         $maxID = question::all()->max('id');
         for ($i = 0; $i <= $maxID; $i++) {
-            if($request->has('question_' . $i)) {
+            if ($request->has('question_' . $i)) {
                 $value = $request->input('question_' . $i);
                 // Checkbox question
                 if (is_array($value)) {
@@ -54,8 +55,7 @@ class PollController extends Controller
                     $choice->answer_id = $value;
                     $choice->submission_id = $sub->id;
                     $choice->save();
-                }
-                // Open question
+                } // Open question
                 else {
                     $answer = new answer();
                     $answer->question_id = $i;
@@ -104,7 +104,7 @@ class PollController extends Controller
      */
     public function adminEditPoll()
     {
-        if(!Auth::check())
+        if (!Auth::check())
             return redirect()->intended('login');
 
 
@@ -114,14 +114,13 @@ class PollController extends Controller
         $questions = question::all();
 
         //if a questionGroup is empty (i.e. has no question into) delete this questionGroup from the database.
-        foreach($questionGroups as $questionGroup){
-            if(question::where('question_group_id',$questionGroup->id)->count() == 0)
-            {
+        foreach ($questionGroups as $questionGroup) {
+            if (question::where('question_group_id', $questionGroup->id)->count() == 0) {
                 $questionGroup->destroy($questionGroup->id);
             }
         }
 
-        return view('admin_poll_edit_view', ['questionGroups' => $questionGroups, 'questions' => $questions, ]);
+        return view('admin_poll_edit_view', ['questionGroups' => $questionGroups, 'questions' => $questions,]);
     }
 
     /**
@@ -132,66 +131,39 @@ class PollController extends Controller
      */
     public function adminDisplayPollResults()
     {
-        if(!Auth::check())
+        if (!Auth::check())
             return redirect()->intended('login');
 
-        $questionGroups = question_group::whereExists(function ($query) {
-            $query->select(DB::raw(1))->from('questions')->whereRaw('questions.question_group_id = question_groups.id')->where('isVisible', 1);
-        })->get();
 
-        foreach ($questionGroups as $questionGroup) {
-            $questionGroup['questions'] = question::where('question_group_id', $questionGroup->id)->orderBy('question_order', 'asc')->get();
-            foreach ($questionGroup['questions'] as $question) {
-                $questions[$question['attributes']['id']]['id'] = $question['attributes']['id'];
-                $questions[$question['attributes']['id']]['label'] = $question['attributes']['label'];
-                $questions[$question['attributes']['id']]['type'] = $question['attributes']['questionType'];
+        $questions = question::all();
+
+        foreach ($questions as $question) {
+
+            $datatable = Lava::DataTable();
+
+
+            if (choice::where('question_id', $question->id)->count() != 0) { // Check only questions with some answers
+
+                if ($question->questionType == 'singleChoice') {
+                    $question['answers'] = answer::where('question_id', $question->id)->get();
+
+                    $datatable->addStringColumn('Réponses')
+                        ->addNumberColumn('Nombre');
+
+                    foreach ($question['answers'] as $answer) {
+                        $count = choice::where('answer_id', $answer->id)->count();
+                        $datatable->addRow([$answer->label, $count]);
+                    }
+
+                    Lava::PieChart(strval($question->id), $datatable);
+                }
+
+            } else {
+                $question['answers'] = null;
             }
         }
 
-        foreach($questions as $quest)
-        {
-            if($quest['type'] == 'singleChoice')
-            {
-
-                $choices = DB::table('choices')
-                     ->select(DB::raw('id, question_id, answer_id'))
-                     ->where('question_id', '=', $quest['id'])
-                     ->get();
-
-                foreach($choices as $choice)
-                {
-                    $choiceArray = json_decode(json_encode($choice), true);
-                    $count[$choiceArray['answer_id']] = 0;
-                }
-
-                foreach($choices as $choice)
-                {
-                    $choiceArray = json_decode(json_encode($choice), true);
-                    $count[$choiceArray['answer_id']] = $count[$choiceArray['answer_id']]+1;
-                }
-
-                $total = 0;
-
-                foreach($count as $test)
-                    $total = $total + $test;
-
-                $age = \Lava::DataTable();
-                $age->addStringColumn('Tranche Age')
-                    ->addNumberColumn('Pourcentage');
-
-                $age->addRow(['0-25', ($count[1]*100)/$total])
-                    ->addRow(['25-50', ($count[2]*100)/$total])
-                    ->addRow(['+50', 0]);
-
-                \Lava::PieChart('Age', $age, [
-                    'title' => 'Tranches d\'âge des visiteurs',
-                    'is3D' => true,
-                    'sliceVisibilityThreshold' => 0
-                    ]);
-                    }
-        }
-
-        return view('admin_poll_display_results', []);
+        return view('admin_poll_display_results', ['questions' => $questions]);
     }
 
     /**
@@ -200,15 +172,16 @@ class PollController extends Controller
      * @param Format of the file exported (PDF or Excel)
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function adminExportGuestBookResults($format){
+    public function adminExportGuestBookResults($format)
+    {
 
-        if(!Auth::check())
+        if (!Auth::check())
             return redirect()->intended('login');
 
-        $guestbook_submission = guestbook_submission::select('created_at AS Date','username AS Auteur','text AS Message')->get();
+        $guestbook_submission = guestbook_submission::select('created_at AS Date', 'username AS Auteur', 'text AS Message')->get();
 
         // Generate and return the spreadsheet
-        $spreadsheet = Excel::create('resultats_livre_d_or', function($excel) use ($guestbook_submission) {
+        $spreadsheet = Excel::create('resultats_livre_d_or', function ($excel) use ($guestbook_submission) {
 
             // Set the spreadsheet title, creator, and description
             $excel->setTitle("Résultats livre d'or");
@@ -216,11 +189,11 @@ class PollController extends Controller
             $excel->setDescription("Fichier contenant les résultats du livre d'or");
 
             // Build the spreadsheet, passing in the array
-            $excel->sheet('sheet1', function($sheet) use ($guestbook_submission) {
+            $excel->sheet('sheet1', function ($sheet) use ($guestbook_submission) {
                 $sheet->setStyle(array(
                     'font' => array(
-                        'name'      =>  'Calibri',
-                        'size'      =>  16,
+                        'name' => 'Calibri',
+                        'size' => 16,
                     )
                 ));
                 $sheet->fromArray($guestbook_submission);
@@ -229,7 +202,7 @@ class PollController extends Controller
 
 
         });
-        if($format == "pdf")
+        if ($format == "pdf")
             $spreadsheet->download('pdf');
         else
             $spreadsheet->download('xlsx');
@@ -241,14 +214,15 @@ class PollController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function adminExportPollResults($format){
+    public function adminExportPollResults($format)
+    {
 
-        if(!Auth::check())
+        if (!Auth::check())
             return redirect()->intended('login');
 
 
         // Generate and return the spreadsheet
-        $spreadsheet = Excel::create('resultats_sondage', function($excel) {
+        $spreadsheet = Excel::create('resultats_sondage', function ($excel) {
 
             // Set the spreadsheet title, creator, and description
             $excel->setTitle('Résultats sondage');
@@ -256,11 +230,11 @@ class PollController extends Controller
             $excel->setDescription('Fichier contenant les résultats du sondage public');
 
             // Build the spreadsheet, passing in the array
-            $excel->sheet('sheet1', function($sheet) {
+            $excel->sheet('sheet1', function ($sheet) {
                 $sheet->setStyle(array(
                     'font' => array(
-                        'name'      =>  'Calibri',
-                        'size'      =>  16,
+                        'name' => 'Calibri',
+                        'size' => 16,
                     )
                 ));
 
@@ -269,7 +243,7 @@ class PollController extends Controller
 
 
         });
-        if($format == "pdf")
+        if ($format == "pdf")
             $spreadsheet->download('pdf');
         else
             $spreadsheet->download('xlsx');

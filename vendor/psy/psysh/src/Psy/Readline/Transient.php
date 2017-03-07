@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,16 +23,6 @@ class Transient implements Readline
     private $eraseDups;
 
     /**
-     * Transient Readline is always supported.
-     *
-     * {@inheritdoc}
-     */
-    public static function isSupported()
-    {
-        return true;
-    }
-
-    /**
      * Transient Readline constructor.
      */
     public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
@@ -41,6 +31,16 @@ class Transient implements Readline
         $this->history     = array();
         $this->historySize = $historySize;
         $this->eraseDups   = $eraseDups;
+    }
+
+    /**
+     * Transient Readline is always supported.
+     *
+     * {@inheritdoc}
+     */
+    public static function isSupported()
+    {
+        return true;
     }
 
     /**
@@ -109,22 +109,6 @@ class Transient implements Readline
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function redisplay()
-    {
-        // noop
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function writeHistory()
-    {
-        return true;
-    }
-
-    /**
      * Get a STDIN file handle.
      *
      * @throws BreakException if user hits Ctrl+D
@@ -142,5 +126,21 @@ class Transient implements Readline
         }
 
         return $this->stdin;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function redisplay()
+    {
+        // noop
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function writeHistory()
+    {
+        return true;
     }
 }

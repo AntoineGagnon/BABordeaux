@@ -9,9 +9,6 @@ use PhpParser\Node\Scalar\String_;
 
 abstract class ParserTest extends \PHPUnit_Framework_TestCase
 {
-    /** @returns Parser */
-    abstract protected function getParser(Lexer $lexer);
-
     /**
      * @expectedException \PhpParser\Error
      * @expectedExceptionMessage Syntax error, unexpected EOF on line 1
@@ -21,6 +18,9 @@ abstract class ParserTest extends \PHPUnit_Framework_TestCase
         $parser->parse('<?php foo');
     }
 
+    /** @returns Parser */
+    abstract protected function getParser(Lexer $lexer);
+
     /**
      * @expectedException \PhpParser\Error
      * @expectedExceptionMessage Cannot use foo as self because 'self' is a special class name on line 1
@@ -28,6 +28,16 @@ abstract class ParserTest extends \PHPUnit_Framework_TestCase
     public function testParserThrowsSpecialError() {
         $parser = $this->getParser(new Lexer());
         $parser->parse('<?php use foo as self;');
+    }
+
+    /**
+     * @expectedException \PhpParser\Error
+     * @expectedExceptionMessage Unterminated comment on line 1
+     */
+    public function testParserThrowsLexerError()
+    {
+        $parser = $this->getParser(new Lexer());
+        $parser->parse('<?php /*');
     }
 
     public function testAttributeAssignment() {
@@ -110,9 +120,10 @@ EOC;
     }
 
     /**
-     * @dataProvider provideTestKindAttributes
+     * @dataProvider provideTestExtraAttributes
      */
-    public function testKindAttributes($code, $expectedAttributes) {
+    public function testExtraAttributes($code, $expectedAttributes)
+    {
         $parser = $this->getParser(new Lexer);
         $stmts = $parser->parse("<?php $code;");
         $attributes = $stmts[0]->getAttributes();
@@ -121,7 +132,8 @@ EOC;
         }
     }
 
-    public function provideTestKindAttributes() {
+    public function provideTestExtraAttributes()
+    {
         return array(
             array('0', ['kind' => Scalar\LNumber::KIND_DEC]),
             array('9', ['kind' => Scalar\LNumber::KIND_DEC]),
@@ -158,6 +170,8 @@ EOC;
             array("die('done')", ['kind' => Expr\Exit_::KIND_DIE]),
             array("exit", ['kind' => Expr\Exit_::KIND_EXIT]),
             array("exit(1)", ['kind' => Expr\Exit_::KIND_EXIT]),
+            array("?>Foo", ['hasLeadingNewline' => false]),
+            array("?>\nFoo", ['hasLeadingNewline' => true]),
         );
     }
 }

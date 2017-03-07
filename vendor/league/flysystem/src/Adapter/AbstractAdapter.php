@@ -17,21 +17,15 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $pathSeparator = '/';
 
     /**
-     * Set the path prefix.
+     * Prefix a path.
      *
-     * @param string $prefix
+     * @param string $path
      *
-     * @return self
+     * @return string prefixed path
      */
-    public function setPathPrefix($prefix)
+    public function applyPathPrefix($path)
     {
-        $is_empty = empty($prefix);
-
-        if ( ! $is_empty) {
-            $prefix = rtrim($prefix, $this->pathSeparator) . $this->pathSeparator;
-        }
-
-        $this->pathPrefix = $is_empty ? null : $prefix;
+        return $this->getPathPrefix() . ltrim($path, '\\/');
     }
 
     /**
@@ -45,25 +39,22 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * Prefix a path.
+     * Set the path prefix.
      *
-     * @param string $path
+     * @param string $prefix
      *
-     * @return string prefixed path
+     * @return void
      */
-    public function applyPathPrefix($path)
+    public function setPathPrefix($prefix)
     {
-        $path = ltrim($path, '\\/');
+        $prefix = (string)$prefix;
 
-        if (strlen($path) === 0) {
-            return $this->getPathPrefix() ?: '';
+        if ($prefix === '') {
+            $this->pathPrefix = null;
+            return;
         }
 
-        if ($prefix = $this->getPathPrefix()) {
-            $path = $prefix . $path;
-        }
-
-        return $path;
+        $this->pathPrefix = rtrim($prefix, '\\/') . $this->pathSeparator;
     }
 
     /**
@@ -75,12 +66,6 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     public function removePathPrefix($path)
     {
-        $pathPrefix = $this->getPathPrefix();
-
-        if ($pathPrefix === null) {
-            return $path;
-        }
-
-        return substr($path, strlen($pathPrefix));
+        return substr($path, strlen($this->getPathPrefix()));
     }
 }

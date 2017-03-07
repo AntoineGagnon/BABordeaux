@@ -8,46 +8,6 @@ use LogicException;
 class Util
 {
     /**
-     * Get normalized pathinfo.
-     *
-     * @param string $path
-     *
-     * @return array pathinfo
-     */
-    public static function pathinfo($path)
-    {
-        $pathinfo = pathinfo($path) + compact('path');
-        $pathinfo['dirname'] = array_key_exists('dirname', $pathinfo)
-            ? static::normalizeDirname($pathinfo['dirname']) : '';
-
-        return $pathinfo;
-    }
-
-    /**
-     * Normalize a dirname return value.
-     *
-     * @param string $dirname
-     *
-     * @return string normalized dirname
-     */
-    public static function normalizeDirname($dirname)
-    {
-        return $dirname === '.' ? '' : $dirname;
-    }
-
-    /**
-     * Get a normalized dirname from a path.
-     *
-     * @param string $path
-     *
-     * @return string dirname
-     */
-    public static function dirname($path)
-    {
-        return static::normalizeDirname(dirname($path));
-    }
-
-    /**
      * Map result arrays.
      *
      * @param array $object
@@ -81,20 +41,7 @@ class Util
      */
     public static function normalizePath($path)
     {
-        // Remove any kind of funky unicode whitespace
-        $normalized = preg_replace('#\p{C}+|^\./#u', '', $path);
-        $normalized = static::normalizeRelativePath($normalized);
-
-        if (preg_match('#(^|/)\.{2}(/|$)#', $normalized)) {
-            throw new LogicException(
-                'Path is outside of the defined root, path: [' . $path . '], resolved: [' . $normalized . ']'
-            );
-        }
-
-        $normalized = preg_replace('#\\\{2,}#', '\\', trim($normalized, '\\'));
-        $normalized = preg_replace('#/{2,}#', '/', trim($normalized, '/'));
-
-        return $normalized;
+        return static::normalizeRelativePath($path);
     }
 
     /**
@@ -102,18 +49,54 @@ class Util
      *
      * @param string $path
      *
+     * @throws LogicException
+     *
      * @return string
      */
     public static function normalizeRelativePath($path)
     {
-        // Path remove self referring paths ("/./").
-        $path = preg_replace('#/\.(?=/)|^\./|(/|^)\./?$#', '', $path);
+        $path = str_replace('\\', '/', $path);
+        $path = static::removeFunkyWhiteSpace($path);
 
-        // Regex for resolving relative paths
-        $regex = '#/*[^/\.]+/\.\.(?=/|$)#Uu';
+        $parts = [];
 
-        while (preg_match($regex, $path)) {
-            $path = preg_replace($regex, '', $path);
+        foreach (explode('/', $path) as $part) {
+            switch ($part) {
+                case '':
+                case '.':
+                    break;
+
+                case '..':
+                    if (empty($parts)) {
+                        throw new LogicException(
+                            'Path is outside of the defined root, path: [' . $path . ']'
+                        );
+                    }
+                    array_pop($parts);
+                    break;
+
+                default:
+                    $parts[] = $part;
+                    break;
+            }
+        }
+
+        return implode('/', $parts);
+    }
+
+    /**
+     * Removes unprintable characters and invalid unicode characters.
+     *
+     * @param string $path
+     *
+     * @return string $path
+     */
+    protected static function removeFunkyWhiteSpace($path)
+    {
+        // We do this check in a loop, since removing invalid unicode characters
+        // can lead to new characters being created.
+        while (preg_match('#\p{C}+|^\./#u', $path)) {
+            $path = preg_replace('#\p{C}+|^\./#u', '', $path);
         }
 
         return $path;
@@ -193,6 +176,81 @@ class Util
     }
 
     /**
+     * Emulate the directories of a single object.
+     *
+     * @param array $object
+     * @param array $directories
+     * @param array $listedDirectories
+     *
+     * @return array
+     */
+    protected static function emulateObjectDirectories(array $object, array $directories, array $listedDirectories)
+    {
+        if ($object['type'] === 'dir') {
+            $listedDirectories[] = $object['path'];
+        }
+
+        if (empty($object['dirname'])) {
+            return [$directories, $listedDirectories];
+        }
+
+        $parent = $object['dirname'];
+
+        while (!empty($parent) && !in_array($parent, $directories)) {
+            $directories[] = $parent;
+            $parent = static::dirname($parent);
+        }
+
+        if (isset($object['type']) && $object['type'] === 'dir') {
+            $listedDirectories[] = $object['path'];
+
+            return [$directories, $listedDirectories];
+        }
+
+        return [$directories, $listedDirectories];
+    }
+
+    /**
+     * Get a normalized dirname from a path.
+     *
+     * @param string $path
+     *
+     * @return string dirname
+     */
+    public static function dirname($path)
+    {
+        return static::normalizeDirname(dirname($path));
+    }
+
+    /**
+     * Normalize a dirname return value.
+     *
+     * @param string $dirname
+     *
+     * @return string normalized dirname
+     */
+    public static function normalizeDirname($dirname)
+    {
+        return $dirname === '.' ? '' : $dirname;
+    }
+
+    /**
+     * Get normalized pathinfo.
+     *
+     * @param string $path
+     *
+     * @return array pathinfo
+     */
+    public static function pathinfo($path)
+    {
+        $pathinfo = pathinfo($path) + compact('path');
+        $pathinfo['dirname'] = array_key_exists('dirname', $pathinfo)
+            ? static::normalizeDirname($pathinfo['dirname']) : '';
+
+        return $pathinfo;
+    }
+
+    /**
      * Ensure a Config instance.
      *
      * @param null|array|Config $config
@@ -249,40 +307,5 @@ class Util
         $stat = fstat($resource);
 
         return $stat['size'];
-    }
-
-    /**
-     * Emulate the directories of a single object.
-     *
-     * @param array $object
-     * @param array $directories
-     * @param array $listedDirectories
-     *
-     * @return array
-     */
-    protected static function emulateObjectDirectories(array $object, array $directories, array $listedDirectories)
-    {
-        if ($object['type'] === 'dir') {
-            $listedDirectories[] = $object['path'];
-        }
-
-        if (empty($object['dirname'])) {
-            return [$directories, $listedDirectories];
-        }
-
-        $parent = $object['dirname'];
-
-        while ( ! empty($parent) && ! in_array($parent, $directories)) {
-            $directories[] = $parent;
-            $parent = static::dirname($parent);
-        }
-
-        if (isset($object['type']) && $object['type'] === 'dir') {
-            $listedDirectories[] = $object['path'];
-
-            return [$directories, $listedDirectories];
-        }
-
-        return [$directories, $listedDirectories];
     }
 }

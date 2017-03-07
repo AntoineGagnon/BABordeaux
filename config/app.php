@@ -168,7 +168,8 @@ return [
          * Package Service Providers...
          */
         Maatwebsite\Excel\ExcelServiceProvider::class,
-        'Khill\Lavacharts\Laravel\LavachartsServiceProvider',
+        Khill\Lavacharts\Laravel\LavachartsServiceProvider::class,
+
         //
 
         /*
@@ -225,6 +226,7 @@ return [
         'Session' => Illuminate\Support\Facades\Session::class,
         'Storage' => Illuminate\Support\Facades\Storage::class,
         'URL' => Illuminate\Support\Facades\URL::class,
+        'Lava' => Khill\Lavacharts\Laravel\LavachartsFacade::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,

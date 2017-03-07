@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -66,6 +66,11 @@ class CalledClassPass extends CodeCleanerPass
         }
     }
 
+    private function isNull(Node $node)
+    {
+        return $node->value instanceof ConstFetch && strtolower($node->value->name) === 'null';
+    }
+
     /**
      * @param Node $node
      */
@@ -74,10 +79,5 @@ class CalledClassPass extends CodeCleanerPass
         if ($node instanceof ClassStmt) {
             $this->inClass = false;
         }
-    }
-
-    private function isNull(Node $node)
-    {
-        return $node->value instanceof ConstFetch && strtolower($node->value->name) === 'null';
     }
 }

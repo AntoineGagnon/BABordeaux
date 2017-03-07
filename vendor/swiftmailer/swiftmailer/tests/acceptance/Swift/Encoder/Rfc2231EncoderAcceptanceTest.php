@@ -5,12 +5,6 @@ class Swift_Encoder_Rfc2231EncoderAcceptanceTest extends \PHPUnit_Framework_Test
     private $_samplesDir;
     private $_factory;
 
-    public function setUp()
-    {
-        $this->_samplesDir = realpath(__DIR__.'/../../../_samples/charsets');
-        $this->_factory = new Swift_CharacterReaderFactory_SimpleCharacterReaderFactory();
-    }
-
     public function testEncodingAndDecodingSamples()
     {
         $sampleFp = opendir($this->_samplesDir);
@@ -46,5 +40,11 @@ class Swift_Encoder_Rfc2231EncoderAcceptanceTest extends \PHPUnit_Framework_Test
             }
         }
         closedir($sampleFp);
+    }
+
+    protected function setUp()
+    {
+        $this->_samplesDir = realpath(__DIR__ . '/../../../_samples/charsets');
+        $this->_factory = new Swift_CharacterReaderFactory_SimpleCharacterReaderFactory();
     }
 }

@@ -69,7 +69,6 @@ class CategoryFilter extends Filter
     {
         return $this->setBoolOption(__FUNCTION__, $useFormattedValue);
     }
-
     /**
      * List of values to choose from.
      *

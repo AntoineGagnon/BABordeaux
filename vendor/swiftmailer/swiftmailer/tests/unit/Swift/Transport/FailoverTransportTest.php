@@ -494,8 +494,6 @@ class Swift_Transport_FailoverTransportTest extends \SwiftMailerTestCase
         $transport->send($message, $failures);
     }
 
-    // -- Private helpers
-
     public function testRegisterPluginDelegatesToLoadedTransports()
     {
         $plugin = $this->_createPlugin();

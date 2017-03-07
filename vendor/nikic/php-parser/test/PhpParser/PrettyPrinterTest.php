@@ -4,8 +4,11 @@ namespace PhpParser;
 
 use PhpParser\Comment;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Name;
+use PhpParser\Node\Scalar\DNumber;
 use PhpParser\Node\Scalar\Encapsed;
 use PhpParser\Node\Scalar\EncapsedStringPart;
+use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt;
 use PhpParser\PrettyPrinter\Standard;
@@ -14,6 +17,15 @@ require_once __DIR__ . '/CodeTestAbstract.php';
 
 class PrettyPrinterTest extends CodeTestAbstract
 {
+    /**
+     * @dataProvider provideTestPrettyPrint
+     * @covers       PhpParser\PrettyPrinter\Standard<extended>
+     */
+    public function testPrettyPrint($name, $code, $expected, $mode)
+    {
+        $this->doTestPrettyPrintMethod('prettyPrint', $name, $code, $expected, $mode);
+    }
+
     protected function doTestPrettyPrintMethod($method, $name, $code, $expected, $modeLine) {
         $lexer = new Lexer\Emulative;
         $parser5 = new Parser\Php5($lexer);
@@ -52,12 +64,12 @@ class PrettyPrinterTest extends CodeTestAbstract
         }
     }
 
-    /**
-     * @dataProvider provideTestPrettyPrint
-     * @covers PhpParser\PrettyPrinter\Standard<extended>
-     */
-    public function testPrettyPrint($name, $code, $expected, $mode) {
-        $this->doTestPrettyPrintMethod('prettyPrint', $name, $code, $expected, $mode);
+    private function parseModeLine($modeLine)
+    {
+        $parts = explode(' ', $modeLine, 2);
+        $version = isset($parts[0]) ? $parts[0] : 'both';
+        $options = isset($parts[1]) ? json_decode($parts[1], true) : [];
+        return [$version, $options];
     }
 
     /**
@@ -96,13 +108,6 @@ class PrettyPrinterTest extends CodeTestAbstract
         $stmts = [new Stmt\InlineHTML('Hello World!', ['comments' => [$comment]])];
         $expected = "<?php\n\n/**\n * This is a comment\n */\n?>\nHello World!";
         $this->assertSame($expected, $prettyPrinter->prettyPrintFile($stmts));
-    }
-
-    private function parseModeLine($modeLine) {
-        $parts = explode(' ', $modeLine, 2);
-        $version = isset($parts[0]) ? $parts[0] : 'both';
-        $options = isset($parts[1]) ? json_decode($parts[1], true) : [];
-        return [$version, $options];
     }
 
     public function testArraySyntaxDefault() {
@@ -160,5 +165,49 @@ class PrettyPrinterTest extends CodeTestAbstract
             [new Encapsed([new EncapsedStringPart("STR\n"), new Expr\Variable('y')], $heredoc), '"STR\\n{$y}"'],
             [new Encapsed([new EncapsedStringPart("STR")], $heredoc), '"STR"'],
         ];
+    }
+
+    /** @dataProvider provideTestUnnaturalLiterals */
+    public function testUnnaturalLiterals($node, $expected)
+    {
+        $prttyPrinter = new PrettyPrinter\Standard;
+        $result = $prttyPrinter->prettyPrintExpr($node);
+        $this->assertSame($expected, $result);
+    }
+
+    public function provideTestUnnaturalLiterals()
+    {
+        return [
+            [new LNumber(-1), '-1'],
+            [new LNumber(-PHP_INT_MAX - 1), '(-' . PHP_INT_MAX . '-1)'],
+            [new LNumber(-1, ['kind' => LNumber::KIND_BIN]), '-0b1'],
+            [new LNumber(-1, ['kind' => LNumber::KIND_OCT]), '-01'],
+            [new LNumber(-1, ['kind' => LNumber::KIND_HEX]), '-0x1'],
+            [new DNumber(\INF), '\INF'],
+            [new DNumber(-\INF), '-\INF'],
+            [new DNumber(-\NAN), '\NAN'],
+        ];
+    }
+
+    /**
+     * @expectedException \LogicException
+     * @expectedExceptionMessage Cannot pretty-print AST with Error nodes
+     */
+    public function testPrettyPrintWithError()
+    {
+        $stmts = [new Expr\PropertyFetch(new Expr\Variable('a'), new Expr\Error())];
+        $prettyPrinter = new PrettyPrinter\Standard;
+        $prettyPrinter->prettyPrint($stmts);
+    }
+
+    /**
+     * @expectedException \LogicException
+     * @expectedExceptionMessage Cannot pretty-print AST with Error nodes
+     */
+    public function testPrettyPrintWithErrorInClassConstFetch()
+    {
+        $stmts = [new Expr\ClassConstFetch(new Name('Foo'), new Expr\Error())];
+        $prettyPrinter = new PrettyPrinter\Standard;
+        $prettyPrinter->prettyPrint($stmts);
     }
 }

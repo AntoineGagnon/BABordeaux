@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -54,26 +54,6 @@ class ConstantEnumerator extends Enumerator
     }
 
     /**
-     * Get defined constants.
-     *
-     * Optionally restrict constants to a given category, e.g. "date".
-     *
-     * @param string $category
-     *
-     * @return array
-     */
-    protected function getConstants($category = null)
-    {
-        if (!$category) {
-            return get_defined_constants();
-        }
-
-        $consts = get_defined_constants(true);
-
-        return isset($consts[$category]) ? $consts[$category] : array();
-    }
-
-    /**
      * Prepare formatted constant array.
      *
      * @param array $constants
@@ -99,5 +79,25 @@ class ConstantEnumerator extends Enumerator
         }
 
         return $ret;
+    }
+
+    /**
+     * Get defined constants.
+     *
+     * Optionally restrict constants to a given category, e.g. "date".
+     *
+     * @param string $category
+     *
+     * @return array
+     */
+    protected function getConstants($category = null)
+    {
+        if (!$category) {
+            return get_defined_constants();
+        }
+
+        $consts = get_defined_constants(true);
+
+        return isset($consts[$category]) ? $consts[$category] : array();
     }
 }

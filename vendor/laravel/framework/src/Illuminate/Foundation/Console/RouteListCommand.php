@@ -76,6 +76,17 @@ class RouteListCommand extends Command
     }
 
     /**
+     * Display the route information on the console.
+     *
+     * @param  array $routes
+     * @return void
+     */
+    protected function displayRoutes(array $routes)
+    {
+        $this->table($this->headers, $routes);
+    }
+
+    /**
      * Compile the routes into a displayable format.
      *
      * @return array
@@ -120,30 +131,6 @@ class RouteListCommand extends Command
     }
 
     /**
-     * Display the route information on the console.
-     *
-     * @param  array  $routes
-     * @return void
-     */
-    protected function displayRoutes(array $routes)
-    {
-        $this->table($this->headers, $routes);
-    }
-
-    /**
-     * Get before filters.
-     *
-     * @param  \Illuminate\Routing\Route  $route
-     * @return string
-     */
-    protected function getMiddleware($route)
-    {
-        return collect($route->gatherMiddleware())->map(function ($middleware) {
-            return $middleware instanceof Closure ? 'Closure' : $middleware;
-        })->implode(',');
-    }
-
-    /**
      * Filter the route by URI and / or name.
      *
      * @param  array  $route
@@ -158,6 +145,19 @@ class RouteListCommand extends Command
         }
 
         return $route;
+    }
+
+    /**
+     * Get before filters.
+     *
+     * @param  \Illuminate\Routing\Route $route
+     * @return string
+     */
+    protected function getMiddleware($route)
+    {
+        return collect($route->gatherMiddleware())->map(function ($middleware) {
+            return $middleware instanceof Closure ? 'Closure' : $middleware;
+        })->implode(',');
     }
 
     /**

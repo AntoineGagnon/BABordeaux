@@ -69,6 +69,17 @@ class DatabaseQueue extends Queue implements QueueContract
     }
 
     /**
+     * Get the queue or return the default.
+     *
+     * @param  string|null $queue
+     * @return string
+     */
+    protected function getQueue($queue)
+    {
+        return $queue ?: $this->default;
+    }
+
+    /**
      * Push a new job onto the queue.
      *
      * @param  string  $job
@@ -79,6 +90,58 @@ class DatabaseQueue extends Queue implements QueueContract
     public function push($job, $data = '', $queue = null)
     {
         return $this->pushToDatabase(0, $queue, $this->createPayload($job, $data));
+    }
+
+    /**
+     * Push a raw payload to the database with a given delay.
+     *
+     * @param  \DateTime|int $delay
+     * @param  string|null $queue
+     * @param  string $payload
+     * @param  int $attempts
+     * @return mixed
+     */
+    protected function pushToDatabase($delay, $queue, $payload, $attempts = 0)
+    {
+        $attributes = $this->buildDatabaseRecord(
+            $this->getQueue($queue), $payload, $this->getAvailableAt($delay), $attempts
+        );
+
+        return $this->database->table($this->table)->insertGetId($attributes);
+    }
+
+    /**
+     * Create an array to insert for the given job.
+     *
+     * @param  string|null $queue
+     * @param  string $payload
+     * @param  int $availableAt
+     * @param  int $attempts
+     * @return array
+     */
+    protected function buildDatabaseRecord($queue, $payload, $availableAt, $attempts = 0)
+    {
+        return [
+            'queue' => $queue,
+            'attempts' => $attempts,
+            'reserved_at' => null,
+            'available_at' => $availableAt,
+            'created_at' => $this->getTime(),
+            'payload' => $payload,
+        ];
+    }
+
+    /**
+     * Get the "available at" UNIX timestamp.
+     *
+     * @param  \DateTime|int $delay
+     * @return int
+     */
+    protected function getAvailableAt($delay)
+    {
+        $availableAt = $delay instanceof DateTime ? $delay : Carbon::now()->addSeconds($delay);
+
+        return $availableAt->getTimestamp();
     }
 
     /**
@@ -142,24 +205,6 @@ class DatabaseQueue extends Queue implements QueueContract
     public function release($queue, $job, $delay)
     {
         return $this->pushToDatabase($delay, $queue, $job->payload, $job->attempts);
-    }
-
-    /**
-     * Push a raw payload to the database with a given delay.
-     *
-     * @param  \DateTime|int  $delay
-     * @param  string|null  $queue
-     * @param  string  $payload
-     * @param  int  $attempts
-     * @return mixed
-     */
-    protected function pushToDatabase($delay, $queue, $payload, $attempts = 0)
-    {
-        $attributes = $this->buildDatabaseRecord(
-            $this->getQueue($queue), $payload, $this->getAvailableAt($delay), $attempts
-        );
-
-        return $this->database->table($this->table)->insertGetId($attributes);
     }
 
     /**
@@ -272,51 +317,6 @@ class DatabaseQueue extends Queue implements QueueContract
         }
 
         $this->database->commit();
-    }
-
-    /**
-     * Get the "available at" UNIX timestamp.
-     *
-     * @param  \DateTime|int  $delay
-     * @return int
-     */
-    protected function getAvailableAt($delay)
-    {
-        $availableAt = $delay instanceof DateTime ? $delay : Carbon::now()->addSeconds($delay);
-
-        return $availableAt->getTimestamp();
-    }
-
-    /**
-     * Create an array to insert for the given job.
-     *
-     * @param  string|null  $queue
-     * @param  string  $payload
-     * @param  int  $availableAt
-     * @param  int  $attempts
-     * @return array
-     */
-    protected function buildDatabaseRecord($queue, $payload, $availableAt, $attempts = 0)
-    {
-        return [
-            'queue' => $queue,
-            'attempts' => $attempts,
-            'reserved_at' => null,
-            'available_at' => $availableAt,
-            'created_at' => $this->getTime(),
-            'payload' => $payload,
-        ];
-    }
-
-    /**
-     * Get the queue or return the default.
-     *
-     * @param  string|null  $queue
-     * @return string
-     */
-    protected function getQueue($queue)
-    {
-        return $queue ?: $this->default;
     }
 
     /**

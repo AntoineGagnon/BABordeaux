@@ -81,8 +81,8 @@ class Swift_Transport_Esmtp_Auth_NTLMAuthenticator implements Swift_Transport_Es
     protected function createMessage1()
     {
         return self::NTLMSIG
-        . $this->createByte('01') // Message 1
-        . $this->createByte('0702'); // Flags
+            . $this->createByte('01') // Message 1
+            . $this->createByte('0702'); // Flags
     }
 
     /**
@@ -251,9 +251,14 @@ class Swift_Transport_Esmtp_Auth_NTLMAuthenticator implements Swift_Transport_Es
             return explode('\\', $name);
         }
 
-        list($user, $domain) = explode('@', $name);
+        if (false !== strpos($name, '@')) {
+            list($user, $domain) = explode('@', $name);
 
-        return array($domain, $user);
+            return array($domain, $user);
+        }
+
+        // no domain passed
+        return array('', $name);
     }
 
     /**
@@ -562,12 +567,12 @@ class Swift_Transport_Esmtp_Auth_NTLMAuthenticator implements Swift_Transport_Es
     protected function createBlob($timestamp, $client, $targetInfo)
     {
         return $this->createByte('0101')
-        . $this->createByte('00')
-        . $timestamp
-        . $client
-        . $this->createByte('00')
-        . $targetInfo
-        . $this->createByte('00');
+            . $this->createByte('00')
+            . $timestamp
+            . $client
+            . $this->createByte('00')
+            . $targetInfo
+            . $this->createByte('00');
     }
 
     /**
@@ -595,19 +600,19 @@ class Swift_Transport_Esmtp_Auth_NTLMAuthenticator implements Swift_Transport_Es
         $ntlmSec = $this->createSecurityBuffer($ntlmResponse, ($lmInfo[0] + $lmInfo[1]) / 2, true);
 
         return self::NTLMSIG
-        . $this->createByte('03') // TYPE 3 message
-        . $lmSec // LM response header
-        . $ntlmSec // NTLM response header
-        . $domainSec // Domain header
-        . $userSec // User header
-        . $workSec // Workstation header
-        . $this->createByte('000000009a', 8) // session key header (empty)
-        . $this->createByte('01020000') // FLAGS
-        . $this->convertTo16bit($domain) // domain name
-        . $this->convertTo16bit($username) // username
-        . $this->convertTo16bit($workstation) // workstation
-        . $lmResponse
-        . $ntlmResponse;
+            . $this->createByte('03') // TYPE 3 message
+            . $lmSec // LM response header
+            . $ntlmSec // NTLM response header
+            . $domainSec // Domain header
+            . $userSec // User header
+            . $workSec // Workstation header
+            . $this->createByte('000000009a', 8) // session key header (empty)
+            . $this->createByte('01020000') // FLAGS
+            . $this->convertTo16bit($domain) // domain name
+            . $this->convertTo16bit($username) // username
+            . $this->convertTo16bit($workstation) // workstation
+            . $lmResponse
+            . $ntlmResponse;
     }
 
     /**

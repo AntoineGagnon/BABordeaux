@@ -88,7 +88,7 @@ class Translator implements TranslatorInterface
      *
      * @param Extension\ExtensionInterface $extension
      *
-     * @return Translator
+     * @return $this
      */
     public function registerExtension(Extension\ExtensionInterface $extension)
     {
@@ -216,7 +216,7 @@ class Translator implements TranslatorInterface
      *
      * @param ParserInterface $shortcut
      *
-     * @return Translator
+     * @return $this
      */
     public function registerParserShortcut(ParserInterface $shortcut)
     {

@@ -112,8 +112,6 @@ class Swift_StreamFilters_ByteArrayReplacementFilterTest extends \PHPUnit_Framew
             );
     }
 
-    // -- Creation methods
-
     public function testConvertingAllLineEndingsToCRLFWhenInputContainsLFLF()
     {
         //Lighthouse Bug #23

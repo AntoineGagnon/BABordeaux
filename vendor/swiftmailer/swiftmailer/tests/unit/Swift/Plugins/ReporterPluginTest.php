@@ -32,8 +32,6 @@ class Swift_Plugins_ReporterPluginTest extends \SwiftMailerTestCase
         return $this->getMockery('Swift_Plugins_Reporter')->shouldIgnoreMissing();
     }
 
-    // -- Creation Methods
-
     public function testReportingFailedTo()
     {
         $message = $this->_createMessage();

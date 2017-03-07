@@ -34,8 +34,6 @@ class Swift_Mime_EmbeddedFileTest extends Swift_Mime_AttachmentTest
             );
     }
 
-    // -- Private helpers
-
     public function testDefaultDispositionIsInline()
     {
         $headers = $this->_createHeaderSet(array(), false);

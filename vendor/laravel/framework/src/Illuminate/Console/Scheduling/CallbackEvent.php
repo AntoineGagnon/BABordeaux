@@ -69,6 +69,16 @@ class CallbackEvent extends Event
     }
 
     /**
+     * Get the mutex path for the scheduled command.
+     *
+     * @return string
+     */
+    protected function mutexPath()
+    {
+        return storage_path('framework/schedule-' . sha1($this->description));
+    }
+
+    /**
      * Remove the mutex file from disk.
      *
      * @return void
@@ -98,16 +108,6 @@ class CallbackEvent extends Event
         return $this->skip(function () {
             return file_exists($this->mutexPath());
         });
-    }
-
-    /**
-     * Get the mutex path for the scheduled command.
-     *
-     * @return string
-     */
-    protected function mutexPath()
-    {
-        return storage_path('framework/schedule-'.sha1($this->description));
     }
 
     /**

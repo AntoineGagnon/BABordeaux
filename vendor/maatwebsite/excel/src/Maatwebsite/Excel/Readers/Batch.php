@@ -18,26 +18,24 @@ use Maatwebsite\Excel\Exceptions\LaravelExcelException;
 class Batch {
 
     /**
+     * Batch files
+     * @var array
+     */
+    public $files = [];
+    /**
      * Excel object
      * @var Excel
      */
     protected $excel;
-
-    /**
-     * Batch files
-     * @var array
-     */
-    public $files = array();
-
     /**
      * Set allowed file extensions
      * @var array
      */
-    protected $allowedFileExtensions = array(
+    protected $allowedFileExtensions = [
         'xls',
         'xlsx',
         'csv'
-    );
+    ];
 
     /**
      * Start the Batach
@@ -112,7 +110,7 @@ class Batch {
      */
     protected function _getFilesByArray($array)
     {
-        $files = array();
+        $files = [];
         // Make sure we have real paths
         foreach ($array as $i => $file)
         {
@@ -137,7 +135,7 @@ class Batch {
         $glob = glob($folder . '/*.{' . implode(',', $this->allowedFileExtensions) . '}', GLOB_BRACE);
 
         // If no matches, return empty array
-        if ($glob === false) return array();
+        if ($glob === false) return [];
 
         // Return files
         return array_filter($glob, function ($file)

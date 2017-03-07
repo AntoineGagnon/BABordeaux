@@ -5,8 +5,8 @@ namespace Illuminate\Cache;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Contracts\Cache\Store;
+use Illuminate\Filesystem\Filesystem;
 
 class FileStore implements Store
 {
@@ -91,6 +91,66 @@ class FileStore implements Store
     }
 
     /**
+     * Get the full path for the given cache key.
+     *
+     * @param  string $key
+     * @return string
+     */
+    protected function path($key)
+    {
+        $parts = array_slice(str_split($hash = sha1($key), 2), 0, 2);
+
+        return $this->directory . '/' . implode('/', $parts) . '/' . $hash;
+    }
+
+    /**
+     * Remove an item from the cache.
+     *
+     * @param  string $key
+     * @return bool
+     */
+    public function forget($key)
+    {
+        $file = $this->path($key);
+
+        if ($this->files->exists($file)) {
+            return $this->files->delete($file);
+        }
+
+        return false;
+    }
+
+    /**
+     * Decrement the value of an item in the cache.
+     *
+     * @param  string $key
+     * @param  mixed $value
+     * @return int
+     */
+    public function decrement($key, $value = 1)
+    {
+        return $this->increment($key, $value * -1);
+    }
+
+    /**
+     * Increment the value of an item in the cache.
+     *
+     * @param  string $key
+     * @param  mixed $value
+     * @return int
+     */
+    public function increment($key, $value = 1)
+    {
+        $raw = $this->getPayload($key);
+
+        $int = ((int)$raw['data']) + $value;
+
+        $this->put($key, $int, $raw['time']);
+
+        return $int;
+    }
+
+    /**
      * Store an item in the cache for a given number of minutes.
      *
      * @param  string  $key
@@ -108,6 +168,23 @@ class FileStore implements Store
     }
 
     /**
+     * Get the expiration time based on the given minutes.
+     *
+     * @param  float|int $minutes
+     * @return int
+     */
+    protected function expiration($minutes)
+    {
+        $time = Carbon::now()->getTimestamp() + (int)($minutes * 60);
+
+        if ($minutes === 0 || $time > 9999999999) {
+            return 9999999999;
+        }
+
+        return (int)$time;
+    }
+
+    /**
      * Create the file cache directory if necessary.
      *
      * @param  string  $path
@@ -118,36 +195,6 @@ class FileStore implements Store
         if (! $this->files->exists(dirname($path))) {
             $this->files->makeDirectory(dirname($path), 0777, true, true);
         }
-    }
-
-    /**
-     * Increment the value of an item in the cache.
-     *
-     * @param  string  $key
-     * @param  mixed   $value
-     * @return int
-     */
-    public function increment($key, $value = 1)
-    {
-        $raw = $this->getPayload($key);
-
-        $int = ((int) $raw['data']) + $value;
-
-        $this->put($key, $int, $raw['time']);
-
-        return $int;
-    }
-
-    /**
-     * Decrement the value of an item in the cache.
-     *
-     * @param  string  $key
-     * @param  mixed   $value
-     * @return int
-     */
-    public function decrement($key, $value = 1)
-    {
-        return $this->increment($key, $value * -1);
     }
 
     /**
@@ -163,23 +210,6 @@ class FileStore implements Store
     }
 
     /**
-     * Remove an item from the cache.
-     *
-     * @param  string  $key
-     * @return bool
-     */
-    public function forget($key)
-    {
-        $file = $this->path($key);
-
-        if ($this->files->exists($file)) {
-            return $this->files->delete($file);
-        }
-
-        return false;
-    }
-
-    /**
      * Remove all items from the cache.
      *
      * @return void
@@ -191,36 +221,6 @@ class FileStore implements Store
                 $this->files->deleteDirectory($directory);
             }
         }
-    }
-
-    /**
-     * Get the full path for the given cache key.
-     *
-     * @param  string  $key
-     * @return string
-     */
-    protected function path($key)
-    {
-        $parts = array_slice(str_split($hash = sha1($key), 2), 0, 2);
-
-        return $this->directory.'/'.implode('/', $parts).'/'.$hash;
-    }
-
-    /**
-     * Get the expiration time based on the given minutes.
-     *
-     * @param  float|int  $minutes
-     * @return int
-     */
-    protected function expiration($minutes)
-    {
-        $time = Carbon::now()->getTimestamp() + (int) ($minutes * 60);
-
-        if ($minutes === 0 || $time > 9999999999) {
-            return 9999999999;
-        }
-
-        return (int) $time;
     }
 
     /**

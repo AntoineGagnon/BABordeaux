@@ -78,36 +78,6 @@ class AstAnalyzer extends ClosureAnalyzer
     }
 
     /**
-     * Returns the variables that in the "use" clause of the closure definition.
-     * These are referred to as the "used variables", "static variables", or
-     * "closed upon variables", "context" of the closure.
-     *
-     * @param array $data
-     */
-    protected function determineContext(array &$data)
-    {
-        // Get the variable names defined in the AST
-        $refs = 0;
-        $vars = array_map(function ($node) use (&$refs) {
-            if ($node->byRef) {
-                $refs++;
-            }
-            return $node->var;
-        }, $data['ast']->uses);
-        $data['hasRefs'] = ($refs > 0);
-
-        // Get the variable names and values using reflection
-        $values = $data['reflection']->getStaticVariables();
-
-        // Combine the names and values to create the canonical context.
-        foreach ($vars as $name) {
-            if (isset($values[$name])) {
-                $data['context'][$name] = $values[$name];
-            }
-        }
-    }
-
-    /**
      * @param \ReflectionFunction $reflection
      *
      * @throws ClosureAnalysisException
@@ -137,5 +107,35 @@ class AstAnalyzer extends ClosureAnalyzer
         }
 
         return new CodeParser(new EmulativeLexer);
+    }
+
+    /**
+     * Returns the variables that in the "use" clause of the closure definition.
+     * These are referred to as the "used variables", "static variables", or
+     * "closed upon variables", "context" of the closure.
+     *
+     * @param array $data
+     */
+    protected function determineContext(array &$data)
+    {
+        // Get the variable names defined in the AST
+        $refs = 0;
+        $vars = array_map(function ($node) use (&$refs) {
+            if ($node->byRef) {
+                $refs++;
+            }
+            return $node->var;
+        }, $data['ast']->uses);
+        $data['hasRefs'] = ($refs > 0);
+
+        // Get the variable names and values using reflection
+        $values = $data['reflection']->getStaticVariables();
+
+        // Combine the names and values to create the canonical context.
+        foreach ($vars as $name) {
+            if (isset($values[$name])) {
+                $data['context'][$name] = $values[$name];
+            }
+        }
     }
 }

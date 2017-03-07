@@ -256,7 +256,7 @@ class Swift_CharacterStream_ArrayCharacterStream implements Swift_CharacterStrea
      *
      * @param int $length
      *
-     * @return integer[]
+     * @return int[]
      */
     public function readBytes($length)
     {

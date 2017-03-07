@@ -6,13 +6,6 @@ class Swift_KeyCache_ArrayKeyCacheAcceptanceTest extends \PHPUnit_Framework_Test
     private $_key1 = 'key1';
     private $_key2 = 'key2';
 
-    public function setUp()
-    {
-        $this->_cache = new Swift_KeyCache_ArrayKeyCache(
-            new Swift_KeyCache_SimpleKeyCacheInputStream()
-            );
-    }
-
     public function testStringDataCanBeSetAndFetched()
     {
         $this->_cache->setString(
@@ -169,5 +162,12 @@ class Swift_KeyCache_ArrayKeyCacheAcceptanceTest extends \PHPUnit_Framework_Test
         $is->write('abc');
         $is->write('xyz');
         $this->assertEquals('abcxyz', $this->_cache->getString($this->_key1, 'foo'));
+    }
+
+    protected function setUp()
+    {
+        $this->_cache = new Swift_KeyCache_ArrayKeyCache(
+            new Swift_KeyCache_SimpleKeyCacheInputStream()
+        );
     }
 }

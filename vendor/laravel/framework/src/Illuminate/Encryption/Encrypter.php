@@ -61,7 +61,7 @@ class Encrypter implements EncrypterContract
     /**
      * Encrypt the given value.
      *
-     * @param  string  $value
+     * @param  mixed $value
      * @return string
      *
      * @throws \Illuminate\Contracts\Encryption\EncryptException
@@ -91,9 +91,21 @@ class Encrypter implements EncrypterContract
     }
 
     /**
+     * Create a MAC for the given value.
+     *
+     * @param  string $iv
+     * @param  mixed $value
+     * @return string
+     */
+    protected function hash($iv, $value)
+    {
+        return hash_hmac('sha256', $iv . $value, $this->key);
+    }
+
+    /**
      * Decrypt the given value.
      *
-     * @param  string  $payload
+     * @param  mixed $payload
      * @return string
      *
      * @throws \Illuminate\Contracts\Encryption\DecryptException
@@ -111,18 +123,6 @@ class Encrypter implements EncrypterContract
         }
 
         return unserialize($decrypted);
-    }
-
-    /**
-     * Create a MAC for the given value.
-     *
-     * @param  string  $iv
-     * @param  string  $value
-     * @return string
-     */
-    protected function hash($iv, $value)
-    {
-        return hash_hmac('sha256', $iv.$value, $this->key);
     }
 
     /**

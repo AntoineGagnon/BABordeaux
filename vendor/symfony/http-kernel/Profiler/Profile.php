@@ -56,7 +56,7 @@ class Profile
     /**
      * Returns the parent profile.
      *
-     * @return Profile The parent profile
+     * @return self
      */
     public function getParent()
     {
@@ -66,7 +66,7 @@ class Profile
     /**
      * Sets the parent token.
      *
-     * @param Profile $parent The parent Profile
+     * @param Profile $parent
      */
     public function setParent(Profile $parent)
     {
@@ -191,7 +191,7 @@ class Profile
     /**
      * Finds children profilers.
      *
-     * @return Profile[] An array of Profile
+     * @return self[]
      */
     public function getChildren()
     {
@@ -201,7 +201,7 @@ class Profile
     /**
      * Sets children profiler.
      *
-     * @param Profile[] $children An array of Profile
+     * @param Profile[] $children
      */
     public function setChildren(array $children)
     {
@@ -214,7 +214,7 @@ class Profile
     /**
      * Adds the child token.
      *
-     * @param Profile $child The child Profile
+     * @param Profile $child
      */
     public function addChild(Profile $child)
     {

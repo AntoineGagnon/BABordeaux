@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,11 +15,6 @@ use Psy\CodeCleaner\InstanceOfPass;
 
 class InstanceOfPassTest extends CodeCleanerTestCase
 {
-    protected function setUp()
-    {
-        $this->setPass(new InstanceOfPass());
-    }
-
     /**
      * @dataProvider invalidStatements
      * @expectedException \Psy\Exception\FatalErrorException
@@ -66,9 +61,13 @@ class InstanceOfPassTest extends CodeCleanerTestCase
             array('(1+1) instanceof stdClass'),
             array('"foo ${foo} $bar" instanceof stdClass'),
             array('DateTime::ISO8601 instanceof stdClass'),
-
         );
 
         return $data;
+    }
+
+    protected function setUp()
+    {
+        $this->setPass(new InstanceOfPass());
     }
 }

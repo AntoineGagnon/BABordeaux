@@ -30,21 +30,6 @@ class BusFake implements Dispatcher
     }
 
     /**
-     * Determine if a job was dispatched based on a truth-test callback.
-     *
-     * @param  string  $command
-     * @param  callable|null  $callback
-     * @return void
-     */
-    public function assertNotDispatched($command, $callback = null)
-    {
-        PHPUnit::assertTrue(
-            $this->dispatched($command, $callback)->count() === 0,
-            "The unexpected [{$command}] job was dispatched."
-        );
-    }
-
-    /**
      * Get all of the jobs matching a truth-test callback.
      *
      * @param  string  $command
@@ -75,6 +60,21 @@ class BusFake implements Dispatcher
     public function hasDispatched($command)
     {
         return isset($this->commands[$command]) && ! empty($this->commands[$command]);
+    }
+
+    /**
+     * Determine if a job was dispatched based on a truth-test callback.
+     *
+     * @param  string $command
+     * @param  callable|null $callback
+     * @return void
+     */
+    public function assertNotDispatched($command, $callback = null)
+    {
+        PHPUnit::assertTrue(
+            $this->dispatched($command, $callback)->count() === 0,
+            "The unexpected [{$command}] job was dispatched."
+        );
     }
 
     /**

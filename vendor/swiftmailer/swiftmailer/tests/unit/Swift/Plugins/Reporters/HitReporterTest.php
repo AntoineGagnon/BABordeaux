@@ -5,12 +5,6 @@ class Swift_Plugins_Reporters_HitReporterTest extends \PHPUnit_Framework_TestCas
     private $_hitReporter;
     private $_message;
 
-    public function setUp()
-    {
-        $this->_hitReporter = new Swift_Plugins_Reporters_HitReporter();
-        $this->_message = $this->getMock('Swift_Mime_Message');
-    }
-
     public function testReportingFail()
     {
         $this->_hitReporter->notify($this->_message, 'foo@bar.tld',
@@ -60,5 +54,11 @@ class Swift_Plugins_Reporters_HitReporterTest extends \PHPUnit_Framework_TestCas
             );
         $this->_hitReporter->clear();
         $this->assertEquals(array(), $this->_hitReporter->getFailedRecipients());
+    }
+
+    protected function setUp()
+    {
+        $this->_hitReporter = new Swift_Plugins_Reporters_HitReporter();
+        $this->_message = $this->getMockBuilder('Swift_Mime_Message')->getMock();
     }
 }

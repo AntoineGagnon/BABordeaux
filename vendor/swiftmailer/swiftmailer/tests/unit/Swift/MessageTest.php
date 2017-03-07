@@ -84,8 +84,6 @@ class Swift_MessageTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    // -- Private helpers
-
     public function testCloningWithSigners()
     {
         $message1 = new Swift_Message('subj', 'body', 'ctype');

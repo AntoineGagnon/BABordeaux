@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,8 +32,10 @@
             </div>
             <ul class="nav navbar-nav">
                 <li class="@if(URL::current() == URL::to('/')) active @endif"><a href="/">Sondage</a></li>
-                <li class="@if(URL::current() == URL::to('/guestbook')) active @endif"><a href="/guestbook">Livre d'or</a></li>
-                <li class="@if(URL::current() == URL::to('/admin')) active @endif"><a href="/admin">Accès administrateur</a></li>
+                <li class="@if(URL::current() == URL::to('/guestbook')) active @endif"><a href="/guestbook">Livre
+                        d'or</a></li>
+                <li class="@if(URL::current() == URL::to('/admin')) active @endif"><a href="/admin">Accès
+                        administrateur</a></li>
                 <li>
                     <div id="google_translate_element"></div>
                 </li>

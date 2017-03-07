@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,6 +12,7 @@
 namespace Psy\Formatter;
 
 use Psy\Reflection\ReflectionConstant;
+use Psy\Reflection\ReflectionLanguageConstruct;
 use Psy\Util\Json;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
@@ -27,12 +28,13 @@ class SignatureFormatter implements Formatter
      *
      * @param \Reflector $reflector
      *
-     * @return string Formatted signature.
+     * @return string Formatted signature
      */
     public static function format(\Reflector $reflector)
     {
         switch (true) {
             case $reflector instanceof \ReflectionFunction:
+            case $reflector instanceof ReflectionLanguageConstruct:
                 return self::formatFunction($reflector);
 
             // this case also covers \ReflectionObject:
@@ -54,137 +56,11 @@ class SignatureFormatter implements Formatter
     }
 
     /**
-     * Print the signature name.
-     *
-     * @param \Reflector $reflector
-     *
-     * @return string Formatted name.
-     */
-    public static function formatName(\Reflector $reflector)
-    {
-        return $reflector->getName();
-    }
-
-    /**
-     * Print the method, property or class modifiers.
-     *
-     * Technically this should be a trait. Can't wait for 5.4 :)
-     *
-     * @param \Reflector $reflector
-     *
-     * @return string Formatted modifiers.
-     */
-    private static function formatModifiers(\Reflector $reflector)
-    {
-        return implode(' ', array_map(function ($modifier) {
-            return sprintf('<keyword>%s</keyword>', $modifier);
-        }, \Reflection::getModifierNames($reflector->getModifiers())));
-    }
-
-    /**
-     * Format a class signature.
-     *
-     * @param \ReflectionClass $reflector
-     *
-     * @return string Formatted signature.
-     */
-    private static function formatClass(\ReflectionClass $reflector)
-    {
-        $chunks = array();
-
-        if ($modifiers = self::formatModifiers($reflector)) {
-            $chunks[] = $modifiers;
-        }
-
-        if (version_compare(PHP_VERSION, '5.4', '>=') && $reflector->isTrait()) {
-            $chunks[] = 'trait';
-        } else {
-            $chunks[] = $reflector->isInterface() ? 'interface' : 'class';
-        }
-
-        $chunks[] = sprintf('<class>%s</class>', self::formatName($reflector));
-
-        if ($parent = $reflector->getParentClass()) {
-            $chunks[] = 'extends';
-            $chunks[] = sprintf('<class>%s</class>', $parent->getName());
-        }
-
-        $interfaces = $reflector->getInterfaceNames();
-        if (!empty($interfaces)) {
-            sort($interfaces);
-
-            $chunks[] = 'implements';
-            $chunks[] = implode(', ', array_map(function ($name) {
-                return sprintf('<class>%s</class>', $name);
-            }, $interfaces));
-        }
-
-        return implode(' ', $chunks);
-    }
-
-    /**
-     * Format a constant signature.
-     *
-     * @param ReflectionConstant $reflector
-     *
-     * @return string Formatted signature.
-     */
-    private static function formatConstant(ReflectionConstant $reflector)
-    {
-        $value = $reflector->getValue();
-        $style = self::getTypeStyle($value);
-
-        return sprintf(
-            '<keyword>const</keyword> <const>%s</const> = <%s>%s</%s>',
-            self::formatName($reflector),
-            $style,
-            OutputFormatter::escape(Json::encode($value)),
-            $style
-        );
-    }
-
-    /**
-     * Helper for getting output style for a given value's type.
-     *
-     * @param mixed $value
-     *
-     * @return string
-     */
-    private static function getTypeStyle($value)
-    {
-        if (is_int($value) || is_float($value)) {
-            return 'number';
-        } elseif (is_string($value)) {
-            return 'string';
-        } elseif (is_bool($value) || is_null($value)) {
-            return 'bool';
-        } else {
-            return 'strong';
-        }
-    }
-
-    /**
-     * Format a property signature.
-     *
-     * @param \ReflectionProperty $reflector
-     *
-     * @return string Formatted signature.
-     */
-    private static function formatProperty(\ReflectionProperty $reflector)
-    {
-        return sprintf(
-            '%s <strong>$%s</strong>',
-            self::formatModifiers($reflector),
-            $reflector->getName()
-        );
-    }
-
-    /**
      * Format a function signature.
      *
      * @param \ReflectionFunction $reflector
      *
-     * @return string Formatted signature.
+     * @return string Formatted signature
      */
     private static function formatFunction(\ReflectionFunctionAbstract $reflector)
     {
@@ -197,19 +73,15 @@ class SignatureFormatter implements Formatter
     }
 
     /**
-     * Format a method signature.
+     * Print the signature name.
      *
-     * @param \ReflectionMethod $reflector
+     * @param \Reflector $reflector
      *
-     * @return string Formatted signature.
+     * @return string Formatted name
      */
-    private static function formatMethod(\ReflectionMethod $reflector)
+    public static function formatName(\Reflector $reflector)
     {
-        return sprintf(
-            '%s %s',
-            self::formatModifiers($reflector),
-            self::formatFunction($reflector)
-        );
+        return $reflector->getName();
     }
 
     /**
@@ -267,5 +139,135 @@ class SignatureFormatter implements Formatter
         }
 
         return $params;
+    }
+
+    /**
+     * Helper for getting output style for a given value's type.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    private static function getTypeStyle($value)
+    {
+        if (is_int($value) || is_float($value)) {
+            return 'number';
+        } elseif (is_string($value)) {
+            return 'string';
+        } elseif (is_bool($value) || is_null($value)) {
+            return 'bool';
+        } else {
+            return 'strong';
+        }
+    }
+
+    /**
+     * Format a class signature.
+     *
+     * @param \ReflectionClass $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatClass(\ReflectionClass $reflector)
+    {
+        $chunks = array();
+
+        if ($modifiers = self::formatModifiers($reflector)) {
+            $chunks[] = $modifiers;
+        }
+
+        if (version_compare(PHP_VERSION, '5.4', '>=') && $reflector->isTrait()) {
+            $chunks[] = 'trait';
+        } else {
+            $chunks[] = $reflector->isInterface() ? 'interface' : 'class';
+        }
+
+        $chunks[] = sprintf('<class>%s</class>', self::formatName($reflector));
+
+        if ($parent = $reflector->getParentClass()) {
+            $chunks[] = 'extends';
+            $chunks[] = sprintf('<class>%s</class>', $parent->getName());
+        }
+
+        $interfaces = $reflector->getInterfaceNames();
+        if (!empty($interfaces)) {
+            sort($interfaces);
+
+            $chunks[] = 'implements';
+            $chunks[] = implode(', ', array_map(function ($name) {
+                return sprintf('<class>%s</class>', $name);
+            }, $interfaces));
+        }
+
+        return implode(' ', $chunks);
+    }
+
+    /**
+     * Print the method, property or class modifiers.
+     *
+     * Technically this should be a trait. Can't wait for 5.4 :)
+     *
+     * @param \Reflector $reflector
+     *
+     * @return string Formatted modifiers
+     */
+    private static function formatModifiers(\Reflector $reflector)
+    {
+        return implode(' ', array_map(function ($modifier) {
+            return sprintf('<keyword>%s</keyword>', $modifier);
+        }, \Reflection::getModifierNames($reflector->getModifiers())));
+    }
+
+    /**
+     * Format a constant signature.
+     *
+     * @param ReflectionConstant $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatConstant(ReflectionConstant $reflector)
+    {
+        $value = $reflector->getValue();
+        $style = self::getTypeStyle($value);
+
+        return sprintf(
+            '<keyword>const</keyword> <const>%s</const> = <%s>%s</%s>',
+            self::formatName($reflector),
+            $style,
+            OutputFormatter::escape(Json::encode($value)),
+            $style
+        );
+    }
+
+    /**
+     * Format a method signature.
+     *
+     * @param \ReflectionMethod $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatMethod(\ReflectionMethod $reflector)
+    {
+        return sprintf(
+            '%s %s',
+            self::formatModifiers($reflector),
+            self::formatFunction($reflector)
+        );
+    }
+
+    /**
+     * Format a property signature.
+     *
+     * @param \ReflectionProperty $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatProperty(\ReflectionProperty $reflector)
+    {
+        return sprintf(
+            '%s <strong>$%s</strong>',
+            self::formatModifiers($reflector),
+            $reflector->getName()
+        );
     }
 }

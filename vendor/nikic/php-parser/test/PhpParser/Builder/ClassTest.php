@@ -9,10 +9,6 @@ use PhpParser\Node\Stmt;
 
 class ClassTest extends \PHPUnit_Framework_TestCase
 {
-    protected function createClassBuilder($class) {
-        return new Class_($class);
-    }
-
     public function testExtendsImplements() {
         $node = $this->createClassBuilder('SomeLogger')
             ->extend('BaseLogger')
@@ -35,6 +31,11 @@ class ClassTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    protected function createClassBuilder($class)
+    {
+        return new Class_($class);
+    }
+
     public function testAbstract() {
         $node = $this->createClassBuilder('Test')
             ->makeAbstract()
@@ -43,7 +44,7 @@ class ClassTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             new Stmt\Class_('Test', array(
-                'type' => Stmt\Class_::MODIFIER_ABSTRACT
+                'flags' => Stmt\Class_::MODIFIER_ABSTRACT
             )),
             $node
         );
@@ -57,7 +58,7 @@ class ClassTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             new Stmt\Class_('Test', array(
-                'type' => Stmt\Class_::MODIFIER_FINAL
+                'flags' => Stmt\Class_::MODIFIER_FINAL
             )),
             $node
         );

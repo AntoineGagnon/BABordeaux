@@ -52,44 +52,6 @@ class DatabaseManager implements ConnectionResolverInterface
     }
 
     /**
-     * Get a database connection instance.
-     *
-     * @param  string  $name
-     * @return \Illuminate\Database\Connection
-     */
-    public function connection($name = null)
-    {
-        list($name, $type) = $this->parseConnectionName($name);
-
-        // If we haven't created this connection, we'll create it based on the config
-        // provided in the application. Once we've created the connections we will
-        // set the "fetch mode" for PDO which determines the query return types.
-        if (! isset($this->connections[$name])) {
-            $connection = $this->makeConnection($name);
-
-            $this->setPdoForType($connection, $type);
-
-            $this->connections[$name] = $this->prepare($connection);
-        }
-
-        return $this->connections[$name];
-    }
-
-    /**
-     * Parse the connection into an array of the name and read / write type.
-     *
-     * @param  string  $name
-     * @return array
-     */
-    protected function parseConnectionName($name)
-    {
-        $name = $name ?: $this->getDefaultConnection();
-
-        return Str::endsWith($name, ['::read', '::write'])
-                            ? explode('::', $name, 2) : [$name, null];
-    }
-
-    /**
      * Disconnect from the given database and remove from local cache.
      *
      * @param  string  $name
@@ -116,6 +78,16 @@ class DatabaseManager implements ConnectionResolverInterface
     }
 
     /**
+     * Get the default connection name.
+     *
+     * @return string
+     */
+    public function getDefaultConnection()
+    {
+        return $this->app['config']['database.default'];
+    }
+
+    /**
      * Reconnect to the given database.
      *
      * @param  string  $name
@@ -133,18 +105,41 @@ class DatabaseManager implements ConnectionResolverInterface
     }
 
     /**
-     * Refresh the PDO connections on a given connection.
+     * Get a database connection instance.
      *
      * @param  string  $name
      * @return \Illuminate\Database\Connection
      */
-    protected function refreshPdoConnections($name)
+    public function connection($name = null)
     {
-        $fresh = $this->makeConnection($name);
+        list($name, $type) = $this->parseConnectionName($name);
 
-        return $this->connections[$name]
-                                ->setPdo($fresh->getPdo())
-                                ->setReadPdo($fresh->getReadPdo());
+        // If we haven't created this connection, we'll create it based on the config
+        // provided in the application. Once we've created the connections we will
+        // set the "fetch mode" for PDO which determines the query return types.
+        if (!isset($this->connections[$name])) {
+            $connection = $this->makeConnection($name);
+
+            $this->setPdoForType($connection, $type);
+
+            $this->connections[$name] = $this->prepare($connection);
+        }
+
+        return $this->connections[$name];
+    }
+
+    /**
+     * Parse the connection into an array of the name and read / write type.
+     *
+     * @param  string $name
+     * @return array
+     */
+    protected function parseConnectionName($name)
+    {
+        $name = $name ?: $this->getDefaultConnection();
+
+        return Str::endsWith($name, ['::read', '::write'])
+            ? explode('::', $name, 2) : [$name, null];
     }
 
     /**
@@ -177,6 +172,48 @@ class DatabaseManager implements ConnectionResolverInterface
     }
 
     /**
+     * Get the configuration for a connection.
+     *
+     * @param  string $name
+     * @return array
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function getConfig($name)
+    {
+        $name = $name ?: $this->getDefaultConnection();
+
+        // To get the database connection configuration, we will just pull each of the
+        // connection configurations and get the configurations for the given name.
+        // If the configuration doesn't exist, we'll throw an exception and bail.
+        $connections = $this->app['config']['database.connections'];
+
+        if (is_null($config = Arr::get($connections, $name))) {
+            throw new InvalidArgumentException("Database [$name] not configured.");
+        }
+
+        return $config;
+    }
+
+    /**
+     * Prepare the read write mode for database connection instance.
+     *
+     * @param  \Illuminate\Database\Connection $connection
+     * @param  string $type
+     * @return \Illuminate\Database\Connection
+     */
+    protected function setPdoForType(Connection $connection, $type = null)
+    {
+        if ($type == 'read') {
+            $connection->setPdo($connection->getReadPdo());
+        } elseif ($type == 'write') {
+            $connection->setReadPdo($connection->getPdo());
+        }
+
+        return $connection;
+    }
+
+    /**
      * Prepare the database connection instance.
      *
      * @param  \Illuminate\Database\Connection  $connection
@@ -201,55 +238,18 @@ class DatabaseManager implements ConnectionResolverInterface
     }
 
     /**
-     * Prepare the read write mode for database connection instance.
-     *
-     * @param  \Illuminate\Database\Connection  $connection
-     * @param  string  $type
-     * @return \Illuminate\Database\Connection
-     */
-    protected function setPdoForType(Connection $connection, $type = null)
-    {
-        if ($type == 'read') {
-            $connection->setPdo($connection->getReadPdo());
-        } elseif ($type == 'write') {
-            $connection->setReadPdo($connection->getPdo());
-        }
-
-        return $connection;
-    }
-
-    /**
-     * Get the configuration for a connection.
+     * Refresh the PDO connections on a given connection.
      *
      * @param  string  $name
-     * @return array
-     *
-     * @throws \InvalidArgumentException
+     * @return \Illuminate\Database\Connection
      */
-    protected function getConfig($name)
+    protected function refreshPdoConnections($name)
     {
-        $name = $name ?: $this->getDefaultConnection();
+        $fresh = $this->makeConnection($name);
 
-        // To get the database connection configuration, we will just pull each of the
-        // connection configurations and get the configurations for the given name.
-        // If the configuration doesn't exist, we'll throw an exception and bail.
-        $connections = $this->app['config']['database.connections'];
-
-        if (is_null($config = Arr::get($connections, $name))) {
-            throw new InvalidArgumentException("Database [$name] not configured.");
-        }
-
-        return $config;
-    }
-
-    /**
-     * Get the default connection name.
-     *
-     * @return string
-     */
-    public function getDefaultConnection()
-    {
-        return $this->app['config']['database.default'];
+        return $this->connections[$name]
+            ->setPdo($fresh->getPdo())
+            ->setReadPdo($fresh->getReadPdo());
     }
 
     /**
@@ -264,16 +264,6 @@ class DatabaseManager implements ConnectionResolverInterface
     }
 
     /**
-     * Get all of the support drivers.
-     *
-     * @return array
-     */
-    public function supportedDrivers()
-    {
-        return ['mysql', 'pgsql', 'sqlite', 'sqlsrv'];
-    }
-
-    /**
      * Get all of the drivers that are actually available.
      *
      * @return array
@@ -281,6 +271,16 @@ class DatabaseManager implements ConnectionResolverInterface
     public function availableDrivers()
     {
         return array_intersect($this->supportedDrivers(), str_replace('dblib', 'sqlsrv', PDO::getAvailableDrivers()));
+    }
+
+    /**
+     * Get all of the support drivers.
+     *
+     * @return array
+     */
+    public function supportedDrivers()
+    {
+        return ['mysql', 'pgsql', 'sqlite', 'sqlsrv'];
     }
 
     /**

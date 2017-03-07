@@ -26,6 +26,18 @@ class ValidationServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the database presence verifier.
+     *
+     * @return void
+     */
+    protected function registerPresenceVerifier()
+    {
+        $this->app->singleton('validation.presence', function ($app) {
+            return new DatabasePresenceVerifier($app['db']);
+        });
+    }
+
+    /**
      * Register the validation factory.
      *
      * @return void
@@ -38,23 +50,11 @@ class ValidationServiceProvider extends ServiceProvider
             // The validation presence verifier is responsible for determining the existence
             // of values in a given data collection, typically a relational database or
             // other persistent data stores. And it is used to check for uniqueness.
-            if (isset($app['validation.presence'])) {
+            if (isset($app['db']) && isset($app['validation.presence'])) {
                 $validator->setPresenceVerifier($app['validation.presence']);
             }
 
             return $validator;
-        });
-    }
-
-    /**
-     * Register the database presence verifier.
-     *
-     * @return void
-     */
-    protected function registerPresenceVerifier()
-    {
-        $this->app->singleton('validation.presence', function ($app) {
-            return new DatabasePresenceVerifier($app['db']);
         });
     }
 

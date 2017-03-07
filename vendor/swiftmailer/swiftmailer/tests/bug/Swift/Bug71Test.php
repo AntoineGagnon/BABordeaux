@@ -4,11 +4,6 @@ class Swift_Bug71Test extends \PHPUnit_Framework_TestCase
 {
     private $_message;
 
-    public function setUp()
-    {
-        $this->_message = new Swift_Message('test');
-    }
-
     public function testCallingToStringAfterSettingNewBodyReflectsChanges()
     {
         $this->_message->setBody('BODY1');
@@ -16,5 +11,10 @@ class Swift_Bug71Test extends \PHPUnit_Framework_TestCase
 
         $this->_message->setBody('BODY2');
         $this->assertRegExp('/BODY2/', $this->_message->toString());
+    }
+
+    protected function setUp()
+    {
+        $this->_message = new Swift_Message('test');
     }
 }

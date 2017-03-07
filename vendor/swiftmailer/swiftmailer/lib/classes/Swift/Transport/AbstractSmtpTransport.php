@@ -202,7 +202,7 @@ abstract class Swift_Transport_AbstractSmtpTransport implements Swift_Transport
             do {
                 $line = $this->_buffer->readLine($seq);
                 $response .= $line;
-            } while (null !== $line && false !== $line && ' ' != $line{3});
+            } while (null !== $line && false !== $line && ' ' != $line[3]);
         } catch (Swift_TransportException $e) {
             $this->_throwException($e);
         } catch (Swift_IoException $e) {
@@ -461,7 +461,10 @@ abstract class Swift_Transport_AbstractSmtpTransport implements Swift_Transport
      */
     public function __destruct()
     {
-        $this->stop();
+        try {
+            $this->stop();
+        } catch (Exception $e) {
+        }
     }
 
     /**

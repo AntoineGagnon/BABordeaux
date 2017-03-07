@@ -4,21 +4,10 @@ class Swift_Mime_ContentEncoder_Base64ContentEncoderTest extends \SwiftMailerTes
 {
     private $_encoder;
 
-    public function setUp()
-    {
-        $this->_encoder = new Swift_Mime_ContentEncoder_Base64ContentEncoder();
-    }
-
     public function testNameIsBase64()
     {
         $this->assertEquals('base64', $this->_encoder->getName());
     }
-
-    /*
-    There's really no point in testing the entire base64 encoding to the
-    level QP encoding has been tested.  base64_encode() has been in PHP for
-    years.
-    */
 
     public function testInputOutputRatioIs3to4Bytes()
     {
@@ -49,6 +38,12 @@ class Swift_Mime_ContentEncoder_Base64ContentEncoderTest extends \SwiftMailerTes
         $this->_encoder->encodeByteStream($os, $is);
         $this->assertEquals('MTIz', $collection->content);
     }
+
+    /*
+    There's really no point in testing the entire base64 encoding to the
+    level QP encoding has been tested.  base64_encode() has been in PHP for
+    years.
+    */
 
     private function _createOutputByteStream($stub = false)
     {
@@ -319,5 +314,10 @@ class Swift_Mime_ContentEncoder_Base64ContentEncoderTest extends \SwiftMailerTes
             'EVGR0hJSktMTU5PUFFSU1RVVldYWVoxMjM0NTY3YWJjZGVmZ2hpamts',
             $collection->content
             );
+    }
+
+    protected function setUp()
+    {
+        $this->_encoder = new Swift_Mime_ContentEncoder_Base64ContentEncoder();
     }
 }

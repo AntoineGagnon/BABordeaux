@@ -2,11 +2,6 @@
 
 class Swift_Bug35Test extends \PHPUnit_Framework_TestCase
 {
-    public function setUp()
-    {
-        Swift_Preferences::getInstance()->setCharset('utf-8');
-    }
-
     public function testHTMLPartAppearsLastEvenWhenAttachmentsAdded()
     {
         $message = Swift_Message::newInstance();
@@ -69,5 +64,10 @@ class Swift_Bug35Test extends \PHPUnit_Framework_TestCase
         '$~D',
         $message->toString()
         );
+    }
+
+    protected function setUp()
+    {
+        Swift_Preferences::getInstance()->setCharset('utf-8');
     }
 }

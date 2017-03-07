@@ -31,7 +31,7 @@ trait ResetsPasswords
      * Reset the given user's password.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function reset(Request $request)
     {
@@ -62,7 +62,8 @@ trait ResetsPasswords
     protected function rules()
     {
         return [
-            'token' => 'required', 'email' => 'required|email',
+            'token' => 'required',
+            'email' => 'required|email',
             'password' => 'required|confirmed|min:6',
         ];
     }
@@ -75,6 +76,16 @@ trait ResetsPasswords
     protected function validationErrorMessages()
     {
         return [];
+    }
+
+    /**
+     * Get the broker to be used during password reset.
+     *
+     * @return \Illuminate\Contracts\Auth\PasswordBroker
+     */
+    public function broker()
+    {
+        return Password::broker();
     }
 
     /**
@@ -108,10 +119,20 @@ trait ResetsPasswords
     }
 
     /**
+     * Get the guard to be used during password reset.
+     *
+     * @return \Illuminate\Contracts\Auth\StatefulGuard
+     */
+    protected function guard()
+    {
+        return Auth::guard();
+    }
+
+    /**
      * Get the response for a successful password reset.
      *
      * @param  string  $response
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     protected function sendResetResponse($response)
     {
@@ -131,25 +152,5 @@ trait ResetsPasswords
         return redirect()->back()
                     ->withInput($request->only('email'))
                     ->withErrors(['email' => trans($response)]);
-    }
-
-    /**
-     * Get the broker to be used during password reset.
-     *
-     * @return \Illuminate\Contracts\Auth\PasswordBroker
-     */
-    public function broker()
-    {
-        return Password::broker();
-    }
-
-    /**
-     * Get the guard to be used during password reset.
-     *
-     * @return \Illuminate\Contracts\Auth\StatefulGuard
-     */
-    protected function guard()
-    {
-        return Auth::guard();
     }
 }

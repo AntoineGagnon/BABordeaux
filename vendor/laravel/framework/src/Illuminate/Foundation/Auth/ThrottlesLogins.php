@@ -24,6 +24,27 @@ trait ThrottlesLogins
     }
 
     /**
+     * Get the rate limiter instance.
+     *
+     * @return \Illuminate\Cache\RateLimiter
+     */
+    protected function limiter()
+    {
+        return app(RateLimiter::class);
+    }
+
+    /**
+     * Get the throttle key for the given request.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return string
+     */
+    protected function throttleKey(Request $request)
+    {
+        return Str::lower($request->input($this->username())) . '|' . $request->ip();
+    }
+
+    /**
      * Increment the login attempts for the user.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -73,26 +94,5 @@ trait ThrottlesLogins
     protected function fireLockoutEvent(Request $request)
     {
         event(new Lockout($request));
-    }
-
-    /**
-     * Get the throttle key for the given request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return string
-     */
-    protected function throttleKey(Request $request)
-    {
-        return Str::lower($request->input($this->username())).'|'.$request->ip();
-    }
-
-    /**
-     * Get the rate limiter instance.
-     *
-     * @return \Illuminate\Cache\RateLimiter
-     */
-    protected function limiter()
-    {
-        return app(RateLimiter::class);
     }
 }

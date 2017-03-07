@@ -42,8 +42,6 @@ class Swift_StreamFilters_StringReplacementFilterTest extends \PHPUnit_Framework
             );
     }
 
-    // -- Creation methods
-
     public function testShouldBufferReturnsTrueIfAnyOfMultipleMatchesAtEndOfString()
     {
         $filter = $this->_createFilter(array('foo', 'zip'), 'bar');
@@ -51,5 +49,11 @@ class Swift_StreamFilters_StringReplacementFilterTest extends \PHPUnit_Framework
             '%s: Filter should buffer since "zip" is a needle and the ending '.
             '"zi" could be from "zip"'
             );
+    }
+
+    public function testShouldBufferReturnsFalseOnEmptyBuffer()
+    {
+        $filter = $this->_createFilter("\r\n", "\n");
+        $this->assertFalse($filter->shouldBuffer(''));
     }
 }

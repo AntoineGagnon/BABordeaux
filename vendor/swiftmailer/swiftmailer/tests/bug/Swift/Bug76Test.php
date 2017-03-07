@@ -6,37 +6,6 @@ class Swift_Bug76Test extends \PHPUnit_Framework_TestCase
     private $_outputFile;
     private $_encoder;
 
-    public function setUp()
-    {
-        if (!defined('SWIFT_TMP_DIR') || !is_writable(SWIFT_TMP_DIR)) {
-            $this->markTestSkipped(
-                'Cannot run test without a writable directory to use ('.
-                'define SWIFT_TMP_DIR in tests/config.php if you wish to run this test)'
-             );
-        }
-
-        $this->_inputFile = SWIFT_TMP_DIR.'/in.bin';
-        file_put_contents($this->_inputFile, '');
-
-        $this->_outputFile = SWIFT_TMP_DIR.'/out.bin';
-        file_put_contents($this->_outputFile, '');
-
-        $this->_encoder = $this->_createEncoder();
-    }
-
-    private function _createEncoder()
-    {
-        return new Swift_Mime_ContentEncoder_Base64ContentEncoder();
-    }
-
-    public function tearDown()
-    {
-        unlink($this->_inputFile);
-        unlink($this->_outputFile);
-    }
-
-    // -- Custom Assertions
-
     public function testBase64EncodedLineLengthNeverExceeds76CharactersEvenIfArgsDo()
     {
         $this->_fillFileWithRandomBytes(1000, $this->_inputFile);
@@ -50,8 +19,6 @@ class Swift_Bug76Test extends \PHPUnit_Framework_TestCase
             '%s: Line length should not exceed 76 characters'
         );
     }
-
-    // -- Creation Methods
 
     private function _fillFileWithRandomBytes($byteCount, $file)
     {
@@ -78,5 +45,27 @@ class Swift_Bug76Test extends \PHPUnit_Framework_TestCase
         foreach ($lines as $line) {
             $this->assertTrue((strlen(trim($line)) <= 76), $message);
         }
+    }
+
+    protected function setUp()
+    {
+        $this->_inputFile = sys_get_temp_dir() . '/in.bin';
+        file_put_contents($this->_inputFile, '');
+
+        $this->_outputFile = sys_get_temp_dir() . '/out.bin';
+        file_put_contents($this->_outputFile, '');
+
+        $this->_encoder = $this->_createEncoder();
+    }
+
+    private function _createEncoder()
+    {
+        return new Swift_Mime_ContentEncoder_Base64ContentEncoder();
+    }
+
+    protected function tearDown()
+    {
+        unlink($this->_inputFile);
+        unlink($this->_outputFile);
     }
 }

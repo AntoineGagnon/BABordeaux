@@ -68,6 +68,8 @@ class Local extends AbstractAdapter
      * @param int    $writeFlags
      * @param int    $linkHandling
      * @param array  $permissions
+     *
+     * @throws LogicException
      */
     public function __construct($root, $writeFlags = LOCK_EX, $linkHandling = self::DISALLOW_LINKS, array $permissions = [])
     {
@@ -142,6 +144,41 @@ class Local extends AbstractAdapter
     /**
      * @inheritdoc
      */
+    public function setVisibility($path, $visibility)
+    {
+        $location = $this->applyPathPrefix($path);
+        $type = is_dir($location) ? 'dir' : 'file';
+        $success = chmod($location, $this->permissionMap[$type][$visibility]);
+
+        if ($success === false) {
+            return false;
+        }
+
+        return compact('visibility');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function readStream($path)
+    {
+        $location = $this->applyPathPrefix($path);
+        $stream = fopen($location, 'rb');
+
+        return compact('stream', 'path');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateStream($path, $resource, Config $config)
+    {
+        return $this->writeStream($path, $resource, $config);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function writeStream($path, $resource, Config $config)
     {
         $location = $this->applyPathPrefix($path);
@@ -163,25 +200,6 @@ class Local extends AbstractAdapter
         }
 
         return compact('path', 'visibility');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function readStream($path)
-    {
-        $location = $this->applyPathPrefix($path);
-        $stream = fopen($location, 'rb');
-
-        return compact('stream', 'path');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function updateStream($path, $resource, Config $config)
-    {
-        return $this->writeStream($path, $resource, $config);
     }
 
     /**
@@ -278,14 +296,85 @@ class Local extends AbstractAdapter
     }
 
     /**
-     * @inheritdoc
+     * @param string $path
+     * @param int $mode
+     *
+     * @return RecursiveIteratorIterator
      */
-    public function getMetadata($path)
+    protected function getRecursiveDirectoryIterator($path, $mode = RecursiveIteratorIterator::SELF_FIRST)
     {
-        $location = $this->applyPathPrefix($path);
-        $info = new SplFileInfo($location);
+        return new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
+            $mode
+        );
+    }
 
-        return $this->normalizeFileInfo($info);
+    /**
+     * @param string $path
+     *
+     * @return DirectoryIterator
+     */
+    protected function getDirectoryIterator($path)
+    {
+        $iterator = new DirectoryIterator($path);
+
+        return $iterator;
+    }
+
+    /**
+     * Get the normalized path from a SplFileInfo object.
+     *
+     * @param SplFileInfo $file
+     *
+     * @return string
+     */
+    protected function getFilePath(SplFileInfo $file)
+    {
+        $location = $file->getPathname();
+        $path = $this->removePathPrefix($location);
+
+        return trim(str_replace('\\', '/', $path), '/');
+    }
+
+    /**
+     * Normalize the file info.
+     *
+     * @param SplFileInfo $file
+     *
+     * @return array|void
+     *
+     * @throws NotSupportedException
+     */
+    protected function normalizeFileInfo(SplFileInfo $file)
+    {
+        if (!$file->isLink()) {
+            return $this->mapFileInfo($file);
+        }
+
+        if ($this->linkHandling & self::DISALLOW_LINKS) {
+            throw NotSupportedException::forLink($file);
+        }
+    }
+
+    /**
+     * @param SplFileInfo $file
+     *
+     * @return array
+     */
+    protected function mapFileInfo(SplFileInfo $file)
+    {
+        $normalized = [
+            'type' => $file->getType(),
+            'path' => $this->getFilePath($file),
+        ];
+
+        $normalized['timestamp'] = $file->getMTime();
+
+        if ($normalized['type'] === 'file') {
+            $normalized['size'] = $file->getSize();
+        }
+
+        return $normalized;
     }
 
     /**
@@ -294,6 +383,17 @@ class Local extends AbstractAdapter
     public function getSize($path)
     {
         return $this->getMetadata($path);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMetadata($path)
+    {
+        $location = $this->applyPathPrefix($path);
+        $info = new SplFileInfo($location);
+
+        return $this->normalizeFileInfo($info);
     }
 
     /**
@@ -329,22 +429,6 @@ class Local extends AbstractAdapter
         clearstatcache(false, $location);
         $permissions = octdec(substr(sprintf('%o', fileperms($location)), -4));
         $visibility = $permissions & 0044 ? AdapterInterface::VISIBILITY_PUBLIC : AdapterInterface::VISIBILITY_PRIVATE;
-
-        return compact('visibility');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setVisibility($path, $visibility)
-    {
-        $location = $this->applyPathPrefix($path);
-        $type = is_dir($location) ? 'dir' : 'file';
-        $success = chmod($location, $this->permissionMap[$type][$visibility]);
-
-        if ($success === false) {
-            return false;
-        }
 
         return compact('visibility');
     }
@@ -393,6 +477,18 @@ class Local extends AbstractAdapter
 
     /**
      * @param SplFileInfo $file
+     *
+     * @throws UnreadableFileException
+     */
+    protected function guardAgainstUnreadableFileInfo(SplFileInfo $file)
+    {
+        if (!$file->isReadable()) {
+            throw UnreadableFileException::forFileInfo($file);
+        }
+    }
+
+    /**
+     * @param SplFileInfo $file
      */
     protected function deleteFileInfoObject(SplFileInfo $file)
     {
@@ -405,108 +501,6 @@ class Local extends AbstractAdapter
                 break;
             default:
                 unlink($file->getRealPath());
-        }
-    }
-
-    /**
-     * Normalize the file info.
-     *
-     * @param SplFileInfo $file
-     *
-     * @return array
-     */
-    protected function normalizeFileInfo(SplFileInfo $file)
-    {
-        if ( ! $file->isLink()) {
-            return $this->mapFileInfo($file);
-        }
-
-        if ($this->linkHandling & self::DISALLOW_LINKS) {
-            throw NotSupportedException::forLink($file);
-        }
-    }
-
-    /**
-     * Get the normalized path from a SplFileInfo object.
-     *
-     * @param SplFileInfo $file
-     *
-     * @return string
-     */
-    protected function getFilePath(SplFileInfo $file)
-    {
-        $location = $file->getPathname();
-        $path = $this->removePathPrefix($location);
-
-        return trim(str_replace('\\', '/', $path), '/');
-    }
-
-    /**
-     * @param string $path
-     * @param int    $mode
-     *
-     * @return RecursiveIteratorIterator
-     */
-    protected function getRecursiveDirectoryIterator($path, $mode = RecursiveIteratorIterator::SELF_FIRST)
-    {
-        return new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
-            $mode
-        );
-    }
-
-    /**
-     * @param string $path
-     *
-     * @return DirectoryIterator
-     */
-    protected function getDirectoryIterator($path)
-    {
-        $iterator = new DirectoryIterator($path);
-
-        return $iterator;
-    }
-
-    /**
-     * @param SplFileInfo $file
-     *
-     * @return array
-     */
-    protected function mapFileInfo(SplFileInfo $file)
-    {
-        $normalized = [
-            'type' => $file->getType(),
-            'path' => $this->getFilePath($file),
-        ];
-
-        $normalized['timestamp'] = $file->getMTime();
-
-        if ($normalized['type'] === 'file') {
-            $normalized['size'] = $file->getSize();
-        }
-
-        return $normalized;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function applyPathPrefix($path)
-    {
-        $prefixedPath = parent::applyPathPrefix($path);
-
-        return str_replace('/', DIRECTORY_SEPARATOR, $prefixedPath);
-    }
-
-    /**
-     * @param SplFileInfo $file
-     *
-     * @throws UnreadableFileException
-     */
-    protected function guardAgainstUnreadableFileInfo(SplFileInfo $file)
-    {
-        if ( ! $file->isReadable()) {
-            throw UnreadableFileException::forFileInfo($file);
         }
     }
 }

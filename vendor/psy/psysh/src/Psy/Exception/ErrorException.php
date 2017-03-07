@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -58,16 +58,6 @@ class ErrorException extends \ErrorException implements Exception
     }
 
     /**
-     * Get the raw (unformatted) message for this error.
-     *
-     * @return string
-     */
-    public function getRawMessage()
-    {
-        return $this->rawMessage;
-    }
-
-    /**
      * Helper for throwing an ErrorException.
      *
      * This allows us to:
@@ -84,5 +74,27 @@ class ErrorException extends \ErrorException implements Exception
     public static function throwException($errno, $errstr, $errfile, $errline)
     {
         throw new self($errstr, 0, $errno, $errfile, $errline);
+    }
+
+    /**
+     * Create an ErrorException from an Error.
+     *
+     * @param \Error $e
+     *
+     * @return ErrorException
+     */
+    public static function fromError(\Error $e)
+    {
+        return new self($e->getMessage(), $e->getCode(), 1, $e->getFile(), $e->getLine(), $e);
+    }
+
+    /**
+     * Get the raw (unformatted) message for this error.
+     *
+     * @return string
+     */
+    public function getRawMessage()
+    {
+        return $this->rawMessage;
     }
 }

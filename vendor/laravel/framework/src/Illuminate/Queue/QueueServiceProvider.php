@@ -10,8 +10,8 @@ use Illuminate\Queue\Connectors\SqsConnector;
 use Illuminate\Queue\Connectors\NullConnector;
 use Illuminate\Queue\Connectors\SyncConnector;
 use Illuminate\Queue\Connectors\RedisConnector;
-use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Connectors\DatabaseConnector;
+use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Connectors\BeanstalkdConnector;
 use Illuminate\Queue\Failed\DatabaseFailedJobProvider;
 
@@ -64,6 +64,19 @@ class QueueServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the connectors on the queue manager.
+     *
+     * @param  \Illuminate\Queue\QueueManager $manager
+     * @return void
+     */
+    public function registerConnectors($manager)
+    {
+        foreach (['Null', 'Sync', 'Database', 'Beanstalkd', 'Redis', 'Sqs'] as $connector) {
+            $this->{"register{$connector}Connector"}($manager);
+        }
+    }
+
+    /**
      * Register the queue worker.
      *
      * @return void
@@ -97,6 +110,20 @@ class QueueServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register the queue restart console command.
+     *
+     * @return void
+     */
+    public function registerRestartCommand()
+    {
+        $this->app->singleton('command.queue.restart', function () {
+            return new RestartCommand;
+        });
+
+        $this->commands('command.queue.restart');
+    }
+
+    /**
      * Register the queue listener.
      *
      * @return void
@@ -125,30 +152,35 @@ class QueueServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the queue restart console command.
+     * Register the failed job services.
      *
      * @return void
      */
-    public function registerRestartCommand()
+    protected function registerFailedJobServices()
     {
-        $this->app->singleton('command.queue.restart', function () {
-            return new RestartCommand;
-        });
+        $this->app->singleton('queue.failer', function ($app) {
+            $config = $app['config']['queue.failed'];
 
-        $this->commands('command.queue.restart');
+            if (isset($config['table'])) {
+                return new DatabaseFailedJobProvider($app['db'], $config['database'], $config['table']);
+            } else {
+                return new NullFailedJobProvider;
+            }
+        });
     }
 
     /**
-     * Register the connectors on the queue manager.
+     * Get the services provided by the provider.
      *
-     * @param  \Illuminate\Queue\QueueManager  $manager
-     * @return void
+     * @return array
      */
-    public function registerConnectors($manager)
+    public function provides()
     {
-        foreach (['Null', 'Sync', 'Database', 'Beanstalkd', 'Redis', 'Sqs'] as $connector) {
-            $this->{"register{$connector}Connector"}($manager);
-        }
+        return [
+            'queue', 'queue.worker', 'queue.listener', 'queue.failer',
+            'command.queue.work', 'command.queue.listen',
+            'command.queue.restart', 'queue.connection',
+        ];
     }
 
     /**
@@ -229,37 +261,5 @@ class QueueServiceProvider extends ServiceProvider
         $manager->addConnector('sqs', function () {
             return new SqsConnector;
         });
-    }
-
-    /**
-     * Register the failed job services.
-     *
-     * @return void
-     */
-    protected function registerFailedJobServices()
-    {
-        $this->app->singleton('queue.failer', function ($app) {
-            $config = $app['config']['queue.failed'];
-
-            if (isset($config['table'])) {
-                return new DatabaseFailedJobProvider($app['db'], $config['database'], $config['table']);
-            } else {
-                return new NullFailedJobProvider;
-            }
-        });
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return [
-            'queue', 'queue.worker', 'queue.listener', 'queue.failer',
-            'command.queue.work', 'command.queue.listen',
-            'command.queue.restart', 'queue.connection',
-        ];
     }
 }

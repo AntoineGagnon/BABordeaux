@@ -5,28 +5,6 @@ class Swift_Bug51Test extends \SwiftMailerTestCase
     private $_attachmentFile;
     private $_outputFile;
 
-    public function setUp()
-    {
-        if (!defined('SWIFT_TMP_DIR') || !is_writable(SWIFT_TMP_DIR)) {
-            $this->markTestSkipped(
-                'Cannot run test without a writable directory to use ('.
-                'define SWIFT_TMP_DIR in tests/config.php if you wish to run this test)'
-             );
-        }
-
-        $this->_attachmentFile = SWIFT_TMP_DIR.'/attach.rand.bin';
-        file_put_contents($this->_attachmentFile, '');
-
-        $this->_outputFile = SWIFT_TMP_DIR.'/attach.out.bin';
-        file_put_contents($this->_outputFile, '');
-    }
-
-    public function tearDown()
-    {
-        unlink($this->_attachmentFile);
-        unlink($this->_outputFile);
-    }
-
     public function testAttachmentsDoNotGetTruncatedUsingToByteStream()
     {
         //Run 100 times with 10KB attachments
@@ -63,8 +41,6 @@ class Swift_Bug51Test extends \SwiftMailerTestCase
         return $message;
     }
 
-    // -- Custom Assertions
-
     private function _fillFileWithRandomBytes($byteCount, $file)
     {
         // I was going to use dd with if=/dev/random but this way seems more
@@ -78,8 +54,6 @@ class Swift_Bug51Test extends \SwiftMailerTestCase
         }
         fclose($fp);
     }
-
-    // -- Creation Methods
 
     public function assertAttachmentFromSourceMatches($attachmentData, $source)
     {
@@ -116,5 +90,20 @@ class Swift_Bug51Test extends \SwiftMailerTestCase
                 $emailSource
             );
         }
+    }
+
+    protected function setUp()
+    {
+        $this->_attachmentFile = sys_get_temp_dir() . '/attach.rand.bin';
+        file_put_contents($this->_attachmentFile, '');
+
+        $this->_outputFile = sys_get_temp_dir() . '/attach.out.bin';
+        file_put_contents($this->_outputFile, '');
+    }
+
+    protected function tearDown()
+    {
+        unlink($this->_attachmentFile);
+        unlink($this->_outputFile);
     }
 }

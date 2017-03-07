@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,6 +11,7 @@
 
 namespace Psy\ExecutionLoop;
 
+use Psy\Context;
 use Psy\Shell;
 
 /**
@@ -79,10 +80,50 @@ class ForkingLoop extends Loop
         parent::run($shell);
 
         // Send the scope variables back up to the main thread
-        fwrite($up, $this->serializeReturn($shell->getScopeVariables()));
+        fwrite($up, $this->serializeReturn($shell->getScopeVariables(false)));
         fclose($up);
 
-        exit;
+        posix_kill(posix_getpid(), SIGKILL);
+    }
+
+    /**
+     * Serialize all serializable return values.
+     *
+     * A naïve serialization will run into issues if there is a Closure or
+     * SimpleXMLElement (among other things) in scope when exiting the execution
+     * loop. We'll just ignore these unserializable classes, and serialize what
+     * we can.
+     *
+     * @param array $return
+     *
+     * @return string
+     */
+    private function serializeReturn(array $return)
+    {
+        $serializable = array();
+
+        foreach ($return as $key => $value) {
+            // No need to return magic variables
+            if (Context::isSpecialVariableName($key)) {
+                continue;
+            }
+
+            // Resources and Closures don't error, but they don't serialize well either.
+            if (is_resource($value) || $value instanceof \Closure) {
+                continue;
+            }
+
+            try {
+                @serialize($value);
+                $serializable[$key] = $value;
+            } catch (\Exception $e) {
+                // we'll just ignore this one...
+            } catch (\Throwable $e) {
+                // and this one too...
+            }
+        }
+
+        return @serialize($serializable);
     }
 
     /**
@@ -91,18 +132,6 @@ class ForkingLoop extends Loop
     public function beforeLoop()
     {
         $this->createSavegame();
-    }
-
-    /**
-     * Clean up old savegames at the end of each loop iteration.
-     */
-    public function afterLoop()
-    {
-        // if there's an old savegame hanging around, let's kill it.
-        if (isset($this->savegame)) {
-            posix_kill($this->savegame, SIGKILL);
-            pcntl_signal_dispatch();
-        }
     }
 
     /**
@@ -135,40 +164,14 @@ class ForkingLoop extends Loop
     }
 
     /**
-     * Serialize all serializable return values.
-     *
-     * A naïve serialization will run into issues if there is a Closure or
-     * SimpleXMLElement (among other things) in scope when exiting the execution
-     * loop. We'll just ignore these unserializable classes, and serialize what
-     * we can.
-     *
-     * @param array $return
-     *
-     * @return string
+     * Clean up old savegames at the end of each loop iteration.
      */
-    private function serializeReturn(array $return)
+    public function afterLoop()
     {
-        $serializable = array();
-
-        foreach ($return as $key => $value) {
-            // No need to return magic variables
-            if ($key === '_' || $key === '_e') {
-                continue;
-            }
-
-            // Resources don't error, but they don't serialize well either.
-            if (is_resource($value) || $value instanceof \Closure) {
-                continue;
-            }
-
-            try {
-                @serialize($value);
-                $serializable[$key] = $value;
-            } catch (\Exception $e) {
-                // we'll just ignore this one...
-            }
+        // if there's an old savegame hanging around, let's kill it.
+        if (isset($this->savegame)) {
+            posix_kill($this->savegame, SIGKILL);
+            pcntl_signal_dispatch();
         }
-
-        return @serialize($serializable);
     }
 }

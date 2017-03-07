@@ -26,13 +26,13 @@ class ViewParser {
      * Data array
      * @var array
      */
-    public $data = array();
+    public $data = [];
 
     /**
      * View merge data
      * @var array
      */
-    public $mergeData = array();
+    public $mergeData = [];
 
     /**
      * Construct the view parser
@@ -57,41 +57,12 @@ class ViewParser {
     }
 
     /**
-     * Load the HTML
-     * @param  \Maatwebsite\Excel\Classes\LaravelExcelWorksheet $sheet
-     * @param  string                                           $html
-     * @return \Maatwebsite\Excel\Classes\LaravelExcelWorksheet
-     */
-    protected function _loadHTML($sheet, $html)
-    {
-        return $this->reader->load($html, true, $sheet);
-    }
-
-    /**
      * Get the view
      * @return string
      */
     public function getView()
     {
         return $this->view;
-    }
-
-    /**
-     * Get data
-     * @return array
-     */
-    public function getData()
-    {
-        return $this->data;
-    }
-
-    /**
-     * Get merge data
-     * @return array
-     */
-    public function getMergeData()
-    {
-        return $this->mergeData;
     }
 
     /**
@@ -105,22 +76,51 @@ class ViewParser {
     }
 
     /**
+     * Get data
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
      * Set the data
      * @param array $data
      */
-    public function setData($data = array())
+    public function setData($data = [])
     {
         if (!empty($data))
             $this->data = array_merge($this->data, $data);
     }
 
     /**
+     * Get merge data
+     * @return array
+     */
+    public function getMergeData()
+    {
+        return $this->mergeData;
+    }
+
+    /**
      * Set the merge data
      * @param array $mergeData
      */
-    public function setMergeData($mergeData = array())
+    public function setMergeData($mergeData = [])
     {
         if (!empty($mergeData))
             $this->mergeData = array_merge($this->mergeData, $mergeData);
+    }
+
+    /**
+     * Load the HTML
+     * @param  \Maatwebsite\Excel\Classes\LaravelExcelWorksheet $sheet
+     * @param  string $html
+     * @return \Maatwebsite\Excel\Classes\LaravelExcelWorksheet
+     */
+    protected function _loadHTML($sheet, $html)
+    {
+        return $this->reader->load($html, true, $sheet);
     }
 }

@@ -46,13 +46,13 @@ class HttpKernelTest extends \PHPUnit_Framework_TestCase
             };
         }
 
-        $controllerResolver = $this->getMock(ControllerResolverInterface::class);
+        $controllerResolver = $this->getMockBuilder(ControllerResolverInterface::class)->getMock();
         $controllerResolver
             ->expects($this->any())
             ->method('getController')
             ->will($this->returnValue($controller));
 
-        $argumentResolver = $this->getMock(ArgumentResolverInterface::class);
+        $argumentResolver = $this->getMockBuilder(ArgumentResolverInterface::class)->getMock();
         $argumentResolver
             ->expects($this->any())
             ->method('getArguments')
@@ -321,7 +321,7 @@ class HttpKernelTest extends \PHPUnit_Framework_TestCase
     {
         $request = new Request();
 
-        $stack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack', array('push', 'pop'));
+        $stack = $this->getMockBuilder('Symfony\Component\HttpFoundation\RequestStack')->setMethods(array('push', 'pop'))->getMock();
         $stack->expects($this->at(0))->method('push')->with($this->equalTo($request));
         $stack->expects($this->at(1))->method('pop');
 

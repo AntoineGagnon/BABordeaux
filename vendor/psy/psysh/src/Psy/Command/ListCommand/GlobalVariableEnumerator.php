@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -45,26 +45,6 @@ class GlobalVariableEnumerator extends Enumerator
     }
 
     /**
-     * Get defined global variables.
-     *
-     * @return array
-     */
-    protected function getGlobals()
-    {
-        global $GLOBALS;
-
-        $names = array_keys($GLOBALS);
-        natcasesort($names);
-
-        $ret = array();
-        foreach ($names as $name) {
-            $ret[$name] = $GLOBALS[$name];
-        }
-
-        return $ret;
-    }
-
-    /**
      * Prepare formatted global variable array.
      *
      * @param array $globals
@@ -85,6 +65,26 @@ class GlobalVariableEnumerator extends Enumerator
                     'value' => $this->presentRef($value),
                 );
             }
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Get defined global variables.
+     *
+     * @return array
+     */
+    protected function getGlobals()
+    {
+        global $GLOBALS;
+
+        $names = array_keys($GLOBALS);
+        natcasesort($names);
+
+        $ret = array();
+        foreach ($names as $name) {
+            $ret[$name] = $GLOBALS[$name];
         }
 
         return $ret;

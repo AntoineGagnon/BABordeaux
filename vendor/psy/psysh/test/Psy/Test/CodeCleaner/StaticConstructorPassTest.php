@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,11 +15,6 @@ use Psy\CodeCleaner\StaticConstructorPass;
 
 class StaticConstructorPassTest extends CodeCleanerTestCase
 {
-    protected function setUp()
-    {
-        $this->setPass(new StaticConstructorPass());
-    }
-
     /**
      * @dataProvider invalidStatements
      * @expectedException \Psy\Exception\FatalErrorException
@@ -87,5 +82,10 @@ class StaticConstructorPassTest extends CodeCleanerTestCase
         }
 
         return $statements;
+    }
+
+    protected function setUp()
+    {
+        $this->setPass(new StaticConstructorPass());
     }
 }

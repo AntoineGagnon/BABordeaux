@@ -9,12 +9,6 @@ class Swift_Mime_ContentEncoder_NativeQpContentEncoderAcceptanceTest extends \PH
      */
     protected $_encoder;
 
-    public function setUp()
-    {
-        $this->_samplesDir = realpath(__DIR__.'/../../../../_samples/charsets');
-        $this->_encoder = new Swift_Mime_ContentEncoder_NativeQpContentEncoder();
-    }
-
     public function testEncodingAndDecodingSamples()
     {
         $sampleFp = opendir($this->_samplesDir);
@@ -71,7 +65,7 @@ class Swift_Mime_ContentEncoder_NativeQpContentEncoderAcceptanceTest extends \PH
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      */
     public function testCharsetChangeNotImplemented()
     {
@@ -83,5 +77,11 @@ class Swift_Mime_ContentEncoder_NativeQpContentEncoderAcceptanceTest extends \PH
     public function testGetName()
     {
         $this->assertSame('quoted-printable', $this->_encoder->getName());
+    }
+
+    protected function setUp()
+    {
+        $this->_samplesDir = realpath(__DIR__ . '/../../../../_samples/charsets');
+        $this->_encoder = new Swift_Mime_ContentEncoder_NativeQpContentEncoder();
     }
 }

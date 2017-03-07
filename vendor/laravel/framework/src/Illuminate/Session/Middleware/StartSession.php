@@ -8,8 +8,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
 use Illuminate\Session\SessionInterface;
-use Symfony\Component\HttpFoundation\Cookie;
 use Illuminate\Session\CookieSessionHandler;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
 class StartSession
@@ -76,17 +76,13 @@ class StartSession
     }
 
     /**
-     * Perform any final actions for the request lifecycle.
+     * Determine if a session driver has been configured.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Symfony\Component\HttpFoundation\Response  $response
-     * @return void
+     * @return bool
      */
-    public function terminate($request, $response)
+    protected function sessionConfigured()
     {
-        if ($this->sessionHandled && $this->sessionConfigured() && ! $this->usingCookieSessions()) {
-            $this->manager->driver()->save();
-        }
+        return !is_null(Arr::get($this->manager->getSessionConfig(), 'driver'));
     }
 
     /**
@@ -122,20 +118,6 @@ class StartSession
     }
 
     /**
-     * Store the current URL for the request if necessary.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Session\SessionInterface  $session
-     * @return void
-     */
-    protected function storeCurrentUrl(Request $request, $session)
-    {
-        if ($request->method() === 'GET' && $request->route() && ! $request->ajax()) {
-            $session->setPreviousUrl($request->fullUrl());
-        }
-    }
-
-    /**
      * Remove the garbage from the session if necessary.
      *
      * @param  \Illuminate\Session\SessionInterface  $session
@@ -165,6 +147,30 @@ class StartSession
     }
 
     /**
+     * Get the session lifetime in seconds.
+     *
+     * @return int
+     */
+    protected function getSessionLifetimeInSeconds()
+    {
+        return Arr::get($this->manager->getSessionConfig(), 'lifetime') * 60;
+    }
+
+    /**
+     * Store the current URL for the request if necessary.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Session\SessionInterface $session
+     * @return void
+     */
+    protected function storeCurrentUrl(Request $request, $session)
+    {
+        if ($request->method() === 'GET' && $request->route() && !$request->ajax()) {
+            $session->setPreviousUrl($request->fullUrl());
+        }
+    }
+
+    /**
      * Add the session cookie to the application response.
      *
      * @param  \Symfony\Component\HttpFoundation\Response  $response
@@ -187,35 +193,17 @@ class StartSession
     }
 
     /**
-     * Get the session lifetime in seconds.
-     *
-     * @return int
-     */
-    protected function getSessionLifetimeInSeconds()
-    {
-        return Arr::get($this->manager->getSessionConfig(), 'lifetime') * 60;
-    }
-
-    /**
-     * Get the cookie lifetime in seconds.
-     *
-     * @return int
-     */
-    protected function getCookieExpirationDate()
-    {
-        $config = $this->manager->getSessionConfig();
-
-        return $config['expire_on_close'] ? 0 : Carbon::now()->addMinutes($config['lifetime']);
-    }
-
-    /**
-     * Determine if a session driver has been configured.
+     * Determine if the session is using cookie sessions.
      *
      * @return bool
      */
-    protected function sessionConfigured()
+    protected function usingCookieSessions()
     {
-        return ! is_null(Arr::get($this->manager->getSessionConfig(), 'driver'));
+        if (!$this->sessionConfigured()) {
+            return false;
+        }
+
+        return $this->manager->driver()->getHandler() instanceof CookieSessionHandler;
     }
 
     /**
@@ -232,16 +220,28 @@ class StartSession
     }
 
     /**
-     * Determine if the session is using cookie sessions.
+     * Get the cookie lifetime in seconds.
      *
-     * @return bool
+     * @return int
      */
-    protected function usingCookieSessions()
+    protected function getCookieExpirationDate()
     {
-        if (! $this->sessionConfigured()) {
-            return false;
-        }
+        $config = $this->manager->getSessionConfig();
 
-        return $this->manager->driver()->getHandler() instanceof CookieSessionHandler;
+        return $config['expire_on_close'] ? 0 : Carbon::now()->addMinutes($config['lifetime']);
+    }
+
+    /**
+     * Perform any final actions for the request lifecycle.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @return void
+     */
+    public function terminate($request, $response)
+    {
+        if ($this->sessionHandled && $this->sessionConfigured() && !$this->usingCookieSessions()) {
+            $this->manager->driver()->save();
+        }
     }
 }

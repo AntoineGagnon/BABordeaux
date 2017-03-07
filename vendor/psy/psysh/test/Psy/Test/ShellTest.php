@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -39,7 +39,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $_e        = 'ignore this';
 
         $shell = new Shell($this->getConfig());
-        $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e'));
+        $shell->setScopeVariables(compact('one', 'two', 'three', '__psysh__', '_', '_e', 'this'));
 
         $this->assertNotContains('__psysh__', $shell->getScopeVariableNames());
         $this->assertEquals(array('one', 'two', 'three', '_'), $shell->getScopeVariableNames());
@@ -50,6 +50,27 @@ class ShellTest extends \PHPUnit_Framework_TestCase
 
         $shell->setScopeVariables(array());
         $this->assertEquals(array('_'), $shell->getScopeVariableNames());
+
+        $shell->setBoundObject($this);
+        $this->assertEquals(array('_', 'this'), $shell->getScopeVariableNames());
+        $this->assertSame($this, $shell->getScopeVariable('this'));
+        $this->assertEquals(array('_' => null), $shell->getScopeVariables(false));
+        $this->assertEquals(array('_' => null, 'this' => $this), $shell->getScopeVariables());
+    }
+
+    private function getConfig(array $config = array())
+    {
+        // Mebbe there's a better way than this?
+        $dir = tempnam(sys_get_temp_dir(), 'psysh_shell_test_');
+        unlink($dir);
+
+        $defaults = array(
+            'configDir' => $dir,
+            'dataDir' => $dir,
+            'runtimeDir' => $dir,
+        );
+
+        return new Configuration(array_merge($defaults, $config));
     }
 
     /**
@@ -124,6 +145,16 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('line 13', $streamContents);
     }
 
+    private function getOutput()
+    {
+        $stream = fopen('php://memory', 'w+');
+        $this->streams[] = $stream;
+
+        $output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, false);
+
+        return $output;
+    }
+
     public function testHandlingErrors()
     {
         $shell  = new Shell($this->getConfig());
@@ -151,7 +182,7 @@ class ShellTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Psy\Exception\ErrorException
+     * @expectedException \Psy\Exception\ErrorException
      */
     public function testNotHandlingErrors()
     {
@@ -311,30 +342,5 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         return array(
             array(new \Exception('{{message}}'), "Exception with message '{{message}}'" . PHP_EOL),
         );
-    }
-
-    private function getOutput()
-    {
-        $stream = fopen('php://memory', 'w+');
-        $this->streams[] = $stream;
-
-        $output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, false);
-
-        return $output;
-    }
-
-    private function getConfig(array $config = array())
-    {
-        // Mebbe there's a better way than this?
-        $dir = tempnam(sys_get_temp_dir(), 'psysh_shell_test_');
-        unlink($dir);
-
-        $defaults = array(
-            'configDir'  => $dir,
-            'dataDir'    => $dir,
-            'runtimeDir' => $dir,
-        );
-
-        return new Configuration(array_merge($defaults, $config));
     }
 }

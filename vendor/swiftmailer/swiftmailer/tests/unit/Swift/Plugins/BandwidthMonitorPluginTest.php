@@ -6,11 +6,6 @@ class Swift_Plugins_BandwidthMonitorPluginTest extends \PHPUnit_Framework_TestCa
 
     private $_bytes = 0;
 
-    public function setUp()
-    {
-        $this->_monitor = new Swift_Plugins_BandwidthMonitorPlugin();
-    }
-
     public function testBytesOutIncreasesWhenCommandsSent()
     {
         $evt = $this->_createCommandEvent("RCPT TO:<foo@bar.com>\r\n");
@@ -57,8 +52,6 @@ class Swift_Plugins_BandwidthMonitorPluginTest extends \PHPUnit_Framework_TestCa
         return $evt;
     }
 
-    // -- Creation Methods
-
     public function testCountersCanBeReset()
     {
         $evt = $this->_createResponseEvent("250 Ok\r\n");
@@ -98,7 +91,7 @@ class Swift_Plugins_BandwidthMonitorPluginTest extends \PHPUnit_Framework_TestCa
     private function _createMessageWithByteCount($bytes)
     {
         $this->_bytes = $bytes;
-        $msg = $this->getMock('Swift_Mime_Message');
+        $msg = $this->getMockBuilder('Swift_Mime_Message')->getMock();
         $msg->expects($this->any())
             ->method('toByteStream')
             ->will($this->returnCallback(array($this, '_write')));
@@ -126,5 +119,10 @@ class Swift_Plugins_BandwidthMonitorPluginTest extends \PHPUnit_Framework_TestCa
         for ($i = 0; $i < $this->_bytes; ++$i) {
             $is->write('x');
         }
+    }
+
+    protected function setUp()
+    {
+        $this->_monitor = new Swift_Plugins_BandwidthMonitorPlugin();
     }
 }

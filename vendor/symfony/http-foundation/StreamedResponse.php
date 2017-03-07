@@ -65,7 +65,7 @@ class StreamedResponse extends Response
      * @param int           $status   The response status code
      * @param array         $headers  An array of response headers
      *
-     * @return StreamedResponse
+     * @return static
      */
     public static function create($callback = null, $status = 200, $headers = array())
     {

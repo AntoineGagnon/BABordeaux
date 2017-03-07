@@ -14,7 +14,6 @@ use PHPExcel_Style_Font;
 use PHPExcel_Style_Border;
 use PHPExcel_Worksheet_Drawing;
 use PHPExcel_Style_Alignment;
-use Illuminate\Support\Facades\Config;
 use Maatwebsite\Excel\Parsers\CssParser;
 use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
 
@@ -36,11 +35,11 @@ class Html extends PHPExcel_Reader_HTML {
      * Style per range
      * @var array
      */
-    protected $styles = array();
+    protected $styles = [];
 
-    protected $_dataArray = array();
+    protected $_dataArray = [];
 
-    protected $_nestedColumn = array('A');
+    protected $_nestedColumn = ['A'];
 
     /**
      * @var int
@@ -63,7 +62,7 @@ class Html extends PHPExcel_Reader_HTML {
      * HTML tags formatting settings
      * @var array
      */
-    protected $_formats = array();
+    protected $_formats = [];
 
     /**
      * The current colspan
@@ -127,7 +126,7 @@ class Html extends PHPExcel_Reader_HTML {
      */
     protected function setStyleFormats()
     {
-        $this->_formats = Config::get('excel.views.styles', array());
+        $this->_formats = config('excel.views.styles', []);
     }
 
     /**
@@ -216,35 +215,6 @@ class Html extends PHPExcel_Reader_HTML {
     }
 
     /**
-     * Autosize column for document
-     * @param  LaravelExcelWorksheet $sheet
-     * @return LaravelExcelWorksheet
-     */
-    public function autosizeColumn($sheet)
-    {
-        if ( $columns = $sheet->getAutosize() )
-        {
-            if ( is_array($columns) )
-            {
-                $sheet->setAutoSize($columns);
-            }
-            else
-            {
-                $toCol = $sheet->getHighestColumn();
-                $toCol++;
-                for ($i = 'A'; $i !== $toCol; $i++)
-                {
-                    $sheet->getColumnDimension($i)->setAutoSize(true);
-                }
-
-                $sheet->calculateColumnWidths();
-            }
-        }
-
-        return $sheet;
-    }
-
-    /**
      * Process the dom element
      * @param  DOMNode               $element
      * @param  LaravelExcelWorksheet $sheet
@@ -273,7 +243,7 @@ class Html extends PHPExcel_Reader_HTML {
             // If is a dom element
             elseif ( $child instanceof DOMElement )
             {
-                $attributeArray = array();
+                $attributeArray = [];
 
                 // Set row (=parent) styles
                 if ( isset($this->styles[$row]) )
@@ -639,332 +609,6 @@ class Html extends PHPExcel_Reader_HTML {
     }
 
     /**
-     * Set the start column
-     * @param   string $column
-     * @return  string
-     */
-    protected function _setTableStartColumn($column)
-    {
-        // Set to a
-        if ( $this->_tableLevel == 0 )
-            $column = 'A';
-
-        ++$this->_tableLevel;
-
-        // Get nested column
-        $this->_nestedColumn[$this->_tableLevel] = $column;
-
-        return $this->_nestedColumn[$this->_tableLevel];
-    }
-
-    /**
-     * Get the table start column
-     * @return string
-     */
-    protected function _getTableStartColumn()
-    {
-        return $this->_nestedColumn[$this->_tableLevel];
-    }
-
-    /**
-     * Release the table start column
-     * @return array
-     */
-    protected function _releaseTableStartColumn()
-    {
-        --$this->_tableLevel;
-
-        return array_pop($this->_nestedColumn);
-    }
-
-    /**
-     * Flush the cells
-     * @param  LaravelExcelWorksheet $sheet
-     * @param  string                $column
-     * @param  integer               $row
-     * @param  string                $cellContent
-     * @return void
-     */
-    protected function flushCell($sheet, $column, $row, &$cellContent)
-    {
-        // Process merged cells
-        list($column, $cellContent) = $this->processMergedCells($sheet, $column, $row, $cellContent);
-
-        if ( is_string($cellContent) )
-        {
-            //  Simple String content
-            if ( trim($cellContent) > '' )
-            {
-                //  Only actually write it if there's content in the string
-                //  Write to worksheet to be done here...
-                //  ... we return the cell so we can mess about with styles more easily
-
-                $cell = $sheet->setCellValue($column . $row, $cellContent, true);
-                $this->_dataArray[$row][$column] = $cellContent;
-            }
-        }
-        else
-        {
-            $this->_dataArray[$row][$column] = 'RICH TEXT: ' . $cellContent;
-        }
-        $cellContent = (string) '';
-    }
-
-    /**
-     * Process table headings
-     * @param  string                $child
-     * @param  LaravelExcelWorksheet $sheet
-     * @param  string                $row
-     * @param  integer               $column
-     * @param                        $cellContent
-     * @throws \PHPExcel_Exception
-     * @return LaravelExcelWorksheet
-     */
-    protected function _processHeadings($child, $sheet, $row, $column, $cellContent)
-    {
-        $this->_processDomElement($child, $sheet, $row, $column, $cellContent);
-        $this->flushCell($sheet, $column, $row, $cellContent);
-
-        if ( isset($this->_formats[$child->nodeName]) )
-        {
-            $sheet->getStyle($column . $row)->applyFromArray($this->_formats[$child->nodeName]);
-        }
-
-        return $sheet;
-    }
-
-    /**
-     * Insert a image inside the sheet
-     * @param  LaravelExcelWorksheet $sheet
-     * @param  string                $column
-     * @param  integer               $row
-     * @param  string                $attributes
-     * @return void
-     */
-    protected function insertImageBySrc($sheet, $column, $row, $attributes)
-    {
-        // Get attributes
-        $src = $attributes->getAttribute('src');
-        $width = (float) $attributes->getAttribute('width');
-        $height = (float) $attributes->getAttribute('height');
-        $alt = $attributes->getAttribute('alt');
-
-        // init drawing
-        $drawing = new PHPExcel_Worksheet_Drawing();
-
-        // Set image
-        $drawing->setPath($src);
-        $drawing->setName($alt);
-        $drawing->setWorksheet($sheet);
-        $drawing->setCoordinates($column . $row);
-        $drawing->setResizeProportional();
-        $drawing->setOffsetX($drawing->getWidth() - $drawing->getWidth() / 5);
-        $drawing->setOffsetY(10);
-
-        // Set height and width
-        if ( $width > 0 )
-            $drawing->setWidth($width);
-
-        if ( $height > 0 )
-            $drawing->setHeight($height);
-
-        // Set cell width based on image
-        $this->parseWidth($sheet, $column, $row, $drawing->getWidth() / 3);
-        $this->parseHeight($sheet, $column, $row, $drawing->getHeight());
-    }
-
-    /**
-     * Set cell data format
-     * @param  LaravelExcelWorksheet $sheet
-     * @param  string                $column
-     * @param  integer               $row
-     * @param  integer               $width
-     * @return void
-    */
-    protected function parseDataFormat($sheet, $column, $row, $format)
-    {
-        $sheet->setColumnFormat([$column.$row => $format]);
-    }
-
-    /**
-     * Set column width
-     * @param  LaravelExcelWorksheet $sheet
-     * @param  string                $column
-     * @param  integer               $row
-     * @param  integer               $width
-     * @return void
-     */
-    protected function parseWidth($sheet, $column, $row, $width)
-    {
-        $sheet->setWidth($column, $width);
-    }
-
-    /**
-     * Set row height
-     * @param  LaravelExcelWorksheet $sheet
-     * @param  string                $column
-     * @param  integer               $row
-     * @param  integer               $height
-     * @return void
-     */
-    protected function parseHeight($sheet, $column, $row, $height)
-    {
-        $sheet->setHeight($row, $height);
-    }
-
-    /**
-     * Parse colspans
-     * @param  LaravelExcelWorksheet $sheet
-     * @param  string                $column
-     * @param  integer               $row
-     * @param  integer               $spanWidth
-     * @param                        $attributes
-     * @return void
-     */
-    protected function parseColSpan($sheet, $column, $row, $spanWidth, $attributes)
-    {
-        $startCell = $column . $row;
-
-        $this->spanWidth = $spanWidth;
-
-        // Find end column letter
-        for ($i = 0; $i < ($spanWidth - 1); $i++)
-        {
-            ++$column;
-        }
-
-        // Set endcell
-        $endCell = ($column) . $row;
-
-        // Set range
-        $range = $startCell . ':' . $endCell;
-
-        // Remember css inline styles
-        foreach ($attributes as $attribute)
-        {
-            if ( $attribute->name == 'style' )
-            {
-                $this->styles[$range] = $attribute->value;
-            }
-        }
-
-        // Merge the cells
-        $sheet->mergeCells($range);
-    }
-
-    /**
-     * Parse colspans
-     * @param  LaravelExcelWorksheet $sheet
-     * @param  string                $column
-     * @param  integer               $row
-     * @param  integer               $spanHeight
-     * @param                        $attributes
-     * @return void
-     */
-    protected function parseRowSpan($sheet, $column, $row, $spanHeight, $attributes)
-    {
-        // Set the span height
-        $this->spanHeight = --$spanHeight;
-
-        // Set start cell
-        $startCell = $column . $row;
-
-        // Set endcell = current row number + spanheight
-        $endCell = $column . ($row + $this->spanHeight);
-        $range = $startCell . ':' . $endCell;
-
-        // Remember css inline styles
-        //foreach($attributes as $attribute)
-        //{
-        //    if($attribute->name == 'style')
-        //    {
-        //        $this->styles[$range] = $attribute->value;
-        //    }
-        //}
-
-        // Merge the cells
-        $sheet->mergeCells($range);
-    }
-
-    /**
-     * Parse the align
-     * @param  LaravelExcelWorksheet $sheet
-     * @param  string                $column
-     * @param  integer               $row
-     * @param  string                $value
-     * @return void
-     */
-    protected function parseAlign($sheet, $column, $row, $value)
-    {
-
-        $horizontal = false;
-        $cells = $sheet->getStyle($column . $row);
-
-        switch ($value)
-        {
-            case 'center':
-                $horizontal = PHPExcel_Style_Alignment::HORIZONTAL_CENTER;
-                break;
-
-            case 'left':
-                $horizontal = PHPExcel_Style_Alignment::HORIZONTAL_LEFT;
-                break;
-
-            case 'right':
-                $horizontal = PHPExcel_Style_Alignment::HORIZONTAL_RIGHT;
-                break;
-
-            case 'justify':
-                $horizontal = PHPExcel_Style_Alignment::HORIZONTAL_JUSTIFY;
-                break;
-        }
-
-        if ( $horizontal )
-            $cells->getAlignment()->applyFromArray(
-                array('horizontal' => $horizontal)
-            );
-    }
-
-    /**
-     * Parse the valign
-     * @param  LaravelExcelWorksheet $sheet
-     * @param  string                $column
-     * @param  integer               $row
-     * @param  string                $value
-     * @return void
-     */
-    protected function parseValign($sheet, $column, $row, $value)
-    {
-
-        $vertical = false;
-        $cells = $sheet->getStyle($column . $row);
-
-        switch ($value)
-        {
-            case 'top':
-                $vertical = PHPExcel_Style_Alignment::VERTICAL_TOP;
-                break;
-
-            case 'middle':
-                $vertical = PHPExcel_Style_Alignment::VERTICAL_CENTER;
-                break;
-
-            case 'bottom':
-                $vertical = PHPExcel_Style_Alignment::VERTICAL_BOTTOM;
-                break;
-
-            case 'justify':
-                $vertical = PHPExcel_Style_Alignment::VERTICAL_JUSTIFY;
-                break;
-        }
-
-        if ( $vertical )
-            $cells->getAlignment()->applyFromArray(
-                array('vertical' => $vertical)
-            );
-    }
-
-    /**
      * Parse the inline styles
      * @param  LaravelExcelWorksheet $sheet
      * @param  string                $column
@@ -988,7 +632,7 @@ class Html extends PHPExcel_Reader_HTML {
      * @param                        array @styles
      * @return void
      */
-    protected function parseCssAttributes($sheet, $column, $row, $styles = array())
+    protected function parseCssAttributes($sheet, $column, $row, $styles = [])
     {
         foreach ($styles as $tag)
         {
@@ -1033,10 +677,10 @@ class Html extends PHPExcel_Reader_HTML {
                 $value = $this->getColor($value);
 
                 $cells->getFill()->applyFromArray(
-                    array(
+                    [
                         'type'  => PHPExcel_Style_Fill::FILL_SOLID,
-                        'color' => array('rgb' => $value)
-                    )
+                        'color' => ['rgb' => $value]
+                    ]
                 );
 
                 break;
@@ -1045,7 +689,7 @@ class Html extends PHPExcel_Reader_HTML {
             case 'color':
                 $value = $this->getColor($value);
                 $cells->getFont()->getColor()->applyFromArray(
-                    array('rgb' => $value)
+                    ['rgb' => $value]
                 );
                 break;
 
@@ -1069,7 +713,7 @@ class Html extends PHPExcel_Reader_HTML {
             // FONT FACE
             case 'font-family':
                 $cells->getFont()->applyFromArray(
-                    array('name' => $value)
+                    ['name' => $value]
                 );
                 break;
 
@@ -1113,7 +757,7 @@ class Html extends PHPExcel_Reader_HTML {
 
                 if ( $horizontal )
                     $cells->getAlignment()->applyFromArray(
-                        array('horizontal' => $horizontal)
+                        ['horizontal' => $horizontal]
                     );
 
                 break;
@@ -1144,7 +788,7 @@ class Html extends PHPExcel_Reader_HTML {
 
                 if ( $vertical )
                     $cells->getAlignment()->applyFromArray(
-                        array('vertical' => $vertical)
+                        ['vertical' => $vertical]
                     );
                 break;
 
@@ -1152,67 +796,77 @@ class Html extends PHPExcel_Reader_HTML {
             case 'border':
             case 'borders':
                 $borders = explode(' ', $value);
-                $style = $borders[1];
-                $color = end($borders);
-                $color = $this->getColor($color);
-                $borderStyle = $this->borderStyle($style);
+                if (!empty($borders[1])) {
+                    $style = $borders[1];
+                    $color = end($borders);
+                    $color = $this->getColor($color);
+                    $borderStyle = $this->borderStyle($style);
 
-                $cells->getBorders()->applyFromArray(
-                    array('allborders' => array('style' => $borderStyle, 'color' => array('rgb' => $color)))
-                );
+                    $cells->getBorders()->applyFromArray(
+                        ['allborders' => ['style' => $borderStyle, 'color' => ['rgb' => $color]]]
+                    );
+                }
                 break;
 
             // Border-top
             case 'border-top':
                 $borders = explode(' ', $value);
-                $style = $borders[1];
-                $color = end($borders);
-                $color = $this->getColor($color);
+                if (!empty($borders[1])) {
+                    $style = $borders[1];
+                    $color = end($borders);
+                    $color = $this->getColor($color);
 
-                $borderStyle = $this->borderStyle($style);
+                    $borderStyle = $this->borderStyle($style);
 
-                $cells->getBorders()->getTop()->applyFromArray(
-                    array('style' => $borderStyle, 'color' => array('rgb' => $color))
-                );
+                    $cells->getBorders()->getTop()->applyFromArray(
+                        ['style' => $borderStyle, 'color' => ['rgb' => $color]]
+                    );
+                }
                 break;
 
             // Border-bottom
             case 'border-bottom':
                 $borders = explode(' ', $value);
-                $style = $borders[1];
-                $color = end($borders);
-                $color = $this->getColor($color);
-                $borderStyle = $this->borderStyle($style);
+                if (!empty($borders[1])) {
+                    $style = $borders[1];
+                    $color = end($borders);
+                    $color = $this->getColor($color);
+                    $borderStyle = $this->borderStyle($style);
 
-                $cells->getBorders()->getBottom()->applyFromArray(
-                    array('style' => $borderStyle, 'color' => array('rgb' => $color))
-                );
+                    $cells->getBorders()->getBottom()->applyFromArray(
+                        ['style' => $borderStyle, 'color' => ['rgb' => $color]]
+                    );
+                }
                 break;
 
             // Border-right
             case 'border-right':
                 $borders = explode(' ', $value);
-                $style = $borders[1];
-                $color = end($borders);
-                $color = $this->getColor($color);
-                $borderStyle = $this->borderStyle($style);
+                if (!empty($borders[1])) {
+                    $style = $borders[1];
+                    $color = end($borders);
+                    $color = $this->getColor($color);
+                    $borderStyle = $this->borderStyle($style);
 
-                $cells->getBorders()->getRight()->applyFromArray(
-                    array('style' => $borderStyle, 'color' => array('rgb' => $color))
-                );
+                    $cells->getBorders()->getRight()->applyFromArray(
+                        ['style' => $borderStyle, 'color' => ['rgb' => $color]]
+                    );
+                }
                 break;
 
             // Border-left
             case 'border-left':
                 $borders = explode(' ', $value);
-                $style = $borders[1];
-                $color = end($borders);
-                $color = $this->getColor($color);
-                $borderStyle = $this->borderStyle($style);
+                if (!empty($borders[1])) {
+                    $style = $borders[1];
+                    $color = end($borders);
+                    $color = $this->getColor($color);
+                    $borderStyle = $this->borderStyle($style);
 
-                $cells->getBorders()->getLeft()->applyFromArray(
-                    array('style' => $borderStyle, 'color' => array('rgb' => $color))
-                );
+                    $cells->getBorders()->getLeft()->applyFromArray(
+                        ['style' => $borderStyle, 'color' => ['rgb' => $color]]
+                    );
+                }
                 break;
 
             // wrap-text
@@ -1232,6 +886,32 @@ class Html extends PHPExcel_Reader_HTML {
                 $cells->getAlignment()->setIndent((int)$value);
                 break;
         }
+    }
+
+    /**
+     * Set column width
+     * @param  LaravelExcelWorksheet $sheet
+     * @param  string $column
+     * @param  integer $row
+     * @param  integer $width
+     * @return void
+     */
+    protected function parseWidth($sheet, $column, $row, $width)
+    {
+        $sheet->setWidth($column, $width);
+    }
+
+    /**
+     * Set row height
+     * @param  LaravelExcelWorksheet $sheet
+     * @param  string $column
+     * @param  integer $row
+     * @param  integer $height
+     * @return void
+     */
+    protected function parseHeight($sheet, $column, $row, $height)
+    {
+        $sheet->setHeight($row, $height);
     }
 
     /**
@@ -1322,6 +1002,195 @@ class Html extends PHPExcel_Reader_HTML {
     }
 
     /**
+     * Parse colspans
+     * @param  LaravelExcelWorksheet $sheet
+     * @param  string $column
+     * @param  integer $row
+     * @param  integer $spanWidth
+     * @param                        $attributes
+     * @return void
+     */
+    protected function parseColSpan($sheet, $column, $row, $spanWidth, $attributes)
+    {
+        $startCell = $column . $row;
+
+        $this->spanWidth = $spanWidth;
+
+        // Find end column letter
+        for ($i = 0; $i < ($spanWidth - 1); $i++) {
+            ++$column;
+        }
+
+        // Set endcell
+        $endCell = ($column) . $row;
+
+        // Set range
+        $range = $startCell . ':' . $endCell;
+
+        // Remember css inline styles
+        foreach ($attributes as $attribute) {
+            if ($attribute->name == 'style') {
+                $this->styles[$range] = $attribute->value;
+            }
+        }
+
+        // Merge the cells
+        $sheet->mergeCells($range);
+    }
+
+    /**
+     * Parse colspans
+     * @param  LaravelExcelWorksheet $sheet
+     * @param  string $column
+     * @param  integer $row
+     * @param  integer $spanHeight
+     * @param                        $attributes
+     * @return void
+     */
+    protected function parseRowSpan($sheet, $column, $row, $spanHeight, $attributes)
+    {
+        // Set the span height
+        $this->spanHeight = --$spanHeight;
+
+        // Set start cell
+        $startCell = $column . $row;
+
+        // Set endcell = current row number + spanheight
+        $endCell = $column . ($row + $this->spanHeight);
+        $range = $startCell . ':' . $endCell;
+
+        // Remember css inline styles
+        //foreach($attributes as $attribute)
+        //{
+        //    if($attribute->name == 'style')
+        //    {
+        //        $this->styles[$range] = $attribute->value;
+        //    }
+        //}
+
+        // Merge the cells
+        $sheet->mergeCells($range);
+    }
+
+    /**
+     * Parse the align
+     * @param  LaravelExcelWorksheet $sheet
+     * @param  string $column
+     * @param  integer $row
+     * @param  string $value
+     * @return void
+     */
+    protected function parseAlign($sheet, $column, $row, $value)
+    {
+
+        $horizontal = false;
+        $cells = $sheet->getStyle($column . $row);
+
+        switch ($value) {
+            case 'center':
+                $horizontal = PHPExcel_Style_Alignment::HORIZONTAL_CENTER;
+                break;
+
+            case 'left':
+                $horizontal = PHPExcel_Style_Alignment::HORIZONTAL_LEFT;
+                break;
+
+            case 'right':
+                $horizontal = PHPExcel_Style_Alignment::HORIZONTAL_RIGHT;
+                break;
+
+            case 'justify':
+                $horizontal = PHPExcel_Style_Alignment::HORIZONTAL_JUSTIFY;
+                break;
+        }
+
+        if ($horizontal)
+            $cells->getAlignment()->applyFromArray(
+                ['horizontal' => $horizontal]
+            );
+    }
+
+    /**
+     * Parse the valign
+     * @param  LaravelExcelWorksheet $sheet
+     * @param  string $column
+     * @param  integer $row
+     * @param  string $value
+     * @return void
+     */
+    protected function parseValign($sheet, $column, $row, $value)
+    {
+
+        $vertical = false;
+        $cells = $sheet->getStyle($column . $row);
+
+        switch ($value) {
+            case 'top':
+                $vertical = PHPExcel_Style_Alignment::VERTICAL_TOP;
+                break;
+
+            case 'middle':
+                $vertical = PHPExcel_Style_Alignment::VERTICAL_CENTER;
+                break;
+
+            case 'bottom':
+                $vertical = PHPExcel_Style_Alignment::VERTICAL_BOTTOM;
+                break;
+
+            case 'justify':
+                $vertical = PHPExcel_Style_Alignment::VERTICAL_JUSTIFY;
+                break;
+        }
+
+        if ($vertical)
+            $cells->getAlignment()->applyFromArray(
+                ['vertical' => $vertical]
+            );
+    }
+
+    /**
+     * Set cell data format
+     * @param  LaravelExcelWorksheet $sheet
+     * @param  string $column
+     * @param  integer $row
+     * @param  integer $width
+     * @return void
+     */
+    protected function parseDataFormat($sheet, $column, $row, $format)
+    {
+        $sheet->setColumnFormat([$column . $row => $format]);
+    }
+
+    /**
+     * Flush the cells
+     * @param  LaravelExcelWorksheet $sheet
+     * @param  string $column
+     * @param  integer $row
+     * @param  string $cellContent
+     * @return void
+     */
+    protected function flushCell($sheet, $column, $row, &$cellContent)
+    {
+        // Process merged cells
+        list($column, $cellContent) = $this->processMergedCells($sheet, $column, $row, $cellContent);
+
+        if (is_string($cellContent)) {
+            //  Simple String content
+            if (trim($cellContent) > '') {
+                //  Only actually write it if there's content in the string
+                //  Write to worksheet to be done here...
+                //  ... we return the cell so we can mess about with styles more easily
+
+                $cell = $sheet->setCellValue($column . $row, $cellContent, true);
+                $this->_dataArray[$row][$column] = $cellContent;
+            }
+        } else {
+            $this->_dataArray[$row][$column] = 'RICH TEXT: ' . $cellContent;
+        }
+        $cellContent = (string)'';
+    }
+
+    /**
      * @param $sheet
      * @param $column
      * @param $row
@@ -1362,6 +1231,131 @@ class Html extends PHPExcel_Reader_HTML {
             }
         }
 
-        return array($column, $cellContent);
+        return [$column, $cellContent];
+    }
+
+    /**
+     * Set the start column
+     * @param   string $column
+     * @return  string
+     */
+    protected function _setTableStartColumn($column)
+    {
+        // Set to a
+        if ($this->_tableLevel == 0)
+            $column = 'A';
+
+        ++$this->_tableLevel;
+
+        // Get nested column
+        $this->_nestedColumn[$this->_tableLevel] = $column;
+
+        return $this->_nestedColumn[$this->_tableLevel];
+    }
+
+    /**
+     * Release the table start column
+     * @return array
+     */
+    protected function _releaseTableStartColumn()
+    {
+        --$this->_tableLevel;
+
+        return array_pop($this->_nestedColumn);
+    }
+
+    /**
+     * Insert a image inside the sheet
+     * @param  LaravelExcelWorksheet $sheet
+     * @param  string $column
+     * @param  integer $row
+     * @param  string $attributes
+     * @return void
+     */
+    protected function insertImageBySrc($sheet, $column, $row, $attributes)
+    {
+        // Get attributes
+        $src = $attributes->getAttribute('src');
+        $width = (float)$attributes->getAttribute('width');
+        $height = (float)$attributes->getAttribute('height');
+        $alt = $attributes->getAttribute('alt');
+
+        // init drawing
+        $drawing = new PHPExcel_Worksheet_Drawing();
+
+        // Set image
+        $drawing->setPath($src);
+        $drawing->setName($alt);
+        $drawing->setWorksheet($sheet);
+        $drawing->setCoordinates($column . $row);
+        $drawing->setResizeProportional();
+        $drawing->setOffsetX($drawing->getWidth() - $drawing->getWidth() / 5);
+        $drawing->setOffsetY(10);
+
+        // Set height and width
+        if ($width > 0)
+            $drawing->setWidth($width);
+
+        if ($height > 0)
+            $drawing->setHeight($height);
+
+        // Set cell width based on image
+        $this->parseWidth($sheet, $column, $row, $drawing->getWidth() / 3);
+        $this->parseHeight($sheet, $column, $row, $drawing->getHeight());
+    }
+
+    /**
+     * Get the table start column
+     * @return string
+     */
+    protected function _getTableStartColumn()
+    {
+        return $this->_nestedColumn[$this->_tableLevel];
+    }
+
+    /**
+     * Process table headings
+     * @param  string $child
+     * @param  LaravelExcelWorksheet $sheet
+     * @param  string $row
+     * @param  integer $column
+     * @param                        $cellContent
+     * @throws \PHPExcel_Exception
+     * @return LaravelExcelWorksheet
+     */
+    protected function _processHeadings($child, $sheet, $row, $column, $cellContent)
+    {
+        $this->_processDomElement($child, $sheet, $row, $column, $cellContent);
+        $this->flushCell($sheet, $column, $row, $cellContent);
+
+        if (isset($this->_formats[$child->nodeName])) {
+            $sheet->getStyle($column . $row)->applyFromArray($this->_formats[$child->nodeName]);
+        }
+
+        return $sheet;
+    }
+
+    /**
+     * Autosize column for document
+     * @param  LaravelExcelWorksheet $sheet
+     * @return LaravelExcelWorksheet
+     */
+    public function autosizeColumn($sheet)
+    {
+        if ($columns = $sheet->getAutosize()) {
+            if (is_array($columns)) {
+                $sheet->setAutoSize($columns);
+            } else {
+                $toCol = $sheet->getHighestColumn();
+                $toCol++;
+                for ($i = 'A'; $i !== $toCol; $i++) {
+                    $sheet->getColumnDimension($i)->setAutoSize(true);
+                }
+
+                $sheet->calculateColumnWidths();
+            }
+        }
+
+        return $sheet;
     }
 }

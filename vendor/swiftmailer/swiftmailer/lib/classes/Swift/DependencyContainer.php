@@ -112,7 +112,7 @@ class Swift_DependencyContainer
     public function has($itemName)
     {
         return array_key_exists($itemName, $this->_store)
-        && isset($this->_store[$itemName]['lookupType']);
+            && isset($this->_store[$itemName]['lookupType']);
     }
 
     /** Resolve an alias to another item */

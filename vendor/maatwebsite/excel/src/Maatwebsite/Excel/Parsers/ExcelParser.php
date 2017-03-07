@@ -6,7 +6,6 @@ use PHPExcel_Exception;
 use PHPExcel_Shared_Date;
 use Illuminate\Support\Str;
 use PHPExcel_Style_NumberFormat;
-use Illuminate\Support\Facades\Config;
 use Maatwebsite\Excel\Collections\RowCollection;
 use Maatwebsite\Excel\Collections\CellCollection;
 use Maatwebsite\Excel\Collections\SheetCollection;
@@ -71,7 +70,7 @@ class ExcelParser {
      * Columns we want to fetch
      * @var array
      */
-    protected $columns = array();
+    protected $columns = [];
 
     /**
      * Row counter
@@ -95,10 +94,20 @@ class ExcelParser {
         $this->reader = $reader;
         $this->excel = $reader->excel;
 
-        $this->defaultStartRow = $this->currentRow = Config::get('excel.import.startRow', 1);
+        $this->defaultStartRow = $this->currentRow = config('excel.import.startRow', 1);
 
         // Reset
         $this->reset();
+    }
+
+    /**
+     * Reset
+     * @return void
+     */
+    protected function reset()
+    {
+        $this->indices = [];
+        $this->isParsed = false;
     }
 
     /**
@@ -106,7 +115,7 @@ class ExcelParser {
      * @param array $columns
      * @return SheetCollection
      */
-    public function parseFile($columns = array())
+    public function parseFile($columns = [])
     {
         // Init new sheet collection
         $workbook = new SheetCollection();
@@ -158,13 +167,13 @@ class ExcelParser {
     }
 
     /**
-     * Check if we want to parse it as multiple sheets
-     * @return boolean
+     * Set selected columns
+     * @param array $columns
      */
-    protected function parseAsMultiple()
+    protected function setSelectedColumns($columns = array())
     {
-        return ($this->excel->getSheetCount() > 1 && count($this->reader->getSelectedSheetIndices()) !== 1)
-        || Config::get('excel.import.force_sheets_collection', false);
+        // Set the columns
+        $this->columns = $columns;
     }
 
     /**
@@ -177,7 +186,7 @@ class ExcelParser {
         $this->excel->setActiveSheetIndex($this->w);
 
         // Fetch the labels
-        $this->indices = $this->reader->hasHeading() ? $this->getIndices() : array();
+        $this->indices = $this->reader->hasHeading() ? $this->getIndices() : [];
 
         // Parse the rows
         return $this->parseRows();
@@ -193,7 +202,7 @@ class ExcelParser {
         $this->row = $this->worksheet->getRowIterator($this->defaultStartRow)->current();
 
         // Set empty labels array
-        $this->indices = array();
+        $this->indices = [];
 
         // Loop through the cells
         foreach ($this->row->getCellIterator() as $this->cell)
@@ -213,7 +222,7 @@ class ExcelParser {
     protected function getIndex($cell)
     {
         // Get heading type
-        $config = Config::get('excel.import.heading', true);
+        $config = config('excel.import.heading', true);
         $config = $config === true ? 'slugged' : $config;
 
         // Get value
@@ -222,10 +231,10 @@ class ExcelParser {
         switch ($config)
         {
             case 'slugged':
-                return $this->getSluggedIndex($value, Config::get('excel.import.to_ascii', true));
+                return $this->getSluggedIndex($value, config('excel.import.to_ascii', true));
                 break;
             case 'slugged_with_count':
-                $index = $this->getSluggedIndex($value, Config::get('excel.import.to_ascii', true));
+                $index = $this->getSluggedIndex($value, config('excel.import.to_ascii', true));
                 if(in_array($index,$this->indices)){
                     $index = $this->appendOrIncreaseStringCount($index);
                 }
@@ -251,29 +260,13 @@ class ExcelParser {
     }
 
     /**
-     * Append or increase the count at the String like: test to test_1
-     * @param string $index
+     * Get orignal indice
+     * @param $cell
      * @return string
      */
-    protected function appendOrIncreaseStringCount($index)
+    protected function getOriginalIndex($cell)
     {
-        do {
-            if (preg_match("/(\d+)$/",$index,$matches) === 1)
-            {
-                // increase +1
-                $index = preg_replace_callback( "/(\d+)$/",
-                    function ($matches) {
-                        return ++$matches[1];
-                    }, $index);
-            }
-            else
-            {
-                $index .= '_1';
-            }
-
-        } while(in_array($index,$this->indices));
-
-        return $index;
+        return $cell->getValue();
     }
 
     /**
@@ -315,6 +308,29 @@ class ExcelParser {
     }
 
     /**
+     * Append or increase the count at the String like: test to test_1
+     * @param string $index
+     * @return string
+     */
+    protected function appendOrIncreaseStringCount($index)
+    {
+        do {
+            if (preg_match("/(\d+)$/", $index, $matches) === 1) {
+                // increase +1
+                $index = preg_replace_callback("/(\d+)$/",
+                    function ($matches) {
+                        return ++$matches[1];
+                    }, $index);
+            } else {
+                $index .= '_1';
+            }
+
+        } while (in_array($index, $this->indices));
+
+        return $index;
+    }
+
+    /**
      * Hahsed index
      * @param  string $value
      * @return string
@@ -332,16 +348,6 @@ class ExcelParser {
     protected function getTranslatedIndex($value)
     {
         return trans($value);
-    }
-
-    /**
-     * Get orignal indice
-     * @param $cell
-     * @return string
-     */
-    protected function getOriginalIndex($cell)
-    {
-        return $cell->getValue();
     }
 
     /**
@@ -458,7 +464,7 @@ class ExcelParser {
                 throw $e;
             }
             // make sure that we return an empty CellCollection
-            $parsedCells = array();
+            $parsedCells = [];
         }
 
         // Return array with parsed cells
@@ -470,6 +476,44 @@ class ExcelParser {
         }
 
         return $cells;
+    }
+
+    /**
+     * Get the cell index from column
+     * @return integer
+     */
+    protected function getIndexFromColumn()
+    {
+        return PHPExcel_Cell::columnIndexFromString($this->cell->getColumn());
+    }
+
+    /**
+     * Check if cells needs parsing
+     * @return array
+     */
+    protected function cellNeedsParsing($index)
+    {
+        // if no columns are selected or if the column is selected
+        return !$this->hasSelectedColumns() || ($this->hasSelectedColumns() && in_array($index, $this->getSelectedColumns()));
+    }
+
+    /**
+     * Check if we have selected columns
+     * @return boolean
+     */
+    protected function hasSelectedColumns()
+    {
+        return !empty($this->columns);
+    }
+
+    /**
+     * Set selected columns
+     * @return array
+     */
+    protected function getSelectedColumns()
+    {
+        // Set the columns
+        return $this->columns;
     }
 
     /**
@@ -500,43 +544,18 @@ class ExcelParser {
     }
 
     /**
-     * Return the cell value
-     * @return string
+     * Check if cell is a date
+     * @param  integer $index
+     * @return boolean
      */
-    protected function getCellValue()
+    protected function cellIsDate($index)
     {
-        $value = $this->cell->getValue();
-
-        return $this->encode($value);
-    }
-
-    /**
-     * Get the calculated value
-     * @return string
-     */
-    protected function getCalculatedValue()
-    {
-        $value = $this->cell->getCalculatedValue();
-
-        return $this->encode($value);
-    }
-
-    /**
-     * Encode with iconv
-     * @param  string $value
-     * @return string
-     */
-    protected function encode($value)
-    {
-        // Get input and output encoding
-        list($input, $output) = array_values(Config::get('excel.import.encoding', array('UTF-8', 'UTF-8')));
-
-        // If they are the same, return the value
-        if ( $input == $output )
-            return $value;
-
-        // Encode
-        return iconv($input, $output, $value);
+        // if is a date or if is a date column
+        if ($this->reader->getDateColumns()) {
+            return in_array($index, $this->reader->getDateColumns());
+        } else {
+            return PHPExcel_Shared_Date::isDateTime($this->cell);
+        }
     }
 
     /**
@@ -597,78 +616,52 @@ class ExcelParser {
     }
 
     /**
-     * Check if cell is a date
-     * @param  integer $index
+     * Get the calculated value
+     * @return string
+     */
+    protected function getCalculatedValue()
+    {
+        $value = $this->cell->getCalculatedValue();
+
+        return $this->encode($value);
+    }
+
+    /**
+     * Encode with iconv
+     * @param  string $value
+     * @return string
+     */
+    protected function encode($value)
+    {
+        // Get input and output encoding
+        list($input, $output) = array_values(config('excel.import.encoding', array('UTF-8', 'UTF-8')));
+
+        // If they are the same, return the value
+        if ($input == $output)
+            return $value;
+
+        // Encode
+        return iconv($input, $output, $value);
+    }
+
+    /**
+     * Return the cell value
+     * @return string
+     */
+    protected function getCellValue()
+    {
+        $value = $this->cell->getValue();
+
+        return $this->encode($value);
+    }
+
+    /**
+     * Check if we want to parse it as multiple sheets
      * @return boolean
      */
-    protected function cellIsDate($index)
+    protected function parseAsMultiple()
     {
-        // if is a date or if is a date column
-        if ( $this->reader->getDateColumns() )
-        {
-            return in_array($index, $this->reader->getDateColumns());
-        }
-        else
-        {
-            return PHPExcel_Shared_Date::isDateTime($this->cell);
-        }
-    }
-
-    /**
-     * Check if cells needs parsing
-     * @return array
-     */
-    protected function cellNeedsParsing($index)
-    {
-        // if no columns are selected or if the column is selected
-        return !$this->hasSelectedColumns() || ($this->hasSelectedColumns() && in_array($index, $this->getSelectedColumns()));
-    }
-
-    /**
-     * Get the cell index from column
-     * @return integer
-     */
-    protected function getIndexFromColumn()
-    {
-        return PHPExcel_Cell::columnIndexFromString($this->cell->getColumn());
-    }
-
-    /**
-     * Set selected columns
-     * @param array $columns
-     */
-    protected function setSelectedColumns($columns = array())
-    {
-        // Set the columns
-        $this->columns = $columns;
-    }
-
-    /**
-     * Check if we have selected columns
-     * @return boolean
-     */
-    protected function hasSelectedColumns()
-    {
-        return !empty($this->columns);
-    }
-
-    /**
-     * Set selected columns
-     * @return array
-     */
-    protected function getSelectedColumns()
-    {
-        // Set the columns
-        return $this->columns;
-    }
-
-    /**
-     * Reset
-     * @return void
-     */
-    protected function reset()
-    {
-        $this->indices = array();
-        $this->isParsed = false;
+        return ($this->excel->getSheetCount() > 1 && count($this->reader->getSelectedSheetIndices()) !== 1)
+            || config('excel.import.force_sheets_collection', false);
     }
 }

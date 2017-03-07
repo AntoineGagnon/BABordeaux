@@ -2,10 +2,13 @@
 
 namespace PhpParser\Unserializer;
 
-use XMLReader;
 use DomainException;
 use PhpParser\Unserializer;
+use XMLReader;
 
+/**
+ * @deprecated
+ */
 class XML implements Unserializer
 {
     protected $reader;
@@ -86,6 +89,18 @@ class XML implements Unserializer
         return $node;
     }
 
+    protected function getClassNameFromType($type)
+    {
+        $className = 'PhpParser\\Node\\' . strtr($type, '_', '\\');
+        if (!class_exists($className)) {
+            $className .= '_';
+        }
+        if (!class_exists($className)) {
+            throw new DomainException(sprintf('Unknown node type "%s"', $type));
+        }
+        return $className;
+    }
+
     protected function readScalar() {
         switch ($name = $this->reader->localName) {
             case 'array':
@@ -137,16 +152,5 @@ class XML implements Unserializer
             $this->reader->readString(),
             $this->parseInt($this->reader->getAttribute('line'))
         );
-    }
-
-    protected function getClassNameFromType($type) {
-        $className = 'PhpParser\\Node\\' . strtr($type, '_', '\\');
-        if (!class_exists($className)) {
-            $className .= '_';
-        }
-        if (!class_exists($className)) {
-            throw new DomainException(sprintf('Unknown node type "%s"', $type));
-        }
-        return $className;
     }
 }

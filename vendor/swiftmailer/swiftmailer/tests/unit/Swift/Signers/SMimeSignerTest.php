@@ -9,14 +9,6 @@ class Swift_Signers_SMimeSignerTest extends \PHPUnit_Framework_TestCase
 
     protected $samplesDir;
 
-    public function setUp()
-    {
-        $this->replacementFactory = Swift_DependencyContainer::getInstance()
-            ->lookup('transport.replacementfactory');
-
-        $this->samplesDir = str_replace('\\', '/', realpath(__DIR__.'/../../../_samples/')).'/';
-    }
-
     public function testUnSingedMessage()
     {
         $message = Swift_SignedMessage::newInstance('Wonderful Subject')
@@ -550,5 +542,13 @@ OEL;
 
         $this->assertEquals($originalMessage, $decryptedMessageStream->getContent());
         unset($messageStreamClean, $messageStream, $decryptedMessageStream);
+    }
+
+    protected function setUp()
+    {
+        $this->replacementFactory = Swift_DependencyContainer::getInstance()
+            ->lookup('transport.replacementfactory');
+
+        $this->samplesDir = str_replace('\\', '/', realpath(__DIR__ . '/../../../_samples/')) . '/';
     }
 }

@@ -49,19 +49,6 @@ class Collection extends BaseCollection implements QueueableCollection
     }
 
     /**
-     * Add an item to the collection.
-     *
-     * @param  mixed  $item
-     * @return $this
-     */
-    public function add($item)
-    {
-        $this->items[] = $item;
-
-        return $this;
-    }
-
-    /**
      * Determine if a key exists in the collection.
      *
      * @param  mixed  $key
@@ -86,18 +73,6 @@ class Collection extends BaseCollection implements QueueableCollection
     }
 
     /**
-     * Get the array of primary keys.
-     *
-     * @return array
-     */
-    public function modelKeys()
-    {
-        return array_map(function ($model) {
-            return $model->getKey();
-        }, $this->items);
-    }
-
-    /**
      * Merge the collection with the given items.
      *
      * @param  \ArrayAccess|array  $items
@@ -112,6 +87,25 @@ class Collection extends BaseCollection implements QueueableCollection
         }
 
         return new static(array_values($dictionary));
+    }
+
+    /**
+     * Get a dictionary keyed by primary keys.
+     *
+     * @param  \ArrayAccess|array|null $items
+     * @return array
+     */
+    public function getDictionary($items = null)
+    {
+        $items = is_null($items) ? $this->items : $items;
+
+        $dictionary = [];
+
+        foreach ($items as $value) {
+            $dictionary[$value->getKey()] = $value;
+        }
+
+        return $dictionary;
     }
 
     /**
@@ -148,6 +142,19 @@ class Collection extends BaseCollection implements QueueableCollection
         }
 
         return $diff;
+    }
+
+    /**
+     * Add an item to the collection.
+     *
+     * @param  mixed $item
+     * @return $this
+     */
+    public function add($item)
+    {
+        $this->items[] = $item;
+
+        return $this;
     }
 
     /**
@@ -244,29 +251,6 @@ class Collection extends BaseCollection implements QueueableCollection
     }
 
     /**
-     * Get a dictionary keyed by primary keys.
-     *
-     * @param  \ArrayAccess|array|null  $items
-     * @return array
-     */
-    public function getDictionary($items = null)
-    {
-        $items = is_null($items) ? $this->items : $items;
-
-        $dictionary = [];
-
-        foreach ($items as $value) {
-            $dictionary[$value->getKey()] = $value;
-        }
-
-        return $dictionary;
-    }
-
-    /**
-     * The following methods are intercepted to always return base collections.
-     */
-
-    /**
      * Get an array with the values of a given key.
      *
      * @param  string  $value
@@ -277,6 +261,10 @@ class Collection extends BaseCollection implements QueueableCollection
     {
         return $this->toBase()->pluck($value, $key);
     }
+
+    /**
+     * The following methods are intercepted to always return base collections.
+     */
 
     /**
      * Get the keys of the collection items.
@@ -360,5 +348,17 @@ class Collection extends BaseCollection implements QueueableCollection
     public function getQueueableIds()
     {
         return $this->modelKeys();
+    }
+
+    /**
+     * Get the array of primary keys.
+     *
+     * @return array
+     */
+    public function modelKeys()
+    {
+        return array_map(function ($model) {
+            return $model->getKey();
+        }, $this->items);
     }
 }

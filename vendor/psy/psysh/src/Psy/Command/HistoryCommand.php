@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2017 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -147,27 +147,23 @@ HELP
     }
 
     /**
-     * Extract a range from a string.
+     * Validate that only one of the given $options is set.
      *
-     * @param string $range
-     *
-     * @return array [ start, end ]
+     * @param InputInterface $input
+     * @param array $options
      */
-    private function extractRange($range)
+    private function validateOnlyOne(InputInterface $input, array $options)
     {
-        if (preg_match('/^\d+$/', $range)) {
-            return array($range, $range + 1);
+        $count = 0;
+        foreach ($options as $opt) {
+            if ($input->getOption($opt)) {
+                $count++;
+            }
         }
 
-        $matches = array();
-        if ($range !== '..' && preg_match('/^(\d*)\.\.(\d*)$/', $range, $matches)) {
-            $start = $matches[1] ? intval($matches[1]) : 0;
-            $end   = $matches[2] ? intval($matches[2]) + 1 : PHP_INT_MAX;
-
-            return array($start, $end);
+        if ($count > 1) {
+            throw new \InvalidArgumentException('Please specify only one of --' . implode(', --', $options));
         }
-
-        throw new \InvalidArgumentException('Unexpected range: ' . $range);
     }
 
     /**
@@ -177,7 +173,7 @@ HELP
      * @param string $head
      * @param string $tail
      *
-     * @return array A slilce of history.
+     * @return array A slilce of history
      */
     private function getHistorySlice($show, $head, $tail)
     {
@@ -208,6 +204,30 @@ HELP
     }
 
     /**
+     * Extract a range from a string.
+     *
+     * @param string $range
+     *
+     * @return array [ start, end ]
+     */
+    private function extractRange($range)
+    {
+        if (preg_match('/^\d+$/', $range)) {
+            return array($range, $range + 1);
+        }
+
+        $matches = array();
+        if ($range !== '..' && preg_match('/^(\d*)\.\.(\d*)$/', $range, $matches)) {
+            $start = $matches[1] ? intval($matches[1]) : 0;
+            $end = $matches[2] ? intval($matches[2]) + 1 : PHP_INT_MAX;
+
+            return array($start, $end);
+        }
+
+        throw new \InvalidArgumentException('Unexpected range: ' . $range);
+    }
+
+    /**
      * Validate that $pattern is a valid regular expression.
      *
      * @param string $pattern
@@ -225,24 +245,9 @@ HELP
         restore_error_handler();
     }
 
-    /**
-     * Validate that only one of the given $options is set.
-     *
-     * @param InputInterface $input
-     * @param array          $options
-     */
-    private function validateOnlyOne(InputInterface $input, array $options)
+    public static function escape($string)
     {
-        $count = 0;
-        foreach ($options as $opt) {
-            if ($input->getOption($opt)) {
-                $count++;
-            }
-        }
-
-        if ($count > 1) {
-            throw new \InvalidArgumentException('Please specify only one of --' . implode(', --', $options));
-        }
+        return OutputFormatter::escape($string);
     }
 
     /**
@@ -251,10 +256,5 @@ HELP
     private function clearHistory()
     {
         $this->readline->clearHistory();
-    }
-
-    public static function escape($string)
-    {
-        return OutputFormatter::escape($string);
     }
 }

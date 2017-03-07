@@ -4,12 +4,13 @@ namespace PhpParser\Builder;
 
 use PhpParser;
 use PhpParser\Node;
-use PhpParser\Node\Stmt;
 
 abstract class FunctionLike extends Declaration
 {
     protected $returnByRef = false;
     protected $params = array();
+
+    /** @var string|Node\Name|Node\NullableType|null */
     protected $returnType = null;
 
     /**
@@ -19,6 +20,22 @@ abstract class FunctionLike extends Declaration
      */
     public function makeReturnByRef() {
         $this->returnByRef = true;
+
+        return $this;
+    }
+
+    /**
+     * Adds multiple parameters.
+     *
+     * @param array $params The parameters to add
+     *
+     * @return $this The builder instance (for fluid interface)
+     */
+    public function addParams(array $params)
+    {
+        foreach ($params as $param) {
+            $this->addParam($param);
+        }
 
         return $this;
     }
@@ -43,35 +60,16 @@ abstract class FunctionLike extends Declaration
     }
 
     /**
-     * Adds multiple parameters.
-     *
-     * @param array $params The parameters to add
-     *
-     * @return $this The builder instance (for fluid interface)
-     */
-    public function addParams(array $params) {
-        foreach ($params as $param) {
-            $this->addParam($param);
-        }
-
-        return $this;
-    }
-
-    /**
      * Sets the return type for PHP 7.
      *
-     * @param string|Node\Name $type One of array, callable, string, int, float, bool,
+     * @param string|Node\Name|Node\NullableType $type One of array, callable, string, int, float, bool, iterable,
      *                               or a class/interface name.
      *
      * @return $this The builder instance (for fluid interface)
      */
     public function setReturnType($type)
     {
-        if (in_array($type, array('array', 'callable', 'string', 'int', 'float', 'bool'))) {
-            $this->returnType = $type;
-        } else {
-            $this->returnType = $this->normalizeName($type);
-        }
+        $this->returnType = $this->normalizeType($type);
 
         return $this;
     }

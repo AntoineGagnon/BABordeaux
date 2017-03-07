@@ -22,6 +22,7 @@ use Symfony\Component\VarDumper\Cloner\VarCloner;
  */
 class WrappedListener
 {
+    private static $cloner;
     private $listener;
     private $name;
     private $called;
@@ -30,8 +31,6 @@ class WrappedListener
     private $dispatcher;
     private $pretty;
     private $data;
-
-    private static $cloner;
 
     public function __construct($listener, $name, Stopwatch $stopwatch, EventDispatcherInterface $dispatcher = null)
     {

@@ -17,7 +17,7 @@ class Swift_KeyCache_ArrayKeyCacheTest extends \PHPUnit_Framework_TestCase
 
     private function _createKeyCacheInputStream()
     {
-        return $this->getMock('Swift_KeyCache_KeyCacheInputStream');
+        return $this->getMockBuilder('Swift_KeyCache_KeyCacheInputStream')->getMock();
     }
 
     private function _createCache($is)
@@ -117,7 +117,7 @@ class Swift_KeyCache_ArrayKeyCacheTest extends \PHPUnit_Framework_TestCase
 
     private function _createOutputStream()
     {
-        return $this->getMock('Swift_OutputByteStream');
+        return $this->getMockBuilder('Swift_OutputByteStream')->getMock();
     }
 
     public function testByteStreamCanBeAppended()
@@ -184,8 +184,6 @@ class Swift_KeyCache_ArrayKeyCacheTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('testabcdef', $cache->getString($this->_key1, 'foo'));
     }
 
-    // -- Creation methods
-
     public function testDataCanBeExportedToByteStream()
     {
         //See acceptance test for more detail
@@ -206,7 +204,7 @@ class Swift_KeyCache_ArrayKeyCacheTest extends \PHPUnit_Framework_TestCase
 
     private function _createInputStream()
     {
-        return $this->getMock('Swift_InputByteStream');
+        return $this->getMockBuilder('Swift_InputByteStream')->getMock();
     }
 
     public function testKeyCanBeCleared()

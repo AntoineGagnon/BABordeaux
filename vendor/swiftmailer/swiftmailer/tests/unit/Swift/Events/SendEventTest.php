@@ -17,12 +17,12 @@ class Swift_Events_SendEventTest extends \PHPUnit_Framework_TestCase
 
     private function _createMessage()
     {
-        return $this->getMock('Swift_Mime_Message');
+        return $this->getMockBuilder('Swift_Mime_Message')->getMock();
     }
 
     private function _createTransport()
     {
-        return $this->getMock('Swift_Transport');
+        return $this->getMockBuilder('Swift_Transport')->getMock();
     }
 
     private function _createEvent(Swift_Transport $source,
@@ -56,8 +56,6 @@ class Swift_Events_SendEventTest extends \PHPUnit_Framework_TestCase
             '%s: Transport should be returned from getSource()'
             );
     }
-
-    // -- Creation Methods
 
     public function testResultCanBeSetAndGet()
     {

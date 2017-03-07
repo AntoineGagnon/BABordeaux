@@ -5,12 +5,6 @@ class Swift_Plugins_Reporters_HtmlReporterTest extends \PHPUnit_Framework_TestCa
     private $_html;
     private $_message;
 
-    public function setUp()
-    {
-        $this->_html = new Swift_Plugins_Reporters_HtmlReporter();
-        $this->_message = $this->getMock('Swift_Mime_Message');
-    }
-
     public function testReportingPass()
     {
         ob_start();
@@ -50,5 +44,11 @@ class Swift_Plugins_Reporters_HtmlReporterTest extends \PHPUnit_Framework_TestCa
         $this->assertRegExp('~foo@bar\.tld~', $html, '%s: Reporter should show address');
         $this->assertRegExp('~fail~i', $html, '%s: Reporter should indicate fail');
         $this->assertRegExp('~zip@button~', $html, '%s: Reporter should show address');
+    }
+
+    protected function setUp()
+    {
+        $this->_html = new Swift_Plugins_Reporters_HtmlReporter();
+        $this->_message = $this->getMockBuilder('Swift_Mime_Message')->getMock();
     }
 }

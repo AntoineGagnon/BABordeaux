@@ -67,18 +67,6 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
     }
 
     /**
-     * Get the URL for the next page.
-     *
-     * @return string|null
-     */
-    public function nextPageUrl()
-    {
-        if ($this->lastPage() > $this->currentPage()) {
-            return $this->url($this->currentPage() + 1);
-        }
-    }
-
-    /**
      * Determine if there are more items in the data source.
      *
      * @return bool
@@ -86,16 +74,6 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
     public function hasMorePages()
     {
         return $this->currentPage() < $this->lastPage();
-    }
-
-    /**
-     * Get the total number of items being paginated.
-     *
-     * @return int
-     */
-    public function total()
-    {
-        return $this->total;
     }
 
     /**
@@ -144,6 +122,27 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
     }
 
     /**
+     * Convert the object to its JSON representation.
+     *
+     * @param  int $options
+     * @return string
+     */
+    public function toJson($options = 0)
+    {
+        return json_encode($this->jsonSerialize(), $options);
+    }
+
+    /**
+     * Convert the object into something JSON serializable.
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
      * Get the instance as an array.
      *
      * @return array
@@ -164,23 +163,24 @@ class LengthAwarePaginator extends AbstractPaginator implements Arrayable, Array
     }
 
     /**
-     * Convert the object into something JSON serializable.
+     * Get the total number of items being paginated.
      *
-     * @return array
+     * @return int
      */
-    public function jsonSerialize()
+    public function total()
     {
-        return $this->toArray();
+        return $this->total;
     }
 
     /**
-     * Convert the object to its JSON representation.
+     * Get the URL for the next page.
      *
-     * @param  int  $options
-     * @return string
+     * @return string|null
      */
-    public function toJson($options = 0)
+    public function nextPageUrl()
     {
-        return json_encode($this->jsonSerialize(), $options);
+        if ($this->lastPage() > $this->currentPage()) {
+            return $this->url($this->currentPage() + 1);
+        }
     }
 }

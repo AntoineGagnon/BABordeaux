@@ -30,21 +30,6 @@ class Str
     protected static $studlyCache = [];
 
     /**
-     * Transliterate a UTF-8 value to ASCII.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    public static function ascii($value)
-    {
-        foreach (static::charsArray() as $key => $val) {
-            $value = str_replace($val, $key, $value);
-        }
-
-        return preg_replace('/[^\x20-\x7E]/u', '', $value);
-    }
-
-    /**
      * Convert a value to camel case.
      *
      * @param  string  $value
@@ -60,21 +45,22 @@ class Str
     }
 
     /**
-     * Determine if a given string contains a given substring.
+     * Convert a value to studly caps case.
      *
-     * @param  string  $haystack
-     * @param  string|array  $needles
-     * @return bool
+     * @param  string $value
+     * @return string
      */
-    public static function contains($haystack, $needles)
+    public static function studly($value)
     {
-        foreach ((array) $needles as $needle) {
-            if ($needle != '' && mb_strpos($haystack, $needle) !== false) {
-                return true;
-            }
+        $key = $value;
+
+        if (isset(static::$studlyCache[$key])) {
+            return static::$studlyCache[$key];
         }
 
-        return false;
+        $value = ucwords(str_replace(['-', '_'], ' ', $value));
+
+        return static::$studlyCache[$key] = str_replace(' ', '', $value);
     }
 
     /**
@@ -133,17 +119,6 @@ class Str
     }
 
     /**
-     * Return the length of the given string.
-     *
-     * @param  string  $value
-     * @return int
-     */
-    public static function length($value)
-    {
-        return mb_strlen($value);
-    }
-
-    /**
      * Limit the number of characters in a string.
      *
      * @param  string  $value
@@ -158,17 +133,6 @@ class Str
         }
 
         return rtrim(mb_strimwidth($value, 0, $limit, '', 'UTF-8')).$end;
-    }
-
-    /**
-     * Convert the given string to lower-case.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    public static function lower($value)
-    {
-        return mb_strtolower($value, 'UTF-8');
     }
 
     /**
@@ -191,6 +155,17 @@ class Str
     }
 
     /**
+     * Return the length of the given string.
+     *
+     * @param  string $value
+     * @return int
+     */
+    public static function length($value)
+    {
+        return mb_strlen($value);
+    }
+
+    /**
      * Parse a Class@method style callback into class and method.
      *
      * @param  string  $callback
@@ -203,6 +178,24 @@ class Str
     }
 
     /**
+     * Determine if a given string contains a given substring.
+     *
+     * @param  string $haystack
+     * @param  string|array $needles
+     * @return bool
+     */
+    public static function contains($haystack, $needles)
+    {
+        foreach ((array)$needles as $needle) {
+            if ($needle != '' && mb_strpos($haystack, $needle) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get the plural form of an English word.
      *
      * @param  string  $value
@@ -212,27 +205,6 @@ class Str
     public static function plural($value, $count = 2)
     {
         return Pluralizer::plural($value, $count);
-    }
-
-    /**
-     * Generate a more truly "random" alpha-numeric string.
-     *
-     * @param  int  $length
-     * @return string
-     */
-    public static function random($length = 16)
-    {
-        $string = '';
-
-        while (($len = strlen($string)) < $length) {
-            $size = $length - $len;
-
-            $bytes = random_bytes($size);
-
-            $string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
-        }
-
-        return $string;
     }
 
     /**
@@ -254,6 +226,27 @@ class Str
         $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
         return substr(str_shuffle(str_repeat($pool, $length)), 0, $length);
+    }
+
+    /**
+     * Generate a more truly "random" alpha-numeric string.
+     *
+     * @param  int $length
+     * @return string
+     */
+    public static function random($length = 16)
+    {
+        $string = '';
+
+        while (($len = strlen($string)) < $length) {
+            $size = $length - $len;
+
+            $bytes = random_bytes($size);
+
+            $string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
+        }
+
+        return $string;
     }
 
     /**
@@ -312,17 +305,6 @@ class Str
     }
 
     /**
-     * Convert the given string to upper-case.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    public static function upper($value)
-    {
-        return mb_strtoupper($value, 'UTF-8');
-    }
-
-    /**
      * Convert the given string to title case.
      *
      * @param  string  $value
@@ -370,88 +352,18 @@ class Str
     }
 
     /**
-     * Convert a string to snake case.
-     *
-     * @param  string  $value
-     * @param  string  $delimiter
-     * @return string
-     */
-    public static function snake($value, $delimiter = '_')
-    {
-        $key = $value;
-
-        if (isset(static::$snakeCache[$key][$delimiter])) {
-            return static::$snakeCache[$key][$delimiter];
-        }
-
-        if (! ctype_lower($value)) {
-            $value = preg_replace('/\s+/u', '', $value);
-
-            $value = static::lower(preg_replace('/(.)(?=[A-Z])/u', '$1'.$delimiter, $value));
-        }
-
-        return static::$snakeCache[$key][$delimiter] = $value;
-    }
-
-    /**
-     * Determine if a given string starts with a given substring.
-     *
-     * @param  string  $haystack
-     * @param  string|array  $needles
-     * @return bool
-     */
-    public static function startsWith($haystack, $needles)
-    {
-        foreach ((array) $needles as $needle) {
-            if ($needle != '' && substr($haystack, 0, strlen($needle)) === (string) $needle) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Convert a value to studly caps case.
+     * Transliterate a UTF-8 value to ASCII.
      *
      * @param  string  $value
      * @return string
      */
-    public static function studly($value)
+    public static function ascii($value)
     {
-        $key = $value;
-
-        if (isset(static::$studlyCache[$key])) {
-            return static::$studlyCache[$key];
+        foreach (static::charsArray() as $key => $val) {
+            $value = str_replace($val, $key, $value);
         }
 
-        $value = ucwords(str_replace(['-', '_'], ' ', $value));
-
-        return static::$studlyCache[$key] = str_replace(' ', '', $value);
-    }
-
-    /**
-     * Returns the portion of string specified by the start and length parameters.
-     *
-     * @param  string  $string
-     * @param  int  $start
-     * @param  int|null  $length
-     * @return string
-     */
-    public static function substr($string, $start, $length = null)
-    {
-        return mb_substr($string, $start, $length, 'UTF-8');
-    }
-
-    /**
-     * Make a string's first character uppercase.
-     *
-     * @param  string  $string
-     * @return string
-     */
-    public static function ucfirst($string)
-    {
-        return static::upper(static::substr($string, 0, 1)).static::substr($string, 1);
+        return preg_replace('/[^\x20-\x7E]/u', '', $value);
     }
 
     /**
@@ -586,5 +498,93 @@ class Str
             'ZH'   => ['Ж'],
             ' '    => ["\xC2\xA0", "\xE2\x80\x80", "\xE2\x80\x81", "\xE2\x80\x82", "\xE2\x80\x83", "\xE2\x80\x84", "\xE2\x80\x85", "\xE2\x80\x86", "\xE2\x80\x87", "\xE2\x80\x88", "\xE2\x80\x89", "\xE2\x80\x8A", "\xE2\x80\xAF", "\xE2\x81\x9F", "\xE3\x80\x80"],
         ];
+    }
+
+    /**
+     * Convert a string to snake case.
+     *
+     * @param  string $value
+     * @param  string $delimiter
+     * @return string
+     */
+    public static function snake($value, $delimiter = '_')
+    {
+        $key = $value;
+
+        if (isset(static::$snakeCache[$key][$delimiter])) {
+            return static::$snakeCache[$key][$delimiter];
+        }
+
+        if (!ctype_lower($value)) {
+            $value = preg_replace('/\s+/u', '', $value);
+
+            $value = static::lower(preg_replace('/(.)(?=[A-Z])/u', '$1' . $delimiter, $value));
+        }
+
+        return static::$snakeCache[$key][$delimiter] = $value;
+    }
+
+    /**
+     * Convert the given string to lower-case.
+     *
+     * @param  string $value
+     * @return string
+     */
+    public static function lower($value)
+    {
+        return mb_strtolower($value, 'UTF-8');
+    }
+
+    /**
+     * Determine if a given string starts with a given substring.
+     *
+     * @param  string $haystack
+     * @param  string|array $needles
+     * @return bool
+     */
+    public static function startsWith($haystack, $needles)
+    {
+        foreach ((array)$needles as $needle) {
+            if ($needle != '' && substr($haystack, 0, strlen($needle)) === (string)$needle) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Make a string's first character uppercase.
+     *
+     * @param  string $string
+     * @return string
+     */
+    public static function ucfirst($string)
+    {
+        return static::upper(static::substr($string, 0, 1)) . static::substr($string, 1);
+    }
+
+    /**
+     * Convert the given string to upper-case.
+     *
+     * @param  string $value
+     * @return string
+     */
+    public static function upper($value)
+    {
+        return mb_strtoupper($value, 'UTF-8');
+    }
+
+    /**
+     * Returns the portion of string specified by the start and length parameters.
+     *
+     * @param  string $string
+     * @param  int $start
+     * @param  int|null $length
+     * @return string
+     */
+    public static function substr($string, $start, $length = null)
+    {
+        return mb_substr($string, $start, $length, 'UTF-8');
     }
 }

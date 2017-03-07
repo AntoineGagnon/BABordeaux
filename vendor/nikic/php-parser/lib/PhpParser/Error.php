@@ -25,12 +25,17 @@ class Error extends \RuntimeException
     }
 
     /**
-     * Gets the error message
-     *
-     * @return string Error message
+     * Updates the exception message after a change to rawMessage or rawLine.
      */
-    public function getRawMessage() {
-        return $this->rawMessage;
+    protected function updateMessage()
+    {
+        $this->message = $this->rawMessage;
+
+        if (-1 === $this->getStartLine()) {
+            $this->message .= ' on unknown line';
+        } else {
+            $this->message .= ' on line ' . $this->getStartLine();
+        }
     }
 
     /**
@@ -43,16 +48,6 @@ class Error extends \RuntimeException
     }
 
     /**
-     * Gets the line the error ends in.
-     *
-     * @return int Error end line
-     */
-    public function getEndLine() {
-        return isset($this->attributes['endLine']) ? $this->attributes['endLine'] : -1;
-    }
-
-
-    /**
      * Gets the attributes of the node/token the error occurred at.
      *
      * @return array
@@ -62,12 +57,13 @@ class Error extends \RuntimeException
     }
 
     /**
-     * Sets the line of the PHP file the error occurred in.
+     * Sets the attributes of the node/token the error occured at.
      *
-     * @param string $message Error message
+     * @param array $attributes
      */
-    public function setRawMessage($message) {
-        $this->rawMessage = (string) $message;
+    public function setAttributes(array $attributes)
+    {
+        $this->attributes = $attributes;
         $this->updateMessage();
     }
 
@@ -81,15 +77,34 @@ class Error extends \RuntimeException
         $this->updateMessage();
     }
 
+    public function getMessageWithColumnInfo($code)
+    {
+        return sprintf(
+            '%s from %d:%d to %d:%d', $this->getRawMessage(),
+            $this->getStartLine(), $this->getStartColumn($code),
+            $this->getEndLine(), $this->getEndColumn($code)
+        );
+    }
+
     /**
-     * Returns whether the error has start and end column information.
+     * Gets the error message
      *
-     * For column information enable the startFilePos and endFilePos in the lexer options.
-     *
-     * @return bool
+     * @return string Error message
      */
-    public function hasColumnInfo() {
-        return isset($this->attributes['startFilePos']) && isset($this->attributes['endFilePos']);
+    public function getRawMessage()
+    {
+        return $this->rawMessage;
+    }
+
+    /**
+     * Sets the line of the PHP file the error occurred in.
+     *
+     * @param string $message Error message
+     */
+    public function setRawMessage($message)
+    {
+        $this->rawMessage = (string)$message;
+        $this->updateMessage();
     }
 
     /**
@@ -107,17 +122,15 @@ class Error extends \RuntimeException
     }
 
     /**
-     * Gets the end column (1-based) into the line where the error ended.
+     * Returns whether the error has start and end column information.
      *
-     * @param string $code Source code of the file
-     * @return int
+     * For column information enable the startFilePos and endFilePos in the lexer options.
+     *
+     * @return bool
      */
-    public function getEndColumn($code) {
-        if (!$this->hasColumnInfo()) {
-            throw new \RuntimeException('Error does not have column information');
-        }
-
-        return $this->toColumn($code, $this->attributes['endFilePos']);
+    public function hasColumnInfo()
+    {
+        return isset($this->attributes['startFilePos']) && isset($this->attributes['endFilePos']);
     }
 
     private function toColumn($code, $pos) {
@@ -134,25 +147,27 @@ class Error extends \RuntimeException
     }
 
     /**
-     * Updates the exception message after a change to rawMessage or rawLine.
+     * Gets the line the error ends in.
+     *
+     * @return int Error end line
      */
-    protected function updateMessage() {
-        $this->message = $this->rawMessage;
+    public function getEndLine()
+    {
+        return isset($this->attributes['endLine']) ? $this->attributes['endLine'] : -1;
+    }
 
-        if (-1 === $this->getStartLine()) {
-            $this->message .= ' on unknown line';
-        } else {
-            $this->message .= ' on line ' . $this->getStartLine();
+    /**
+     * Gets the end column (1-based) into the line where the error ended.
+     *
+     * @param string $code Source code of the file
+     * @return int
+     */
+    public function getEndColumn($code)
+    {
+        if (!$this->hasColumnInfo()) {
+            throw new \RuntimeException('Error does not have column information');
         }
-    }
 
-    /** @deprecated Use getStartLine() instead */
-    public function getRawLine() {
-        return $this->getStartLine();
-    }
-
-    /** @deprecated Use setStartLine() instead */
-    public function setRawLine($line) {
-        $this->setStartLine($line);
+        return $this->toColumn($code, $this->attributes['endFilePos']);
     }
 }

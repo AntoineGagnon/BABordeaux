@@ -2,24 +2,15 @@
 
 namespace PhpParser\Builder;
 
-use PhpParser\Node;
-use PhpParser\Node\Stmt;
-use PhpParser\Node\Scalar\DNumber;
 use PhpParser\Comment;
+use PhpParser\Node;
+use PhpParser\Node\Scalar\DNumber;
+use PhpParser\Node\Stmt;
 
 class InterfaceTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Interface_ */
     protected $builder;
-
-    protected function setUp() {
-        $this->builder = new Interface_('Contract');
-    }
-
-    private function dump($node) {
-        $pp = new \PhpParser\PrettyPrinter\Standard;
-        return $pp->prettyPrint(array($node));
-    }
 
     public function testEmpty() {
         $contract = $this->builder->getNode();
@@ -61,8 +52,7 @@ class InterfaceTest extends \PHPUnit_Framework_TestCase
         $contract = $this->builder
             ->addStmt($method)
             ->addStmt($const)
-            ->getNode()
-        ;
+            ->getNode();
 
         $this->assertInstanceOf('PhpParser\Node\Stmt\ClassConst', $contract->stmts[0]);
         $this->assertInstanceOf('PhpParser\Node\Stmt\ClassMethod', $contract->stmts[1]);
@@ -94,12 +84,22 @@ class InterfaceTest extends \PHPUnit_Framework_TestCase
         $contract = $this->builder
             ->addStmt($method)
             ->addStmt($const)
-            ->getNode()
-        ;
+            ->getNode();
 
         eval($this->dump($contract));
 
         $this->assertTrue(interface_exists('Contract', false));
+    }
+
+    private function dump($node)
+    {
+        $pp = new \PhpParser\PrettyPrinter\Standard;
+        return $pp->prettyPrint(array($node));
+    }
+
+    protected function setUp()
+    {
+        $this->builder = new Interface_('Contract');
     }
 }
 

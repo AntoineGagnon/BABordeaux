@@ -109,7 +109,6 @@ class Trendline extends JsonConfig
     {
         return $this->setBoolOption(__FUNCTION__, $visible);
     }
-
     /**
      * The default line type for any series not specified in the series property.
      *

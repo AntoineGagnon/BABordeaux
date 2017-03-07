@@ -4,8 +4,8 @@ namespace Illuminate\Cache;
 
 use Memcached;
 use Carbon\Carbon;
-use Illuminate\Contracts\Cache\Store;
 use ReflectionMethod;
+use Illuminate\Contracts\Cache\Store;
 
 class MemcachedStore extends TaggableStore implements Store
 {
@@ -91,19 +91,6 @@ class MemcachedStore extends TaggableStore implements Store
     }
 
     /**
-     * Store an item in the cache for a given number of minutes.
-     *
-     * @param  string  $key
-     * @param  mixed   $value
-     * @param  float|int  $minutes
-     * @return void
-     */
-    public function put($key, $value, $minutes)
-    {
-        $this->memcached->set($this->prefix.$key, $value, $this->toTimestamp($minutes));
-    }
-
-    /**
      * Store multiple items in the cache for a given number of minutes.
      *
      * @param  array  $values
@@ -119,6 +106,17 @@ class MemcachedStore extends TaggableStore implements Store
         }
 
         $this->memcached->setMulti($prefixedValues, $this->toTimestamp($minutes));
+    }
+
+    /**
+     * Get the UNIX timestamp for the given number of minutes.
+     *
+     * @param  int $minutes
+     * @return int
+     */
+    protected function toTimestamp($minutes)
+    {
+        return $minutes > 0 ? Carbon::now()->addSeconds($minutes * 60)->getTimestamp() : 0;
     }
 
     /**
@@ -171,6 +169,19 @@ class MemcachedStore extends TaggableStore implements Store
     }
 
     /**
+     * Store an item in the cache for a given number of minutes.
+     *
+     * @param  string $key
+     * @param  mixed $value
+     * @param  float|int $minutes
+     * @return void
+     */
+    public function put($key, $value, $minutes)
+    {
+        $this->memcached->set($this->prefix . $key, $value, $this->toTimestamp($minutes));
+    }
+
+    /**
      * Remove an item from the cache.
      *
      * @param  string  $key
@@ -189,17 +200,6 @@ class MemcachedStore extends TaggableStore implements Store
     public function flush()
     {
         $this->memcached->flush();
-    }
-
-    /**
-     * Get the UNIX timestamp for the given number of minutes.
-     *
-     * @parma  int  $minutes
-     * @return int
-     */
-    protected function toTimestamp($minutes)
-    {
-        return $minutes > 0 ? Carbon::now()->addMinutes($minutes)->getTimestamp() : 0;
     }
 
     /**

@@ -20,7 +20,7 @@ class DatabasePresenceVerifier implements PresenceVerifierInterface
      *
      * @var string
      */
-    protected $connection = null;
+    protected $connection;
 
     /**
      * Create a new database presence verifier.
@@ -66,6 +66,38 @@ class DatabasePresenceVerifier implements PresenceVerifierInterface
     }
 
     /**
+     * Get a query builder for the given table.
+     *
+     * @param  string $table
+     * @return \Illuminate\Database\Query\Builder
+     */
+    protected function table($table)
+    {
+        return $this->db->connection($this->connection)->table($table)->useWritePdo();
+    }
+
+    /**
+     * Add a "where" clause to the given query.
+     *
+     * @param  \Illuminate\Database\Query\Builder $query
+     * @param  string $key
+     * @param  string $extraValue
+     * @return void
+     */
+    protected function addWhere($query, $key, $extraValue)
+    {
+        if ($extraValue === 'NULL') {
+            $query->whereNull($key);
+        } elseif ($extraValue === 'NOT_NULL') {
+            $query->whereNotNull($key);
+        } elseif (Str::startsWith($extraValue, '!')) {
+            $query->where($key, '!=', mb_substr($extraValue, 1));
+        } else {
+            $query->where($key, $extraValue);
+        }
+    }
+
+    /**
      * Count the number of objects in a collection with the given values.
      *
      * @param  string  $collection
@@ -89,38 +121,6 @@ class DatabasePresenceVerifier implements PresenceVerifierInterface
         }
 
         return $query->count();
-    }
-
-    /**
-     * Add a "where" clause to the given query.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @param  string  $key
-     * @param  string  $extraValue
-     * @return void
-     */
-    protected function addWhere($query, $key, $extraValue)
-    {
-        if ($extraValue === 'NULL') {
-            $query->whereNull($key);
-        } elseif ($extraValue === 'NOT_NULL') {
-            $query->whereNotNull($key);
-        } elseif (Str::startsWith($extraValue, '!')) {
-            $query->where($key, '!=', mb_substr($extraValue, 1));
-        } else {
-            $query->where($key, $extraValue);
-        }
-    }
-
-    /**
-     * Get a query builder for the given table.
-     *
-     * @param  string  $table
-     * @return \Illuminate\Database\Query\Builder
-     */
-    protected function table($table)
-    {
-        return $this->db->connection($this->connection)->table($table)->useWritePdo();
     }
 
     /**
