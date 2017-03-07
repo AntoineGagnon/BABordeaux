@@ -132,123 +132,39 @@ class PollController extends Controller
      */
     public function adminDisplayPollResults()
     {
-        if(!Auth::check())
+        if (!Auth::check())
             return redirect()->intended('login');
 
-        $piecharts = array();
-        $taille = 0;
 
-        $questionGroups = question_group::whereExists(function ($query) {
-            $query->select(DB::raw(1))->from('questions')->whereRaw('questions.question_group_id = question_groups.id')->where('isVisible', 1);
-        })->get();
+        $questions = question::all();
 
-        foreach ($questionGroups as $questionGroup) {
-            $questionGroup['questions'] = question::where('question_group_id', $questionGroup->id)->orderBy('question_order', 'asc')->get();
-            foreach ($questionGroup['questions'] as $question) {
-                $questions[$question['attributes']['id']]['id'] = $question['attributes']['id'];
-                $questions[$question['attributes']['id']]['label'] = $question['attributes']['label'];
-                $questions[$question['attributes']['id']]['type'] = $question['attributes']['questionType'];
-                $questions[$question['attributes']['id']]['noAnswer'] = 0;
-            }
-        }
+        foreach ($questions as $question) {
 
-        foreach($questions as $quest)
-        {
-            if($quest['type'] == 'singleChoice')
-            {    
-                $piecharts[$taille] = NULL;
-                $taille++;
-            }
-        }
+            $datatable = Lava::DataTable();
 
-        $index = 0;
 
-        foreach($questions as $quest)
-        {
-            if($quest['type'] == 'singleChoice' || $quest['type'] == 'multipleChoice')
-            {
-                $answers = DB::table('answers')
-                     ->select(DB::raw('id, question_id, answer_order, label'))
-                     ->where('question_id', '=', $quest['id'])
-                     ->get();
+            if (choice::where('question_id', $question->id)->count() != 0) { // Check only questions with answers
 
-                $choices = DB::table('choices')
-                     ->select(DB::raw('id, question_id, answer_id'))
-                     ->where('question_id', '=', $quest['id'])
-                     ->get();
+                if ($question->questionType == 'singleChoice') {
+                    $question['answers'] = answer::where('question_id', $question->id)->get();
 
-                $count = array();
+                    $datatable->addStringColumn('Réponses')
+                        ->addNumberColumn('Nombre');
 
-                foreach($answers as $answer)
-                {
-                    $answerArray = json_decode(json_encode($answer), true);
-                    $count[$answerArray['id']] = 0;
-                }
-
-                foreach($choices as $choice)
-                {
-                    $choiceArray = json_decode(json_encode($choice), true);
-                    $count[$choiceArray['answer_id']] = $count[$choiceArray['answer_id']]+1;
-                }
-
-                $total = 0;
-
-                foreach($count as $test)
-
-                    $total = $total + $test;
-
-                if($total == 0)
-                {
-                    $quest['noAnswer'] = 1;
-                }
-
-                if($quest['noAnswer'] == 0)
-                {
-                    $piecharts[$index] = \Lava::DataTable();
-                    $piecharts[$index]->addStringColumn($quest['label'])
-                                        ->addNumberColumn('Pourcentage');
-
-                    foreach($answers as $answer)
-                    {
-                        $answerArray = json_decode(json_encode($answer), true);
-                        $piecharts[$index]->addRow([$answerArray['label'], ($count[$answerArray['id']]*100)/1]);
+                    foreach ($question['answers'] as $answer) {
+                        $count = choice::where('answer_id', $answer->id)->count();
+                        $datatable->addRow([$answer->label, $count]);
                     }
 
-                    \Lava::PieChart($quest['label'], $piecharts[$index], [
-                        'title' => $quest['label'],
-                        'is3D' => true,
-                        'sliceVisibilityThreshold' => 0
-                        ]);
-
-                    $index++;
+                    Lava::PieChart(strval($question->id), $datatable);
                 }
 
-                $questFinal[$quest['id']] = $quest;
-            }
-
-            else if($quest['type'] == 'openAnswer')
-            {
-                $answers = DB::table('answers')
-                     ->select(DB::raw('id, question_id, answer_order, label'))
-                     ->where('question_id', '=', $quest['id'])
-                     ->get();
-
-                $j = 0;
-
-                foreach($answers as $answer)
-                {
-                    $answerArray = json_decode(json_encode($answer), true);
-                    $quest['answers'][$j] = $answerArray['label'];
-                    $j++;
-                }
-
-                $quest['nbAnswers'] = $j;
-
-                $questFinal[$quest['id']] = $quest;
+            } else {
+                $question['answers'] = null;
             }
         }
 
-        return view('admin_poll_display_results', ['questions' => $questFinal]);
+        return view('admin_poll_display_results', ['questions' => $questions]);
     }
 
     /**
