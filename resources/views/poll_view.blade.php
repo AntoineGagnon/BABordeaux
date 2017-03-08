@@ -16,7 +16,10 @@
 
         <div class="panel-body">
             <!-- Display Validation Errors -->
-            <img src="{{ asset('public/artworks_images/guerilla.jpg') }}" alt="artwork_images" />
+            @foreach($artworks as $artwork)
+                <p> {{$artwork->artwork_name}}</p>
+                <img src="{{ asset('public/artworks_images/'.$artwork->artwork_name) }}" alt="artwork_image" />
+            @endforeach
         </div>
 
     <!--div class="panel progress">
