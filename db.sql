@@ -43,7 +43,7 @@ INSERT INTO `answers` (`id`, `question_id`, `answer_order`, `label`) VALUES
 (16, 13, 0, 'Oui'),
 (17, 13, 1, 'Non'),
 (18, 13, 2, 'Peut-être'),
-(19, 24, 0, 'edded'),
+(19, 24, 0, 'edded');
 
 -- --------------------------------------------------------
 
