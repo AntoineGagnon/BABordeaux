@@ -2,19 +2,13 @@
 -- version 4.6.4
 -- https://www.phpmyadmin.net/
 --
--- Client :  localhost
--- Généré le :  Mar 22 Novembre 2016 à 15:45
--- Version du serveur :  10.1.19-MariaDB
--- Version de PHP :  7.0.13
+-- Client :  localhost:8080
+-- Généré le :  Jeu 09 Mars 2017 à 15:25
+-- Version du serveur :  5.6.33
+-- Version de PHP :  7.0.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Base de données :  `BABordeaux`
@@ -45,7 +39,32 @@ INSERT INTO `answers` (`id`, `question_id`, `answer_order`, `label`) VALUES
 (5, 2, 1, 'Sculpture'),
 (6, 2, 2, 'Autre'),
 (7, 4, 0, 'NON'),
-(8, 4, 1, 'NON MAIS HO');
+(8, 4, 1, 'NON MAIS HO'),
+(16, 13, 0, 'Oui'),
+(17, 13, 1, 'Non'),
+(18, 13, 2, 'Peut-être'),
+(19, 24, 0, 'edded'),
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `artworks`
+--
+
+CREATE TABLE `artworks` (
+  `id` int(11) NOT NULL,
+  `artwork_name` varchar(255) NOT NULL,
+  `artist` varchar(255) NOT NULL,
+  `date` year(4) DEFAULT NULL,
+  `movement` varchar(255) CHARACTER SET latin1 NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Contenu de la table `artworks`
+--
+
+INSERT INTO `artworks` (`id`, `artwork_name`, `artist`, `date`, `movement`) VALUES
+(1, 'guerilla.jpg', 'Picasso', 1937, '');
 
 -- --------------------------------------------------------
 
@@ -66,7 +85,9 @@ CREATE TABLE `choices` (
 
 INSERT INTO `choices` (`id`, `question_id`, `answer_id`, `submission_id`) VALUES
 (1, 1, 2, 1),
-(2, 2, 4, 1);
+(2, 2, 4, 1),
+(3, 1, 3, 2),
+(4, 13, 16, 2);
 
 -- --------------------------------------------------------
 
@@ -87,16 +108,11 @@ CREATE TABLE `guestbook_submissions` (
 --
 
 INSERT INTO `guestbook_submissions` (`id`, `username`, `text`, `created_at`, `updated_at`) VALUES
-(36, 'Anonymous', 'jrjyrejyerzjrz', '2016-11-19 23:00:00', '2016-11-19 23:00:00'),
-(37, 'Anonymous', 'zjhterzjyrtzk', '2016-11-19 23:00:00', '2016-11-19 23:00:00'),
-(38, 'Anonymous', 'thzkyrkyrz', '2016-11-19 23:00:00', '2016-11-19 23:00:00'),
-(39, 'hjyrzkyruzk', 'jykrzjkyrzkyrzkry', '2016-11-19 23:00:00', '2016-11-19 23:00:00'),
-(40, 'qgrhrzqhzq', 'hteshtesht', '2016-11-19 23:00:00', '2016-11-19 23:00:00'),
-(41, 'jysj', 'jyrsjryskyrskry', '2016-11-20 18:43:57', '2016-11-20 18:43:57'),
-(42, '', 'jytrjyerykykeky', '2016-11-21 16:39:28', '2016-11-21 16:39:28'),
-(43, '', 'jterzjtjtzjtjz', '2016-11-21 16:41:08', '2016-11-21 16:41:08'),
-(44, '', 'jytrjyrejyejyjyrjye', '2016-11-21 16:41:13', '2016-11-21 16:41:13'),
-(45, 'Anonymous', 'rtk,urtkutkutrkurt', '2016-11-21 16:41:30', '2016-11-21 16:41:30');
+(36, 'Anonymous', 'c\'est bien', '2016-12-05 16:58:18', '2016-11-19 23:00:00'),
+(37, 'Anonymous', 'c\'est pas bien', '2016-12-05 16:58:22', '2016-11-19 23:00:00'),
+(38, 'Anonymous', 'trop cool !', '2016-12-05 16:58:29', '2016-11-19 23:00:00'),
+(39, 'Henri', 'j\'aime bien le musée', '2016-12-05 16:58:43', '2016-11-19 23:00:00'),
+(40, 'Jacques', 'plaisant', '2016-12-05 16:58:47', '2016-11-19 23:00:00');
 
 -- --------------------------------------------------------
 
@@ -120,10 +136,11 @@ CREATE TABLE `questions` (
 --
 
 INSERT INTO `questions` (`id`, `question_order`, `question_group_id`, `isVisible`, `questionType`, `label`, `isConditional`, `isRequired`) VALUES
-(1, 0, 1, 1, 'singleChoice', 'Quel âge avez vous ?', 0, 1),
-(2, 1, 2, 1, 'multipleChoice', 'Quels sont vos types d\'oeuvres préférés ?', 0, 1),
-(3, 3, 1, 1, 'openAnswer', 'Que souhaiteriez vous améliorer dans le musé ?', 0, 0),
-(4, 2, 2, 0, 'singleChoice', 'Pensez vous que cette question doit exister ?', 0, 1);
+(9, 1, 4, 1, 'openAnswer', 'Question test', 0, 1),
+(12, 3, 4, 0, 'singleChoice', 'ddd', 0, 0),
+(15, 1, 4, 1, 'multipleChoice', '2', 0, 1),
+(16, 0, 4, 1, 'singleChoice', 'testetest', 0, 1),
+(17, 1, 5, 1, 'openAnswer', 'ca marche', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -141,8 +158,8 @@ CREATE TABLE `question_groups` (
 --
 
 INSERT INTO `question_groups` (`id`, `group_order`) VALUES
-(1, 0),
-(2, 1);
+(4, 1),
+(5, 2);
 
 -- --------------------------------------------------------
 
@@ -161,7 +178,8 @@ CREATE TABLE `submissions` (
 --
 
 INSERT INTO `submissions` (`id`, `created_at`, `updated_at`) VALUES
-(1, '2016-11-21 18:02:10', '2016-11-21 18:02:10');
+(1, '2016-11-21 18:02:10', '2016-11-21 18:02:10'),
+(2, '2016-11-24 21:03:21', '2016-11-24 21:03:21');
 
 -- --------------------------------------------------------
 
@@ -181,7 +199,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `remember_token`) VALUES
-(0, 'admin', 0x24327924313024723777554674594e616d4a75543033433655456878757157394f4f362e4c77734b555039566e454b45765138704349794867436b61, 'mCu6TH7FLdZE5dmITTyBxoNL2BUvPfod7uiA48d7lyzcWsMOXUd4s3sI0m1U');
+(0, 'admin', 0x24327924313024723777554674594e616d4a75543033433655456878757157394f4f362e4c77734b555039566e454b45765138704349794867436b61, 'NfNG1U8qPnASMlqXRvMOdkhC6xWjU1h7K5fitDujuosCsZLPLcmgutNiZpl6');
 
 --
 -- Index pour les tables exportées
@@ -191,6 +209,12 @@ INSERT INTO `users` (`id`, `username`, `password`, `remember_token`) VALUES
 -- Index pour la table `answers`
 --
 ALTER TABLE `answers`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `artworks`
+--
+ALTER TABLE `artworks`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -209,7 +233,9 @@ ALTER TABLE `guestbook_submissions`
 -- Index pour la table `questions`
 --
 ALTER TABLE `questions`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FOREIGN_KEY_QUESTIONS_QUESTION_GROUPS` (`question_group_id`);
+
 --
 -- Index pour la table `question_groups`
 --
@@ -237,38 +263,43 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pour la table `answers`
 --
 ALTER TABLE `answers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+--
+-- AUTO_INCREMENT pour la table `artworks`
+--
+ALTER TABLE `artworks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT pour la table `choices`
 --
 ALTER TABLE `choices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT pour la table `guestbook_submissions`
 --
 ALTER TABLE `guestbook_submissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 --
 -- AUTO_INCREMENT pour la table `questions`
 --
 ALTER TABLE `questions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 --
 -- AUTO_INCREMENT pour la table `question_groups`
 --
 ALTER TABLE `question_groups`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT pour la table `submissions`
 --
 ALTER TABLE `submissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+--
+-- Contraintes pour les tables exportées
+--
 
+--
 -- Contraintes pour la table `questions`
 --
 ALTER TABLE `questions`
   ADD CONSTRAINT `FOREIGN_KEY_QUESTIONS_QUESTION_GROUPS` FOREIGN KEY (`question_group_id`) REFERENCES `question_groups` (`id`);
-
