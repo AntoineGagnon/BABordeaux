@@ -16,10 +16,14 @@
 
         <div class="panel-body">
             <!-- Display Validation Errors -->
-            @foreach($artworks as $artwork)
-                <p> {{$artwork->artwork_name}}</p>
-                <img src="{{ asset('public/artworks_images/'.$artwork->artwork_name) }}" alt="artwork_image" />
-            @endforeach
+            {{--@foreach($artworks as $artwork)--}}
+
+                {{--<p>Title: {{$artwork->artwork_name}}</p>--}}
+                {{--<p>Artist: {{$artwork->artist}}</p>--}}
+                {{--<p>Date: {{$artwork->date}}</p>--}}
+                {{--<p>Movement: {{$artwork->movement}}</p>--}}
+                {{--<img src="{{ asset('public/artworks_images/'.$artwork->artwork_name) }}" alt="artwork_image" />--}}
+            {{--@endforeach--}}
         </div>
 
     <!--div class="panel progress">
@@ -28,9 +32,6 @@
             60%
         </div-->
     </div>
-
-
-
 
 
 @endsection
