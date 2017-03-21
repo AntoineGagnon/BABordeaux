@@ -54,15 +54,11 @@ class ArtworkController extends Controller
     }
 
 
-    /*public function destroy($id)
+    public function destroy($id)
     {
         if(!Auth::check())
             return redirect()->intended('login');
-
-        guestbook_submission::destroy($id);
-
-        return redirect('admin/resultguestbook');
-
-    }*/
+        artwork::destroy($id);
+    }
 
 }
