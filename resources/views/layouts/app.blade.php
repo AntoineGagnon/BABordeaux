@@ -21,6 +21,10 @@
     <script type="text/javascript"
             src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+    <!---Scripy for facebook and twitter share buttons-->
+    <script type="text/javascript"
+            src="//platform-api.sharethis.com/js/sharethis.js#property=58bd962f9ea11200115395e4&product=inline-share-buttons"></script>
+
 </head>
 
 <body>
@@ -47,6 +51,9 @@
 <div class="container">
     @yield('content')
     @yield('post-js')
+    <!--To put  a facebook and a twitter share buttons-->
+        <div class="sharethis-inline-share-buttons"></div>
+
 </div>
 
 </body>
