@@ -22,6 +22,7 @@ Route::get('admin/exportpollresults/{format}','PollController@adminExportPollRes
 Route::get('admin/resultpoll', 'PollController@adminDisplayPollResults');
 Route::get('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults');
 Route::get('admin/change_password', 'AdminController@changePassword');
+Route::get('artwork/getartworkbyanswer/{answerid}','ArtworkController@getArtworkByID');
 Route::post('admin/postPasswordChange', 'AdminController@postPasswordChange');
 Route::post('admin/updateVisibility/{id}/{show}','QuestionController@updateVisibilityQuestion');
 Route::post('admin/updateRequired/{id}/{required}','QuestionController@updateRequiredQuestion');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\answer;
 use App\artwork;
 use App\guestbook_submission;
 use Illuminate\Support\Facades\Redirect;
@@ -51,6 +52,15 @@ class ArtworkController extends Controller
     {
 
         //return view('guestbook_view');
+    }
+
+    public function getArtworkByID($answerid){
+        if(is_null($answerid) || answer::find($answerid)){
+            return "Answer id isn't valid";
+        }
+
+
+
     }
 
 
