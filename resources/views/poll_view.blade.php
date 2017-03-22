@@ -18,22 +18,8 @@
             <!-- Display Validation Errors -->
             @include('common.errors')
 
-            <div>
-                @foreach($artworks as $artwork)
-                    <img style="width: 50%; height: 50%; float:left;" src="{{$artwork->image_url}}" alt="artwork_image" />
 
-                    <div style="overflow: hidden; border: double;">
-                        <p>Title: {{$artwork->title}} </p>
-                        <p>Artist: {{$artwork->artist}} ({{$artwork->born_died}}</p>
-                        <p>Date: {{$artwork->date}}</p>
-                        <p>Technique: {{$artwork->technique}}</p>
-                        <p>Type: {{$artwork->type}}</p>
-                    </div>
-                @endforeach
-            </div>
-
-
-           {{-- <!-- Formulaire de création de sondage -->
+            <!-- Formulaire de création de sondage -->
             <form action="/poll" method="POST">
                 {{ csrf_field() }}
 
@@ -43,7 +29,22 @@
                             <h3>DÉCOUVREZ QUELLE OEUVRE ARTISTIQUE VOUS CORRESPOND !</h3>
                         </div>
                         <div class="panel-body">
-                            <h4>Nous vous invitons à découvrir quelle ouvre artistique vous correspond en commençant par répondre à la question suivante: </h4>
+
+                            <div id="next" class="hidden">
+                                @foreach($artworks as $artwork)
+                                    <img style="width: 50%; height: 50%; float:left;" src="{{$artwork->image_url}}" alt="artwork_image" />
+
+                                    <div style="overflow: hidden; border: double;">
+                                        <p>Title: {{$artwork->title}} </p>
+                                        <p>Artist: {{$artwork->artist}} ({{$artwork->born_died}}</p>
+                                        <p>Date: {{$artwork->date}}</p>
+                                        <p>Technique: {{$artwork->technique}}</p>
+                                        <p>Type: {{$artwork->type}}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div id="first">
+                            <h4>Nous vous invitons à découvrir quelle oeuvre artistique vous correspond en commençant par répondre à la question suivante: </h4>
                                 <div class="form-group">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
@@ -92,8 +93,11 @@
                                 </div>
                             </div>
                         </div>
+                        </div>
                     </div>
-            </form>--}}
+                <button type="button" class="btn btn-info pull-right glyphicon glyphicon-arrow-right next-button" id="nextButton"></button>
+                <button type="submit" style="display: none" class="btn btn-primary pull-right btn-lg" id="submitBtn">Valider</button>
+            </form>
 
         </div>
 
@@ -163,12 +167,14 @@
 
         function onNextButtonClick() {
             console.log("NextButtonClicked");
-            currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
-            currentQuestionGroup.addClass('hidden');
             console.log(page);
+
+            jQuery('#first').addClass('hidden');
 
             page++;
             console.log(page);
+
+            jQuery('#next').removeClass('hidden');
 
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             $(currentQuestionGroup).removeClass('hidden');
