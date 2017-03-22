@@ -205,10 +205,10 @@ class ComposerStaticInitc2502e9d4ac79d09402b513ece651ea4
         array (
             0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
         ),
-        'Cron\\' =>
-            array(
-                0 => __DIR__ . '/..' . '/mtdowling/cron-expression/src/Cron',
-            ),
+        'Cron\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mtdowling/cron-expression/src/Cron',
+        ),
         'ClassPreloader\\' => 
         array (
             0 => __DIR__ . '/..' . '/classpreloader/classpreloader/src',
@@ -236,6 +236,10 @@ class ComposerStaticInitc2502e9d4ac79d09402b513ece651ea4
             'Mockery' => 
             array (
                 0 => __DIR__ . '/..' . '/mockery/mockery/library',
+            ),
+            'MarkWilson\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/markwilson/verbal-expressions-php/src',
             ),
             'Maatwebsite\\Excel\\' => 
             array (
@@ -269,6 +273,7 @@ class ComposerStaticInitc2502e9d4ac79d09402b513ece651ea4
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\AdminController' => __DIR__ . '/../..' . '/app/Http/Controllers/AdminController.php',
+        'App\\Http\\Controllers\\ArtworkController' => __DIR__ . '/../..' . '/app/Http/Controllers/ArtworkController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\GuestbookController' => __DIR__ . '/../..' . '/app/Http/Controllers/GuestbookController.php',
         'App\\Http\\Controllers\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/LoginController.php',
@@ -285,6 +290,7 @@ class ComposerStaticInitc2502e9d4ac79d09402b513ece651ea4
         'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
         'App\\User' => __DIR__ . '/../..' . '/app/User.php',
         'App\\answer' => __DIR__ . '/../..' . '/app/answer.php',
+        'App\\artwork' => __DIR__ . '/../..' . '/app/artwork.php',
         'App\\choice' => __DIR__ . '/../..' . '/app/choice.php',
         'App\\guestbook_submission' => __DIR__ . '/../..' . '/app/guestbook_submission.php',
         'App\\question' => __DIR__ . '/../..' . '/app/question.php',
@@ -1719,6 +1725,8 @@ class ComposerStaticInitc2502e9d4ac79d09402b513ece651ea4
         'Maatwebsite\\Excel\\Readers\\LaravelExcelReader' => __DIR__ . '/..' . '/maatwebsite/excel/src/Maatwebsite/Excel/Readers/LaravelExcelReader.php',
         'Maatwebsite\\Excel\\Writers\\CellWriter' => __DIR__ . '/..' . '/maatwebsite/excel/src/Maatwebsite/Excel/Writers/CellWriter.php',
         'Maatwebsite\\Excel\\Writers\\LaravelExcelWriter' => __DIR__ . '/..' . '/maatwebsite/excel/src/Maatwebsite/Excel/Writers/LaravelExcelWriter.php',
+        'MarkWilson\\Test\\VerbalExpressionOutputTest' => __DIR__ . '/..' . '/markwilson/verbal-expressions-php/src/MarkWilson/Test/VerbalExpressionOutputTest.php',
+        'MarkWilson\\VerbalExpression' => __DIR__ . '/..' . '/markwilson/verbal-expressions-php/src/MarkWilson/VerbalExpression.php',
         'Mockery' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
         'Mockery\\Adapter\\Phpunit\\MockeryPHPUnitIntegration' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryPHPUnitIntegration.php',
         'Mockery\\Adapter\\Phpunit\\MockeryTestCase' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery/Adapter/Phpunit/MockeryTestCase.php',

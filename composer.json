@@ -16,10 +16,10 @@
     "symfony/dom-crawler": "3.1.*",
     "maatwebsite/excel": "~2.1.0",
     "dompdf/dompdf": "~0.6.1",
-    "khill/lavacharts": "3.0.*"
+    "khill/lavacharts": "^3.0",
+    "markwilson/verbal-expressions-php": "^0.1.0"
   },
   "require-dev": {
-    "khill/lavacharts": "3.0.*",
     "fzaninotto/faker": "~1.4",
     "mockery/mockery": "0.9.*",
     "symfony/css-selector": "3.1.*",
