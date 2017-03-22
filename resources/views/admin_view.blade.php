@@ -13,8 +13,8 @@
             @include('common.errors')
             <div class="btn-group-vertical btn-group-lg col-lg-12 col-xs-12 col-md12 col-sm-12" role="group"
                  aria-label="...">
-                <--a href="/admin/editpoll" type="button" class="btn btn-default btn-danger btn-block">Editer le
-                    questionnaire<--/a>
+                <a href="/admin/editpoll" type="button" class="btn btn-default btn-danger btn-block">Editer le
+                    questionnaire</a>
                 <a href="/admin/editartworks" type="button" class="btn btn-default btn-danger btn-block">Editer les oeuvres</a>
                 <!-- IL FAUT FAIRE LA ROUTE !! -->
                 <a href="/admin/resultpoll" type="button" class="btn btn-default btn-info btn-block">Visualiser les
@@ -25,8 +25,8 @@
                     Livre d'or (Excel)</a>
                 <a href="/admin/exportguestbookresults/pdf" type="button" class="btn btn-default btn-success btn-block">Exporter les résultats du
                     Livre d'or (PDF)</a>
-                <!--a href="" type="button" class="btn btn-default btn-success btn-block">Exporter les résultats du
-                    questionnaire</a>-->
+                <a href="/admin/exportpollresults/pdf" type="button" class="btn btn-default btn-success btn-block">Exporter les résultats du
+                    questionnaire</a>
                 <a href="/admin/change_password" type="button" class="btn btn-default btn-warning btn-block">Modifier le mot de passe d'administration</a>
                 <a href="/logout" type="button" class="btn btn-default btn-warning btn-block">Déconnexion</a>
             </div>
