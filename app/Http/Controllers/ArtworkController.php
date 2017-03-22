@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\answer;
 use App\artwork;
-use App\guestbook_submission;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
@@ -139,6 +138,27 @@ class ArtworkController extends Controller
     }
 
 
+    /**
+     * ADMIN: Edit artworks
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function adminEditArtworks()
+    {
+        if (!Auth::check())
+            return redirect()->intended('login');
+
+        //fetch all artworks from database.
+        $artworks = artwork::take(25)->get();
+
+        return view('admin_artworks_edit_view', ['artworks' => $artworks,]);
+    }
+
+    /**
+     * Destroy an artwork from the database
+     * @param $id
+     * @return mixed
+     */
     public function destroy($id)
     {
         if (!Auth::check())

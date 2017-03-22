@@ -15,7 +15,6 @@
                  aria-label="...">
                 <a href="/admin/editpoll" type="button" class="btn btn-default btn-danger btn-block">Editer le
                     questionnaire</a>
-                <!-- IL FAUT FAIRE LA ROUTE !! -->
                 <a href="/admin/editartworks" type="button" class="btn btn-default btn-danger btn-block">Editer les oeuvres</a>
                 <a href="/admin/resultpoll" type="button" class="btn btn-default btn-info btn-block">Visualiser les
                     résultats du questionnaire</a>

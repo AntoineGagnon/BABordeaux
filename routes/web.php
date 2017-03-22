@@ -19,8 +19,9 @@ Route::post('regexp/search','ArtworkController@searchForArtwork');
 // Fonctions spécifiques à l'admin
 Route::post('login/authenticate', 'LoginController@authenticate');
 Route::get('admin/editpoll', 'PollController@adminEditPoll');
-Route::get('admin/exportguestbookresults/{format}','GuestBookController@adminExportGuestBookResults');
-Route::get('admin/exportpollresults/{format}','PollController@adminExportPollResults');
+Route::get('admin/editartworks', 'ArtworkController@adminEditArtworks');
+Route::get('admin/exportguestbookresults/{format}','PollController@adminExportGuestBookResults');
+Route::get('admin/exportpollresults','PollController@adminExportPollResults');
 Route::get('admin/resultpoll', 'PollController@adminDisplayPollResults');
 Route::get('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults');
 Route::get('admin/change_password', 'AdminController@changePassword');
