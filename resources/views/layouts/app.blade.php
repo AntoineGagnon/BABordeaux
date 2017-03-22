@@ -49,12 +49,13 @@
 </div>
 
 <div class="container">
-    @yield('content')
-    @yield('post-js')
-    <!--To put  a facebook and a twitter share buttons-->
-        <div class="sharethis-inline-share-buttons"></div>
+@yield('content')
+
+<!--To put  a facebook and a twitter share buttons-->
+    <div class="sharethis-inline-share-buttons"></div>
+
 
 </div>
-
+@yield('post-js')
 </body>
 </html>

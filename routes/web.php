@@ -13,6 +13,8 @@
 
 Route::resource('/', 'PollController');
 Route::resource('poll','PollController');
+Route::get('regexp','ArtworkController@regexpTester');
+Route::post('regexp/search','ArtworkController@searchForArtwork');
 
 // Fonctions spécifiques à l'admin
 Route::post('login/authenticate', 'LoginController@authenticate');

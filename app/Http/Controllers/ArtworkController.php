@@ -6,9 +6,11 @@ use App\answer;
 use App\artwork;
 use App\guestbook_submission;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use MarkWilson\VerbalExpression;
 
 
 class ArtworkController extends Controller
@@ -35,7 +37,7 @@ class ArtworkController extends Controller
         $artwork->artwork_name = $request->filename;
         $artwork->artist = $request->artist;
         $artwork->date = $request->date;
-        $artwork->movement = $request->has('movement') ? $request->movement : "" ;
+        $artwork->movement = $request->has('movement') ? $request->movement : "";
 
         $artwork->save();
         $worked = true;
@@ -54,11 +56,84 @@ class ArtworkController extends Controller
         //return view('guestbook_view');
     }
 
-    public function getArtworkByID($answerid){
-        if(is_null($answerid) || answer::find($answerid)){
+    public function regexpTester()
+    {
+
+        $attributes = Schema::getColumnListing("artworks");
+
+
+        return view('regexp_view', ['attributes' => $attributes]);
+
+    }
+
+    public function getArtworkByID($answerid)
+    {
+        if (is_null($answerid) || answer::find($answerid)) {
             return "Answer id isn't valid";
         }
 
+    }
+
+    public function searchForArtwork(Request $request)
+    {
+
+        $regex = new VerbalExpression();
+        $attribute = $request->attribute0;
+        $rule = $request->rule0;
+        $value = $request->value0;
+        $results = array();
+
+        switch ($rule) {
+            case "contains":
+                $regex->anything()
+                    ->add($value)
+                    ->anything();
+                $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
+
+                break;
+            case "notcontains":
+                $regex->anything()
+                    ->anythingBut($value)
+                    ->anything();
+                $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
+
+                break;
+            case "begins":
+                $regex->startOfLine()
+                    ->add($value);
+                $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
+
+                break;
+            case "ends":
+                $regex->endOfLine()
+                    ->add($value);
+                $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
+
+                break;
+
+            case "between":
+                $results = artwork::whereRaw($attribute . ' BETWEEN ' . $value . ' AND '. $request->value_greater0)->get();
+                break;
+            case "morethan":
+                $results = artwork::whereRaw($attribute . ' > ' . $value )->get();
+                break;
+            case "lessthan":
+                $results = artwork::whereRaw($attribute . ' < ' . $value )->get();
+                break;
+            case "equalto":
+                $results = artwork::whereRaw($attribute . ' = ' . $value )->get();
+                break;
+
+            default:
+                echo $rule;
+
+        }
+
+
+        echo $regex->compile();
+
+
+        return view('regexp_view', ['results' => $results]);
 
 
     }
@@ -66,7 +141,7 @@ class ArtworkController extends Controller
 
     public function destroy($id)
     {
-        if(!Auth::check())
+        if (!Auth::check())
             return redirect()->intended('login');
         artwork::destroy($id);
     }
