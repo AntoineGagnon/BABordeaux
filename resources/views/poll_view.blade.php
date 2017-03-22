@@ -16,21 +16,92 @@
 
         <div class="panel-body">
             <!-- Display Validation Errors -->
-            {{--@foreach($artworks as $artwork)--}}
+            @include('common.errors')
 
-                {{--<p>Title: {{$artwork->artwork_name}}</p>--}}
-                {{--<p>Artist: {{$artwork->artist}}</p>--}}
-                {{--<p>Date: {{$artwork->date}}</p>--}}
-                {{--<p>Movement: {{$artwork->movement}}</p>--}}
-                {{--<img src="{{ asset('public/artworks_images/'.$artwork->artwork_name) }}" alt="artwork_image" />--}}
-            {{--@endforeach--}}
+            <div>
+                @foreach($artworks as $artwork)
+                    <img style="width: 50%; height: 50%; float:left;" src="{{$artwork->image_url}}" alt="artwork_image" />
+
+                    <div style="overflow: hidden; border: double;">
+                        <p>Title: {{$artwork->title}} </p>
+                        <p>Artist: {{$artwork->artist}} ({{$artwork->born_died}}</p>
+                        <p>Date: {{$artwork->date}}</p>
+                        <p>Technique: {{$artwork->technique}}</p>
+                        <p>Type: {{$artwork->type}}</p>
+                    </div>
+                @endforeach
+            </div>
+
+
+           {{-- <!-- Formulaire de création de sondage -->
+            <form action="/poll" method="POST">
+                {{ csrf_field() }}
+
+                <div class="form-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3>DÉCOUVREZ QUELLE OEUVRE ARTISTIQUE VOUS CORRESPOND !</h3>
+                        </div>
+                        <div class="panel-body">
+                            <h4>Nous vous invitons à découvrir quelle ouvre artistique vous correspond en commençant par répondre à la question suivante: </h4>
+                                <div class="form-group">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3>{{ $questions->first()->label }}@if($questions->first()->isRequired)<span
+                                                        style="color: #DA4453;"> *</span>
+
+                                                @endif
+                                            </h3>
+                                        </div>
+
+                                        @if($questions->first()->questionType == "openAnswer")
+                                            <textarea class="form-control" style="resize: none" rows="5"
+                                                      @if($questions->first()->isRequired)
+                                                      required
+                                                      @endif
+                                                      name="question_{{ $questions->first()->id }}"></textarea>
+                                            <br>
+                                        @else
+
+                                            @foreach ($questions->first()->answers as $answer)
+                                                @if($questions->first()->questionType == "singleChoice")
+                                                    <div class="form-check">
+                                                        <label class="form-check-label">
+                                                            <input class="form-check-input" type="radio"
+                                                                   @if($questions->first()->isRequired)
+                                                                   required
+                                                                   @endif
+                                                                   name="question_{{ $questions->first()->id }}"
+                                                                   value="{{ $answer->id }}"> {{ $answer->label }}
+                                                        </label>
+                                                    </div>
+                                                @elseif($questions->first()->questionType == "multipleChoice")
+                                                    <div class="form-check">
+                                                        <label class="form-check-label">
+
+                                                            <input class="form-check-input" type="checkbox"
+                                                                   name="question_{{ $questions->first()->id }}[]"
+                                                                   value="{{ $answer->id }}"> {{ $answer->label }}
+                                                        </label>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </form>--}}
+
         </div>
 
-    <!--div class="panel progress">
+    <div class="panel progress">
         <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
              style="width: 60%;">
             60%
-        </div-->
+        </div>
     </div>
 
 
@@ -40,8 +111,6 @@
 @section('post-js')
     @parent
     <script>
-
-
         var page = 0;
         var questionGroupsList = [];
 

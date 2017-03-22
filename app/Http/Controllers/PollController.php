@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\answer;
+use App\artwork;
 use App\choice;
 use App\Choix;
 use App\Http\Requests;
@@ -82,19 +83,20 @@ class PollController extends Controller
      */
     public function index()
     {
+        $artworks = artwork::where('id',5)->get();
+
         $questionGroups = question_group::whereExists(function ($query) {
             $query->select(DB::raw(1))->from('questions')->whereRaw('questions.question_group_id = question_groups.id')->where('isVisible', 1);
         })->get();
 
 
-        foreach ($questionGroups as $questionGroup) {
-            $questionGroup['questions'] = question::where('question_group_id', $questionGroup->id)->orderBy('question_order', 'asc')->get();
-            foreach ($questionGroup['questions'] as $question) {
+        $questions = question::where('isVisible',1)->get();
+        foreach ($questions as $question) {
                 $question['answers'] = answer::where('question_id', $question->id)->orderBy('answer_order', 'asc')->get();
-            }
+
         }
 
-        return view('poll_view', ['questionGroups' => $questionGroups]);
+        return view('poll_view', ['questionGroups' => $questionGroups, 'questions' => $questions, 'artworks' => $artworks]);
     }
 
     /**
