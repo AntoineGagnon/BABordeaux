@@ -50,12 +50,12 @@
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label for="date">Date</label>
-                                                    <input type="text" class="form-control" id="date" name="date" />
+                                                    <input type="number" class="form-control" id="date" name="date" />
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
-                                                    <label for="date">Type</label>
+                                                    <label for="type">Type</label>
                                                     <input type="text" class="form-control" id="type" name="type" />
                                                 </div>
                                             </div>
@@ -75,6 +75,7 @@
                                             </div>
                                         </div>
                                         <br>
+                                        <button type="reset" class="btn btn-danger pull-left btn-lg" style="margin-top: 1%">Réinitialiser</button>
                                         <button type="submit" class="btn btn-success pull-right btn-lg" style="margin-top: 1%">Valider</button>
                                     </div>
                                 </div>
