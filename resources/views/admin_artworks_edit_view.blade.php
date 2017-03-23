@@ -70,7 +70,14 @@
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <label for="image_url">Image URL</label>
-                                                    <input id="image_url" type="text" name="image_url" class="form-control" required />
+                                                    <input id="image_url" type="text" name="image_url" class="form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <input id="file_uploader" type="file" name="file_uploader" class="form-control" />
                                                 </div>
                                             </div>
                                         </div>
