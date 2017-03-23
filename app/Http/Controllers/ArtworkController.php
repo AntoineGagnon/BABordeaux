@@ -99,7 +99,7 @@ class ArtworkController extends Controller
                 break;
             case "begins":
                 $regex->startOfLine()
-                    ->add($value);
+                    ->then($value);
                 $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
 
                 break;
