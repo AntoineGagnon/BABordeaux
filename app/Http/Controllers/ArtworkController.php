@@ -128,10 +128,6 @@ class ArtworkController extends Controller
 
         }
 
-
-        echo $regex->compile();
-
-
         return view('regexp_view', ['results' => $results]);
 
 
