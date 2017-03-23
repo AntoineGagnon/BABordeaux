@@ -137,8 +137,7 @@
 
         function updateProgressBar() {
             var progressBar = $('.progress-bar');
-            if ({{$questionGroups->count()}} == 1
-        )
+            if ({{$questionGroups->count()}} == 1)
             {
                 value = 100;
             }
@@ -175,7 +174,7 @@
             console.log(page);
 
             jQuery('#next').removeClass('hidden');
-
+            
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             $(currentQuestionGroup).removeClass('hidden');
             updateProgressBar();

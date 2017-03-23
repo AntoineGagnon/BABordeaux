@@ -38,3 +38,5 @@ Route::post('login/authenticate', 'LoginController@authenticate');
 Route::resource('admin', 'AdminController');
 Route::resource('guestbook','GuestbookController');
 Route::resource('question','QuestionController');
+
+Route::resource('rule', 'RuleController');
