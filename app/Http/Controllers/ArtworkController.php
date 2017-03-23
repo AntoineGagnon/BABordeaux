@@ -84,9 +84,7 @@ class ArtworkController extends Controller
 
         switch ($rule) {
             case "contains":
-                $regex->anything()
-                    ->add($value)
-                    ->anything();
+                $regex->find($value);
                 $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
 
                 break;
@@ -94,6 +92,7 @@ class ArtworkController extends Controller
                 $regex->anything()
                     ->anythingBut($value)
                     ->anything();
+                    // ^((?!WORD).)*$
                 $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
 
                 break;
