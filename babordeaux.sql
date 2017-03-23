@@ -21,35 +21,6 @@ SET time_zone = "+00:00";
 --
 
 -- --------------------------------------------------------
---
--- Structure de la table `questions`
---
-
-CREATE TABLE `questions` (
-  `id` int(11) NOT NULL,
-  `label` varchar(128) NOT NULL
-) ENGINE=InnoDb DEFAULT CHARSET=latin1;
-
---
--- Contenu de la table `questions`
---
-
-INSERT INTO `questions` (`id`,`label`) VALUES
-(1, 'Quel âge avez-vous ?'),
-(2, 'D\'où venez-vous (code postal/pays)'),
-(3, 'Quelle est votre profession ?'),
-(4, 'Que préférez-vous : (peinture, sculpture, autre)'),
-(5, 'D\'ailleurs pratiquez-vous une de ces activités ?'),
-(6, 'Ëtes-vous une personne en situation de handicap ?'),
-(7, 'Est-ce votre première visite ?'),
-(8, 'Votre avis sur le temps d\'attente au guichet ?'),
-(9, 'Comment avez-vous connu le musée ?'),
-(10, 'Avec qui êtes vous venu ?'),
-(11, 'Comment avez-vous trouvé l\'accueil du personnel ?'),
-(12, 'Que ressentez vous à propos de cette visite ?'),
-(13, 'Qu\'avez-vous pensez des oeuvres et objets exposés ?'),
-(14, 'Comment jugez-vous les informations apportés lros de cette visite ?');
-
 
 --
 -- Structure de la table `answers`
@@ -67,65 +38,47 @@ CREATE TABLE `answers` (
 --
 
 INSERT INTO `answers` (`id`, `question_id`, `answer_order`, `label`) VALUES
-(1, 1, 0, '0-18 ans'),
-(2, 1, 1, '19-25 ans'),
-(3, 1, 2, '26-45 ans'),
-(4, 1, 3, '45-65 ans'),
-(5, 1, 4, '65 ans et +'),
-(6, 2, 0, 'France'),
-(7, 2, 1, 'Allemagne'),
-(8, 2, 2, 'Italie'),
-(9, 2, 3, 'Chine'),
-(10, 2, 4, 'Autre'),
-(11, 3, 0, 'Question ouverte ?????'),
-(12, 4, 0, 'Peinture'),
-(13, 4, 1, 'Sculpture'),
-(14, 5, 0, 'Peinture'),
-(15, 5, 1, 'Sculpture'),
-(16, 5, 2, 'Bricolage'),
-(17, 5, 3, 'Jeux vidéos'),
-(18, 5, 4, 'Danse / Théatre'),
-(19, 5, 5, 'Autre'),
-(20, 6, 0, 'Oui'),
-(21, 6, 1, 'Non'),
-(22, 7, 0, 'Oui'),
-(23, 7, 1, 'Non'),
-(24, 8, 0, 'Parfait'),
-(25, 8, 1, 'Acceptable'),
-(26, 8, 2, 'A améliorer'),
-(27, 8, 3, 'Navrant'),
-(28, 9, 0, 'Internet'),
-(29, 9, 1, 'Presse écrite'),
-(30, 9, 2, 'Radio'),
-(31, 9, 3, 'Télévision'),
-(32, 9, 4, 'Affiches / Tracts'),
-(33, 9, 5, 'Bouche à oreille'),
-(34, 10, 0, 'Seul'),
-(35, 10, 1, 'En couple'),
-(36, 10, 2, 'Entre amis'),
-(37, 10, 3, 'En famille (adultes)'),
-(38, 10, 4, 'En famille (avec enfants)'),
-(39, 10, 5, 'En groupe organisé'),
-(40, 11, 0, 'Efficace et très agréable'),
-(41, 11, 1, 'Correct'),
-(42, 11, 2, 'A améliorer'),
-(43, 11, 3, 'Inaceptable'),
-(44, 12, 0, 'Correspondant à mes attentes'),
-(45, 12, 1, 'Perplexe'),
-(46, 12, 2, 'Surpris(e)'),
-(47, 12, 3, 'Déçu(e)'),
-(48, 12, 4, 'Ebloui(e)'),
-(49, 12, 5, 'Indifférent(e)'),
-(50, 12, 6, 'Content(e)'),
-(51, 13, 0, 'Exceptionnels'),
-(52, 13, 1, 'Interessants'),
-(53, 13, 2, 'Un peu décevants'),
-(54, 13, 3, 'Navrant'),
-(55, 14, 0, 'Parfait'),
-(56, 14, 1, 'Satisfaisant'),
-(57, 14, 2, 'A améliorer'),
-(58, 14, 3, 'Décevant');
-
+(1, 1, 0, 'oui'),
+(2, 1, 1, 'non'),
+(3, 2, 0, 'Parfait'),
+(4, 2, 1, 'Acceptable'),
+(5, 2, 2, 'A améliorer'),
+(6, 2, 3, 'Catastrophique'),
+(7, 3, 0, 'Internet'),
+(8, 3, 1, 'Presse écrite'),
+(9, 3, 2, 'Radio'),
+(10, 3, 3, 'Télévision'),
+(11, 3, 4, ' Affiches / Tracts'),
+(12, 3, 5, 'Bouche à oreille'),
+(13, 5, 0, 'Seul'),
+(14, 5, 1, 'En couple'),
+(15, 5, 2, 'Entre amis'),
+(16, 5, 3, 'En famille (adultes)'),
+(17, 5, 4, 'En famille (avec enfants)'),
+(18, 5, 5, 'Groupe organisé'),
+(19, 6, 0, 'Efficace et très agréable'),
+(20, 6, 1, 'Correct'),
+(21, 6, 2, 'A améliorer'),
+(22, 6, 3, 'Inaceptable'),
+(23, 7, 0, 'Correspondant à mes attentes'),
+(24, 7, 1, 'Perplexe'),
+(25, 7, 2, 'Surpris(e)'),
+(26, 7, 3, 'Déçu(e)'),
+(27, 7, 4, 'Ebloui(e)'),
+(28, 7, 5, 'Indifférent(e)'),
+(29, 7, 6, 'Content(e)'),
+(30, 8, 0, 'Exceptionnels'),
+(31, 8, 1, 'Interessants'),
+(32, 8, 2, 'Un peu décevants'),
+(33, 8, 3, 'Navrants'),
+(34, 9, 0, 'Largement suffisant'),
+(35, 9, 1, 'Correct'),
+(36, 9, 2, 'Insuffisant'),
+(37, 9, 3, 'Inexistant'),
+(38, 10, 0, 'Moins de 26 ans'),
+(39, 10, 1, 'Entre 26 et 45 ans'),
+(40, 10, 2, 'Entre 46 et 60 ans'),
+(41, 10, 3, 'Plus de 60 ans');
 -- --------------------------------------------------------
 
 --
@@ -1503,12 +1456,17 @@ CREATE TABLE `questions` (
 --
 
 INSERT INTO `questions` (`id`, `question_order`, `question_group_id`, `isVisible`, `questionType`, `label`, `isConditional`, `isRequired`) VALUES
-(9, 1, 4, 1, 'openAnswer', 'Question test', 0, 1),
-(12, 3, 4, 0, 'singleChoice', 'ddd', 0, 0),
-(15, 1, 4, 1, 'multipleChoice', '2', 0, 1),
-(16, 0, 4, 1, 'singleChoice', 'testetest', 0, 1),
-(17, 1, 5, 1, 'openAnswer', 'ca marche', 0, 1);
-
+(1, 1, 0, 1, 'singleChoice', 'Est-ce votre première visite au musée ?', 0, 1),
+(2, 2, 0, 1, 'singleChoice', 'Estimez votre temps d\'attente au guichet.', 0, 1),
+(3, 3, 0, 1, 'multiChoice', 'Comment avez-vous connu le musée ?', 0, 1),
+(4, 4, 0, 1, 'openAnswer', 'Un dernier avis sur le musée ?', 1, 0),
+(5, 5, 0, 1, 'singleChoice', 'Notez le musée', 0, 1);
+(6, 6, 0, 1, 'multiChoice', 'Avec qui êtes-vous venu ?', 0, 1),
+(7, 7, 0, 1, 'singleChoise', 'Comment avez-vous trouvé l\'accueil du personnel ?', 0, 1),
+(8, 8, 0, 1, 'multiChoice', 'Comment vous êtes-vous senti pendant cette visite ?', 0, 1),
+(9, 9, 0, 1, 'singleChoice', 'Comment jugez-vous les oeuvres exposées ?', 0, 1),
+(10, 10, 0, 1, 'Comment jugez-vous les renseignements apportés pendant la visite ? (écritaux, fléchage, ...)', 0, 1),
+(11, 11, 0, 1, 'Quel est votre age ?', 0, 1);
 -- --------------------------------------------------------
 
 --
