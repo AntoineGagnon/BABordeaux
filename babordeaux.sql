@@ -79,7 +79,6 @@ INSERT INTO `answers` (`id`, `question_id`, `answer_order`, `label`) VALUES
 (39, 10, 1, 'Entre 26 et 45 ans'),
 (40, 10, 2, 'Entre 46 et 60 ans'),
 (41, 10, 3, 'Plus de 60 ans');
-
 -- --------------------------------------------------------
 
 --
@@ -1459,15 +1458,15 @@ CREATE TABLE `questions` (
 INSERT INTO `questions` (`id`, `question_order`, `question_group_id`, `isVisible`, `questionType`, `label`, `isConditional`, `isRequired`) VALUES
 (1, 1, 0, 1, 'singleChoice', 'Est-ce votre première visite au musée ?', 0, 1),
 (2, 2, 0, 1, 'singleChoice', 'Estimez votre temps d\'attente au guichet.', 0, 1),
-(3, 3, 0, 1, '', 'Comment avez-vous connu le musée ?', 0, 1),
+(3, 3, 0, 1, 'multiChoice', 'Comment avez-vous connu le musée ?', 0, 1),
 (4, 4, 0, 1, 'openAnswer', 'Un dernier avis sur le musée ?', 1, 0),
 (5, 5, 0, 1, 'singleChoice', 'Notez le musée', 0, 1),
-(6, 6, 0, 1, '', 'Avec qui êtes-vous venu ?', 0, 1),
-(7, 7, 0, 1, '', 'Comment avez-vous trouvé l\'accueil du personnel ?', 0, 1),
-(8, 8, 0, 1, '', 'Comment vous êtes-vous senti pendant cette visite ?', 0, 1),
+(6, 6, 0, 1, 'multiChoice', 'Avec qui êtes-vous venu ?', 0, 1),
+(7, 7, 0, 1, 'singleChoice', 'Comment avez-vous trouvé l\'accueil du personnel ?', 0, 1),
+(8, 8, 0, 1, 'multiChoice', 'Comment vous êtes-vous senti pendant cette visite ?', 0, 1),
 (9, 9, 0, 1, 'singleChoice', 'Comment jugez-vous les oeuvres exposées ?', 0, 1),
-(10, 10, 0, 1, '', 'Comment jugez-vous les renseignements apportés pendant la visite ? (écritaux, fléchage, ...)', 0, 1),
-(11, 11, 0, 1, '', 'Quel est votre age ?', 0, 1);
+(10, 10, 0, 1, 'multiChoice', 'Comment jugez-vous les renseignements apportés pendant la visite ? (écritaux, fléchage, ...)', 0, 1),
+(11, 11, 0, 1, 'muliChoice', 'Quel est votre age ?', 0, 1);
 
 -- --------------------------------------------------------
 
