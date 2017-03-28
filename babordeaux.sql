@@ -1494,7 +1494,7 @@ INSERT INTO `question_groups` (`id`, `group_order`) VALUES
 --
 
 CREATE TABLE `rules` (
-  `rules` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
   `label` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

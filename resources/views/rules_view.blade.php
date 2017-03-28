@@ -4,14 +4,19 @@
 
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h1>Sondage du Musée</h1>
+            <h1>Règles</h1>
         </div>
 
         <div class="panel-body">
-            <!-- Display Validation Errors -->
-        @include('common.errors')
-
+            @include('common.errors')
+            @foreach ($rules as $rule)
+                <div class="panel panel-group panel-default">
+                    <div class="panel-heading clearfix">
+                        <form action="/rule/{{$rule->id}}" class="pull-right" method="POST">
+                        </form>
+                      <div class="panel-body">{{$rule->label}}</div>
+                </div>
+            @endforeach
         </div>
-
-
+    </div>
 @endsection

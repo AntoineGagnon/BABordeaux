@@ -96,7 +96,7 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                 <span class="glyphicon glyphicon-th-list"></span>MODIFIER OU SUPPRIMER DES OEUVRES EXISTANTES
+                                    <span class="glyphicon glyphicon-th-list"></span>MODIFIER OU SUPPRIMER DES OEUVRES EXISTANTES
                                 </h4>
                             </div>
                             <div class="panel-collapse collapse in ">
