@@ -37,17 +37,6 @@ class QuestionController extends Controller
                 $question->questionType = $request->question_type;
                 $question->isRequired = $request->is_required;
 
-            if ($request->num_group_questions == "new_question_group" || question_group::find($request->num_group_questions) == null ) {
-                $question_group = new question_group();
-                $max_questionGroup_groupOrder = question_group::all()->max("group_order");
-                $question_group->group_order = $max_questionGroup_groupOrder + 1;
-                $question_group->save();
-                $question->question_group_id = $question_group->id;
-
-            } else {
-                $question->question_group_id = $request->num_group_questions;
-            }
-
         }
 
         $question->save();
@@ -58,6 +47,7 @@ class QuestionController extends Controller
                 $answer = new answer();
                 $answer->question_id = $question->id;
                 $answer->answer_order = $x;
+                $answer->rule_id = $request->input("rule_" . $x);
                 $answer->label = $request->input("choice" . $x);
                 $answer->save();
             }
@@ -65,14 +55,8 @@ class QuestionController extends Controller
 
         $questionAddedWorked = true;
         $questions = question::all();
-        $questionGroups = question_group::all();
-        foreach ($questionGroups as $questionGroup) {
-            if (question::where('question_group_id', $questionGroup->id)->count() == 0) {
-                $questionGroup->destroy($questionGroup->id);
-            }
-        }
 
-        return redirect()->action('PollController@adminEditPoll')->with(['questionAdded' => $questionAddedWorked, 'questionGroups' => $questionGroups, 'questions' => $questions]);
+        return redirect()->action('PollController@adminEditPoll')->with(['questionAdded' => $questionAddedWorked, 'questions' => $questions]);
     }
 
     /**

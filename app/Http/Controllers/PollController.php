@@ -9,6 +9,7 @@ use App\Http\Requests;
 use App\question;
 use App\question_group;
 use App\Reponse;
+use App\rule;
 use App\Sondage;
 use App\guestbook_submission;
 use App\submission;
@@ -85,18 +86,14 @@ class PollController extends Controller
     {
         $artworks = artwork::where('id',5)->get();
 
-        $questionGroups = question_group::whereExists(function ($query) {
-            $query->select(DB::raw(1))->from('questions')->whereRaw('questions.question_group_id = question_groups.id')->where('isVisible', 1);
-        })->get();
 
-
-        $questions = question::where('isVisible',1)->get();
+        $questions = question::where('is_visible', 1)->get();
         foreach ($questions as $question) {
                 $question['answers'] = answer::where('question_id', $question->id)->orderBy('answer_order', 'asc')->get();
 
         }
 
-        return view('poll_view', ['questionGroups' => $questionGroups, 'questions' => $questions, 'artworks' => $artworks]);
+        return view('poll_view', ['questions' => $questions, 'artworks' => $artworks]);
     }
 
     /**
@@ -110,19 +107,13 @@ class PollController extends Controller
             return redirect()->intended('login');
 
 
-        $questionGroups = question_group::all();
-
         //fetch all question from database.
         $questions = question::all();
 
-        //if a questionGroup is empty (i.e. has no question into) delete this questionGroup from the database.
-        foreach ($questionGroups as $questionGroup) {
-            if (question::where('question_group_id', $questionGroup->id)->count() == 0) {
-                $questionGroup->destroy($questionGroup->id);
-            }
-        }
+        $rules = rule::all();
 
-        return view('admin_poll_edit_view', ['questionGroups' => $questionGroups, 'questions' => $questions,]);
+
+        return view('admin_poll_edit_view', ['questions' => $questions, 'rules' => $rules]);
     }
 
     /**
