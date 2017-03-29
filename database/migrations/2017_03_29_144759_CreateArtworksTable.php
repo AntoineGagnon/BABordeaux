@@ -16,16 +16,16 @@ class CreateArtworksTable extends Migration
         Schema::create('artworks', function (Blueprint $table) {
             $table->increments('id');
             $table->string('artist');
-            $table->string('born_died');
+            $table->string('born_died')->nullable();
             $table->string('title');
-            $table->string('date');
-            $table->string('technique');
-            $table->string('location');
-            $table->string('image_url');
-            $table->string('type');
-            $table->string('form');
-            $table->string('school');
-            $table->string('timeframe');
+            $table->integer('date');
+            $table->string('technique')->nullable();
+            $table->string('location')->nullable();
+            $table->string('image_url')->nullable();
+            $table->string('type')->nullable();
+            $table->string('form')->nullable();
+            $table->string('school')->nullable();
+            $table->string('timeframe')->nullable();
         });
     }
 
