@@ -16,7 +16,7 @@ class CreateQuestionsTable extends Migration
         Schema::create('questions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('question_order');
-            $table->boolean('is_visible');
+            $table->boolean('is_visible')->default(1);
             $table->enum('question_type', ['singleChoice', 'multipleChoice', 'openAnswer']);
             $table->string('label');
             $table->boolean('is_required');

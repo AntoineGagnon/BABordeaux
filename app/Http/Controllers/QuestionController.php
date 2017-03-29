@@ -34,14 +34,14 @@ class QuestionController extends Controller
                 $question = new question();
                 $question->question_order = $request->order_num;
                 $question->label = $request->question_label;
-                $question->questionType = $request->question_type;
-                $question->isRequired = $request->is_required;
+                $question->question_type = $request->question_type;
+                $question->is_required = $request->is_required;
 
         }
 
         $question->save();
 
-        if ($question->questionType == "singleChoice" || $question->questionType == "multipleChoice") {
+        if ($question->question_type == "singleChoice" || $question->question_type == "multipleChoice") {
             $nbchoices = $request->nb_choices;
             for ($x = 0; $x <= $nbchoices; $x++) {
                 $answer = new answer();
@@ -92,14 +92,12 @@ class QuestionController extends Controller
      */
     public function updateVisibilityQuestion($id, $show)
     {
-        if(!Auth::check())
-            return redirect()->intended('login');
 
         $question = question::find($id);
         if($show == 1){
-            $question->isVisible = 1;
+            $question->is_visible = 1;
         }else{
-            $question->isVisible = 0;
+            $question->is_visible = 0;
         }
         $question->save();
     }
@@ -116,9 +114,9 @@ class QuestionController extends Controller
 
         $question = question::find($id);
         if($required == 1){
-            $question->isRequired = 1;
+            $question->is_required = 1;
         }else{
-            $question->isRequired = 0;
+            $question->is_required = 0;
         }
         $question->save();
     }
@@ -144,14 +142,8 @@ class QuestionController extends Controller
         }
 
         $questions = question::all();
-        $questionGroups = question_group::all();
-        foreach ($questionGroups as $questionGroup) {
-            if (question::where('question_group_id', $questionGroup->id)->count() == 0) {
-                $questionGroup->destroy($questionGroup->id);
-            }
-        }
 
-        return redirect()->action('PollController@adminEditPoll')->with(['questionGroups' => $questionGroups, 'questions' => $questions]);
+        return redirect()->action('PollController@adminEditPoll')->with(['questions' => $questions]);
     }
 
 }

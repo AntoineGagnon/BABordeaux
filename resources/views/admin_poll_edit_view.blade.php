@@ -46,9 +46,16 @@
                                                     </select>
                                                 </div>
                                             </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label for="order_num">Numéro d'ordre de la question</label>
+                                                    <input type="number" class="form-control" id="order_num"
+                                                           name="order_num" placeholder="N°" required/>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-12">
                                                 <div class="form-group">
                                                     <input id="question_label" type="text" name="question_label"
                                                            class="form-control" placeholder="Titre" required/>
@@ -135,7 +142,7 @@
                                                                 Supprimer
                                                             </button>
                                                         </div>
-                                                        @if($question->isVisible == 0)
+                                                        @if($question->is_visible == 0)
                                                             <div class="divshowquestion">
                                                                 <button type="button" value="{{$question->id}}"
                                                                         class="btnShowQuestion btn btn-warning btn-sm"
@@ -144,7 +151,7 @@
                                                                     Afficher
                                                                 </button>
                                                             </div>
-                                                        @elseif($question->isVisible == 1)
+                                                        @elseif($question->is_visible == 1)
                                                             <div class="divhidequestion">
                                                                 <button type="button" value="{{$question->id}}"
                                                                         class="btnHideQuestion btn btn-warning btn-sm"
@@ -154,7 +161,7 @@
                                                                 </button>
                                                             </div>
                                                         @endif
-                                                        @if($question->isRequired == 0)
+                                                        @if($question->is_required == 0)
                                                             <div class="divrequiredonquestion">
                                                                 <button type="button" value="{{$question->id}}"
                                                                         class="btnIsRequiredON btn btn-info btn-sm"
@@ -163,7 +170,7 @@
                                                                     Rendre Obligatoire
                                                                 </button>
                                                             </div>
-                                                        @elseif($question->isRequired == 1)
+                                                        @elseif($question->is_required == 1)
                                                             <div class="divrequiredoffquestion">
                                                                 <button type="button" value="{{$question->id}}"
                                                                         class="btnIsRequiredOFF btn btn-info btn-sm"
@@ -322,7 +329,7 @@
                 $.ajax({
                     type: "POST",
                     url: '/admin/updateRequired/' + question_id + '/' + isRequired,
-                    data: {_id: question_id, _required: isRequired},
+                    data: {_id:question_id, _required:isRequired},
                     success: function (data) {
                         $(".editform").load(location.href + " .editform*", "");
                         console.log("ok required OFF");
@@ -340,7 +347,6 @@
             }
 
             $(".Questionlabel").on("change", labelChanged);
-
 
         }
 
