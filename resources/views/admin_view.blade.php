@@ -16,6 +16,7 @@
                 <a href="/admin/editpoll" type="button" class="btn btn-default btn-danger btn-block">Editer le
                     questionnaire</a>
                 <a href="/admin/editartworks" type="button" class="btn btn-default btn-danger btn-block">Editer les oeuvres</a>
+                <a href="/rule" type="button" class="btn btn-default btn-danger btn-block">Voir les règles</a>
                 <a href="/admin/resultpoll" type="button" class="btn btn-default btn-info btn-block">Visualiser les
                     résultats du questionnaire</a>
                 <a href="/admin/resultguestbook" type="button" class="btn btn-default btn-info btn-block">Visualiser

@@ -197,6 +197,7 @@ return array(
     'Page_Frame_Decorator' => $vendorDir . '/dompdf/dompdf/include/page_frame_decorator.cls.php',
     'Page_Frame_Reflower' => $vendorDir . '/dompdf/dompdf/include/page_frame_reflower.cls.php',
     'Positioner' => $vendorDir . '/dompdf/dompdf/include/positioner.cls.php',
+    'QuestionsTableSeeder' => $baseDir . '/database/seeds/QuestionsTableSeeder.php',
     'Renderer' => $vendorDir . '/dompdf/dompdf/include/renderer.cls.php',
     'Style' => $vendorDir . '/dompdf/dompdf/include/style.cls.php',
     'Stylesheet' => $vendorDir . '/dompdf/dompdf/include/stylesheet.cls.php',

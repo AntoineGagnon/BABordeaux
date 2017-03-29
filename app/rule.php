@@ -4,7 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Rule extends Model
+class rule extends Model
 {
-    //
+
+    public $timestamps = false;
 }
