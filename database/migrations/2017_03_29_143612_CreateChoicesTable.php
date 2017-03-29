@@ -15,6 +15,9 @@ class CreateChoicesTable extends Migration
     {
         Schema::create('choices', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('question_id')->unsigned();
+            $table->integer('answer_id')->unsigned();
+            $table->integer('submission_id')->unsigned();
             $table->foreign('question_id')->references('id')->on('questions');
             $table->foreign('answer_id')->references('id')->on('answers');
             $table->foreign('submission_id')->references('id')->on('submissions');

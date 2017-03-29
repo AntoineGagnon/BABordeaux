@@ -15,10 +15,13 @@ class CreateAnswersTable extends Migration
     {
         Schema::create('answers', function (Blueprint $table) {
             $table->increments('id');
-            $table->foreign('question_id')->references('id')->on('questions');
-            $table->foreign('rules_id')->references('id')->on('rules');
+            $table->integer('question_id')->unsigned();
+            $table->integer('rule_id')->unsigned();
             $table->integer('answer_order');
             $table->string('label');
+
+            $table->foreign('question_id')->references('id')->on('questions');
+            $table->foreign('rule_id')->references('id')->on('rules');
         });
     }
 
