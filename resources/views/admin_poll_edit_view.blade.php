@@ -64,7 +64,7 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <div id="choices-group" class="form-inline">
+                                                <div id="choices-group" class="form-inline hidden">
                                                     <div class="form-group">
                                                         <input type="text" class="choice form-control" name="choice0"
                                                                placeholder="choix"/>
