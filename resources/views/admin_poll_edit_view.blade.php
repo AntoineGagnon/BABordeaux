@@ -46,16 +46,9 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
-                                                <div class="form-group">
-                                                    <label for="order_num">Numéro d'ordre dans le groupe</label>
-                                                    <input type="number" class="form-control" id="order_num"
-                                                           name="order_num" placeholder="N°" required/>
-                                                </div>
-                                            </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-12">
+                                            <div class="col-md-6">
                                                 <div class="form-group">
                                                     <input id="question_label" type="text" name="question_label"
                                                            class="form-control" placeholder="Titre" required/>
