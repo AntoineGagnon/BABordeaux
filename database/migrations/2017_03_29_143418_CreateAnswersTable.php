@@ -15,8 +15,8 @@ class CreateAnswersTable extends Migration
     {
         Schema::create('answers', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('question_id')->references('id')->on('questions');
-            $table->integer('rules_id')->references('id')->on('rules');
+            $table->foreign('question_id')->references('id')->on('questions');
+            $table->foreign('rules_id')->references('id')->on('rules');
             $table->integer('answer_order');
             $table->string('label');
         });
