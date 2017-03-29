@@ -21,6 +21,7 @@ class CreateArtworksTable extends Migration
             $table->string('date');
             $table->string('technique');
             $table->string('location');
+            $table->string('image_url');
             $table->string('type');
             $table->string('form');
             $table->string('school');
