@@ -9,6 +9,7 @@ return array(
     'Absolute_Positioner' => $vendorDir . '/dompdf/dompdf/include/absolute_positioner.cls.php',
     'Abstract_Renderer' => $vendorDir . '/dompdf/dompdf/include/abstract_renderer.cls.php',
     'Adobe_Font_Metrics' => $vendorDir . '/phenx/php-font-lib/classes/Adobe_Font_Metrics.php',
+    'ArtworksTableSeeder' => $baseDir . '/database/seeds/ArtworksTableSeeder.php',
     'Attribute_Translator' => $vendorDir . '/dompdf/dompdf/include/attribute_translator.cls.php',
     'Block_Frame_Decorator' => $vendorDir . '/dompdf/dompdf/include/block_frame_decorator.cls.php',
     'Block_Frame_Reflower' => $vendorDir . '/dompdf/dompdf/include/block_frame_reflower.cls.php',

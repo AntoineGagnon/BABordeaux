@@ -39,14 +39,14 @@ class QuestionsTableSeeder extends Seeder
         DB::table('questions')->insert([
             'question_order' => '4',
             'is_visible' => true,
-            'question_type' => 'multiChoice',
+            'question_type' => 'multipleChoice',
             'label' => 'Comment avez-vous connu le musée ?',
             'is_required' => true
         ]);
         DB::table('questions')->insert([
             'question_order' => '5',
             'is_visible' => true,
-            'question_type' => 'multiChoice',
+            'question_type' => 'multipleChoice',
             'label' => 'Avec qui êtes vous venus ?',
             'is_required' => true
         ]);

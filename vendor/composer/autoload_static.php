@@ -270,6 +270,7 @@ class ComposerStaticInitc2502e9d4ac79d09402b513ece651ea4
         'Absolute_Positioner' => __DIR__ . '/..' . '/dompdf/dompdf/include/absolute_positioner.cls.php',
         'Abstract_Renderer' => __DIR__ . '/..' . '/dompdf/dompdf/include/abstract_renderer.cls.php',
         'Adobe_Font_Metrics' => __DIR__ . '/..' . '/phenx/php-font-lib/classes/Adobe_Font_Metrics.php',
+        'ArtworksTableSeeder' => __DIR__ . '/../..' . '/database/seeds/ArtworksTableSeeder.php',
         'Attribute_Translator' => __DIR__ . '/..' . '/dompdf/dompdf/include/attribute_translator.cls.php',
         'Block_Frame_Decorator' => __DIR__ . '/..' . '/dompdf/dompdf/include/block_frame_decorator.cls.php',
         'Block_Frame_Reflower' => __DIR__ . '/..' . '/dompdf/dompdf/include/block_frame_reflower.cls.php',
