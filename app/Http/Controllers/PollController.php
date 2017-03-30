@@ -86,7 +86,6 @@ class PollController extends Controller
     {
         $artworks = artwork::where('id',5)->get();
 
-
         $questions = question::where('is_visible', 1)->get();
         foreach ($questions as $question) {
                 $question['answers'] = answer::where('question_id', $question->id)->orderBy('answer_order', 'asc')->get();
@@ -109,7 +108,6 @@ class PollController extends Controller
 
         //fetch all question from database.
         $questions = question::all();
-
         $rules = rule::all();
 
 

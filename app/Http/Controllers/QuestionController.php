@@ -53,10 +53,7 @@ class QuestionController extends Controller
             }
         }
 
-        $questionAddedWorked = true;
-        $questions = question::all();
-
-        return redirect()->action('PollController@adminEditPoll')->with(['questionAdded' => $questionAddedWorked, 'questions' => $questions]);
+        return redirect()->action('PollController@adminEditPoll')->with("questionAdded", true);
     }
 
     /**
