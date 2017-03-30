@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\answer;
 use App\artwork;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -22,21 +21,13 @@ class ArtworkController extends Controller
      */
     public function store(Request $request)
     {
-        //This is used to make sure the name is filled and < 255 char
-        $validator = Validator::make($request->all(), [
-            'text' => 'required'
-        ]);
-        if ($validator->fails()) {
-            return redirect('/guestbook')
-                ->withInput()
-                ->withErrors($validator);
-        }
-
         $artwork = new artwork();
-        $artwork->artwork_name = $request->filename;
         $artwork->artist = $request->artist;
+        $artwork->title = $request->title;
         $artwork->date = $request->date;
-        $artwork->movement = $request->has('movement') ? $request->movement : "";
+        $artwork->type = $request->has('type') ? $request->type : "";
+        $artwork->location = $request->has('location') ? $request->location : "";
+        $artwork->image_url = $request->has('image_url') ? $request->image_url : "";
 
         $artwork->save();
         $worked = true;
