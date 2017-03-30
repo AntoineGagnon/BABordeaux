@@ -118,11 +118,11 @@
         var page = 0;
         var questionGroupsList = [];
 
-        var i = 0;
-        @foreach($questionGroups as $questionGroup)
-            questionGroupsList[i] = {{$questionGroup->id}}
-            i++;
-        @endforeach
+        {{--var i = 0;--}}
+        {{--@foreach($questionGroups as $questionGroup)--}}
+            {{--questionGroupsList[i] = {{$questionGroup->id}}--}}
+            {{--i++;--}}
+        {{--@endforeach--}}
 
         $(document).ready(function () {
             // Clic sur #prev-button
@@ -137,14 +137,14 @@
 
         function updateProgressBar() {
             var progressBar = $('.progress-bar');
-            if ({{$questionGroups->count()}} == 1)
-            {
-                value = 100;
-            }
-        else
-            {
-                var value = Math.ceil(((page + 1) / {{$questionGroups->count()}}  ) * 100);
-            }
+            {{--if ({{$questionGroups->count()}} == 1)--}}
+            {{--{--}}
+                {{--value = 100;--}}
+            {{--}--}}
+        {{--else--}}
+            {{--{--}}
+                {{--var value = Math.ceil(((page + 1) / {{$questionGroups->count()}}  ) * 100);--}}
+            {{--}--}}
             progressBar.css('width', value + '%').attr('aria-valuenow', value);
             progressBar.text(value + "%");
         }
