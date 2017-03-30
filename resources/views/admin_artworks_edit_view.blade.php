@@ -2,7 +2,7 @@
 
 @section('content')
 
-    @if(!empty($questionAdded))
+    @if (session("artworkAdded"))
         <div class="panel panel-success notranslate">
             <div class="panel-heading">
                 Oeuvre ajoutée à la base de données !
@@ -30,7 +30,7 @@
                                     <span class="glyphicon glyphicon-question-sign"></span>AJOUTER UNE NOUVELLE OEUVRE
                                 </h4>
                             </div>
-                            <form action="/admin/editartworks" method="POST">
+                            <form action="/artwork" method="POST">
                                 {{ csrf_field() }}
                                 <div class="panel-collapse collapse in">
                                     <div class="panel-body">
@@ -195,12 +195,12 @@
 
             //delete question
             $('.divdeletequestion').on("click", ".btnRemoveQuestion",function(){
-                var question_id = $(this).val();
-                if (confirm("Êtes-vous sûr de vouloir supprimer cette question ? (irréversible) ")) {
+                var artwork_id = $(this).val();
+                if (confirm("Êtes-vous sûr de vouloir supprimer cette oeuvre ? (irréversible) ")) {
                     $.ajax({
                         type: "POST",
-                        url: '/question/' + question_id,
-                        data: {_method: 'delete', _id: question_id},
+                        url: '/artwork/' + artwork_id,
+                        data: {_method: 'delete', _id: artwork_id},
                         success: function (data) {
                             $(".editform").load(location.href + " .editform*", "");
                             console.log("ok delete");
