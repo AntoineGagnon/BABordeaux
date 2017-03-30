@@ -24,7 +24,8 @@ class QuestionsTableSeeder extends Seeder
             'is_required' => true
         ]);
 
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 2,
             'question_order' => '2',
             'is_visible' => true,
             'question_type' => 'singleChoice',
@@ -32,7 +33,8 @@ class QuestionsTableSeeder extends Seeder
             'is_required' => true
         ]);
 
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 3,
             'question_order' => '3',
             'is_visible' => true,
             'question_type' => 'singleChoice',
@@ -40,14 +42,16 @@ class QuestionsTableSeeder extends Seeder
             'is_required' => true
         ]);
 
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 4,
             'question_order' => '4',
             'is_visible' => true,
             'question_type' => 'multipleChoice',
             'label' => 'Comment avez-vous connu le musée ?',
             'is_required' => true
         ]);
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 5,
             'question_order' => '5',
             'is_visible' => true,
             'question_type' => 'multipleChoice',
@@ -55,7 +59,8 @@ class QuestionsTableSeeder extends Seeder
             'is_required' => true
         ]);
 
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 6,
             'question_order' => '6',
             'is_visible' => true,
             'question_type' => 'singleChoice',
@@ -63,7 +68,8 @@ class QuestionsTableSeeder extends Seeder
             'is_required' => true
         ]);
 
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 7,
             'question_order' => '7',
             'is_visible' => true,
             'question_type' => 'singleChoice',
@@ -71,7 +77,8 @@ class QuestionsTableSeeder extends Seeder
             'is_required' => true
         ]);
 
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 8,
             'question_order' => '8',
             'is_visible' => true,
             'question_type' => 'singleChoice',
@@ -79,7 +86,8 @@ class QuestionsTableSeeder extends Seeder
             'is_required' => true
         ]);
 
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 9,
             'question_order' => '9',
             'is_visible' => true,
             'question_type' => 'singleChoice',
@@ -87,7 +95,8 @@ class QuestionsTableSeeder extends Seeder
             'is_required' => true
         ]);
 
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 10,
             'question_order' => '10',
             'is_visible' => true,
             'question_type' => 'singleChoice',
@@ -96,7 +105,8 @@ class QuestionsTableSeeder extends Seeder
         ]);
 
 
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 11,
             'question_order' => '11',
             'is_visible' => true,
             'question_type' => 'singleChoice',
@@ -104,7 +114,8 @@ class QuestionsTableSeeder extends Seeder
             'is_required' => true
         ]);
 
-        DB::table('questions')->insert([
+        DB::table('questions')->updateOrinsert([
+			'id' => 12,
             'question_order' => '12',
             'is_visible' => true,
             'question_type' => 'openAnswer',
