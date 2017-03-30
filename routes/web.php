@@ -39,6 +39,5 @@ Route::resource('admin', 'AdminController');
 Route::resource('guestbook','GuestbookController');
 Route::resource('question','QuestionController');
 
-
 Route::get('ruleMaker', 'RuleController@ruleMaker');
 Route::resource('rule', 'RuleController');

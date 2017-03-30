@@ -22,6 +22,14 @@ class RuleController extends Controller
         return view('rules.rules_view', ['rules' => $rules]);
     }
 
+    public function destroy($id)
+    {
+        if(!Auth::check())
+            return redirect()->intended('login');
+        rule::destroy($id);
+        return redirect('rule');
+    }
+
     public function store(Request $request)
     {
         $regex = new VerbalExpression();
