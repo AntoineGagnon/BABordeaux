@@ -20,6 +20,7 @@ class ArtworkController extends Controller
      */
     public function store(Request $request)
     {
+
         $artwork = new artwork();
         $artwork->artist = $request->artist;
         $artwork->title = $request->title;
@@ -118,9 +119,7 @@ class ArtworkController extends Controller
 
         return view('regexp_view', ['results' => $results]);
 
-
     }
-
 
     /**
      * ADMIN: Edit artworks

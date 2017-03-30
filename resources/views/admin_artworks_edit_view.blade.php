@@ -195,12 +195,12 @@
 
             //delete question
             $('.divdeletequestion').on("click", ".btnRemoveQuestion",function(){
-                var question_id = $(this).val();
+                var artwork_id = $(this).val();
                 if (confirm("Êtes-vous sûr de vouloir supprimer cette oeuvre ? (irréversible) ")) {
                     $.ajax({
                         type: "POST",
-                        url: '/question/' + question_id,
-                        data: {_method: 'delete', _id: question_id},
+                        url: '/artwork/' + artwork_id,
+                        data: {_method: 'delete', _id: artwork_id},
                         success: function (data) {
                             $(".editform").load(location.href + " .editform*", "");
                             console.log("ok delete");
