@@ -12,7 +12,11 @@ class QuestionsTableSeeder extends Seeder
     public function run()
     {
 
-        DB::table('questions')->insert([
+      // Changer en updateOrInsert
+      // Ajouter un id fixe
+
+        DB::table('questions')->updateOrInsert([
+            'id' => 1,
             'question_order' => '1',
             'is_visible' => true,
             'question_type' => 'singleChoice',
