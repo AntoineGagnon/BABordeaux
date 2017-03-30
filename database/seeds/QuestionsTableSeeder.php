@@ -51,7 +51,6 @@ class QuestionsTableSeeder extends Seeder
             'is_required' => true
         ]);
 
-
         DB::table('questions')->insert([
             'question_order' => '6',
             'is_visible' => true,
