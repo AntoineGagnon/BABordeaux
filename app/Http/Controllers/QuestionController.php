@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Auth;
 
 class QuestionController extends Controller
 {
-
     /**
      * Store a newly created resource in storage.
      *
@@ -27,17 +26,11 @@ class QuestionController extends Controller
 
     public function store(Request $request)
     {
-
-        if(!empty($request->delete)){
-            $this->postDeleteQuestion($request);
-        } else {
-                $question = new question();
-                $question->question_order = $request->order_num;
-                $question->label = $request->question_label;
-                $question->question_type = $request->question_type;
-                $question->is_required = $request->is_required;
-
-        }
+        $question = new question();
+        $question->question_order = $request->order_num;
+        $question->label = $request->question_label;
+        $question->question_type = $request->question_type;
+        $question->is_required = $request->is_required;
 
         $question->save();
 
@@ -53,10 +46,7 @@ class QuestionController extends Controller
             }
         }
 
-        $questionAddedWorked = true;
-        $questions = question::all();
-
-        return redirect()->action('PollController@adminEditPoll')->with(['questionAdded' => $questionAddedWorked, 'questions' => $questions]);
+        return redirect()->action('PollController@adminEditPoll')->with("questionAdded", true);
     }
 
     /**
@@ -79,9 +69,7 @@ class QuestionController extends Controller
     {
         if(!Auth::check())
             return redirect()->intended('login');
-
         question::destroy($id);
-
     }
 
     /**

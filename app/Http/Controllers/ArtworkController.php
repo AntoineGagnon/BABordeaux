@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\answer;
 use App\artwork;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use MarkWilson\VerbalExpression;
@@ -21,6 +20,7 @@ class ArtworkController extends Controller
      */
     public function store(Request $request)
     {
+
         $artwork = new artwork();
         $artwork->artist = $request->artist;
         $artwork->title = $request->title;
@@ -30,9 +30,8 @@ class ArtworkController extends Controller
         $artwork->image_url = $request->has('image_url') ? $request->image_url : "";
 
         $artwork->save();
-        $worked = true;
 
-        return redirect()->action('PollController@adminEditPoll')->with(['$worked' => $worked]);
+        return redirect()->action('ArtworkController@adminEditArtworks')->with("artworkAdded",true);
     }
 
     /**
@@ -43,7 +42,7 @@ class ArtworkController extends Controller
     public function index()
     {
 
-        //return view('guestbook_view');
+        //return view('');
     }
 
     public function regexpTester()
@@ -120,9 +119,7 @@ class ArtworkController extends Controller
 
         return view('regexp_view', ['results' => $results]);
 
-
     }
-
 
     /**
      * ADMIN: Edit artworks

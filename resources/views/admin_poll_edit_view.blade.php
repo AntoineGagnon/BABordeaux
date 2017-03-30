@@ -2,7 +2,7 @@
 
 @section('content')
 
-    @if(!empty($questionAdded))
+    @if (session("questionAdded"))
         <div class="panel panel-success notranslate">
             <div class="panel-heading">
                 Question ajoutée au sondage !
@@ -14,7 +14,6 @@
         <div class="panel-heading">
             <h1>Édition du sondage</h1>
         </div>
-
 
         <div class="panel-body">
             <!-- Display Validation Errors -->
