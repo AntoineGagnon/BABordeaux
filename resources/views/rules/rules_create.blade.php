@@ -19,13 +19,12 @@
 
             @else
 
-                <button class="btn btn-primary" id="btnAddConstraint">Ajouter une contrainte</button>
+                
 
                 <form action="/rule" id="mainForm" method="POST">
                     {{ csrf_field() }}
-
-
-                    <input type="text" id="ruleName" name="ruleName" placeholder="Nom de la règle"/>
+					
+                    <input type="form-control" class="form-group" id="ruleName" name="ruleName" placeholder="Nom de la règle"/>
 
                     <div id="constraints">
 
@@ -38,7 +37,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="form-group  col-md-2">
+                            <div class="form-group col-md-2">
                                 <select class="form-control constraintSelector" id="constraint0" name="constraint0"
                                         title="Règle">
                                     <option value="contains">Contient</option>
@@ -62,7 +61,13 @@
                         </div>
                     </div>
 
-                    <button class="btn btn-primary" type="submit">Recherche</button>
+                    <p>
+					<button class="btn btn-info " id="btnAddConstraint">Ajouter une contrainte</button>
+					</p>
+                    
+                    <div class="text-center"> 
+                    <button class="btn btn-success btn-lg" type="submit">Recherche</button>
+                	</div>
                 </form>
             @endif
 
