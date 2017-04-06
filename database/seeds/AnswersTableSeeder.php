@@ -31,7 +31,7 @@ class AnswersTableSeeder extends Seeder
         
       DB::table('answers')->updateOrInsert([
           'question_id' => 1,
-          'answer_order' => 6,
+          'answer_order' => 4,
           'label' => 'Plus de 60 ans'
       ]);
         
