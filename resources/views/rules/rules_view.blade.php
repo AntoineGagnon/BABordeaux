@@ -15,17 +15,18 @@
             <div class="list-group">
                 @include('common.errors')
                 @foreach ($rules as $rule)
-                    <div class="pull-left">
-                    <a href="/rule/{{$rule->id}}" class=" list-group-item">
-                        {{$rule->label}}
-                    </a>
-                    </div>
-                    <form action="/rule/{{$rule->id}}" class="pull-right" method="POST">
-                        {{csrf_field()}}
-                        <button type="submit" class="btn btn-danger btn-sm"><span
-                                    class="glyphicon glyphicon-remove"></span> Supprimer</button>
-                        {{method_field('DELETE')}}
+                <div class="list-group-item">
+                  <a href="/rule/{{$rule->id}}">
+                    {{$rule->label}}
+                  </a>
+
+                  <form action="/rule/{{$rule->id}}" class="pull-right" method="POST">
+                    {{csrf_field()}}
+                    <button type="submit" class="btn btn-danger btn-sm"><span
+                      class="glyphicon glyphicon-remove"></span> Supprimer</button>
+                      {{method_field('DELETE')}}
                     </form>
+                  </div>
                     <!--<form action="rule/{{$rule->id}}" method="POST">
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="btn btn-danger btn-sm"><span
