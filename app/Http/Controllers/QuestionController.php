@@ -83,9 +83,9 @@ class QuestionController extends Controller
 
         $question = question::find($id);
         if($show == 1){
-            $question->is_visible = 1;
+            $question->isVisible = 1;
         }else{
-            $question->is_visible = 0;
+            $question->isVisible = 0;
         }
         $question->save();
     }

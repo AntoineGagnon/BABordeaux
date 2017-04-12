@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-
     @if (session("submissionWorked"))
         <div class="alert alert-success alert-dismissable fade in">
             <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
@@ -107,7 +106,7 @@
             60%
         </div>
     </div>
-
+    </div>
 
 @endsection
 
@@ -130,6 +129,9 @@
 
             // Clic sur #next-button
             $('.next-button').click(onNextButtonClick);
+
+            //Clic sur #submitBtn
+            $('.submitBtn').click(submitAnswer);
 
             updateProgressBar();
 
@@ -178,6 +180,22 @@
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             $(currentQuestionGroup).removeClass('hidden');
             updateProgressBar();
+        }
+
+        function submitAnswer() {
+            var answer_id = $(this).val();//pas sur que ce soit ça
+            $.ajax({
+                type : 'GET',
+                url : url + '/' + answer_id,
+                data: {_id:answer_id},
+                success : function (data){
+                    //les trucs à faire au retour
+                    console.log("ok submitAnswer");
+                },
+                error: function(data) {
+                        console.log("error ajax submitAnswer: " + data);
+                    }
+            })
         }
 
 

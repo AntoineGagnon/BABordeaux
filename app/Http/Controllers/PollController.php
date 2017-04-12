@@ -86,7 +86,7 @@ class PollController extends Controller
     {
         $artworks = artwork::where('id',5)->get();
 
-        $questions = question::where('is_visible', 1)->get();
+        $questions = question::where('isVisible', 1)->get();
         foreach ($questions as $question) {
                 $question['answers'] = answer::where('question_id', $question->id)->orderBy('answer_order', 'asc')->get();
 
@@ -208,5 +208,9 @@ class PollController extends Controller
         else
             $spreadsheet->download('xlsx');
     }
-
+    public function submitAnswer($id) {
+        $answer = answer::find($id);
+        //le truc a retourné ici je renvoie le label mais faudra voir pour retourné une image
+        return Response::text($answer->label); 
+    }   
 }
