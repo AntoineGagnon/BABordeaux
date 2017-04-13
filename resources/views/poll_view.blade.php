@@ -183,16 +183,19 @@
         }
 
         function submitAnswer() {
-            var answer_id = $(this).val();//pas sur que ce soit ça
+            //on récupère l'id du bouton coché (qui est l'id de la réponse)
+            var answer_id = $('input[name=question_{{ $questions->first()->id }}]:checked').val();
             $.ajax({
                 type : 'GET',
-                url : url + '/' + answer_id,
+                url :  'poll/' + answer_id,
                 data: {_id:answer_id},
                 success : function (data){
+                    alert("success");
                     //les trucs à faire au retour
                     console.log("ok submitAnswer");
                 },
                 error: function(data) {
+                    alert("error")
                         console.log("error ajax submitAnswer: " + data);
                     }
             })
