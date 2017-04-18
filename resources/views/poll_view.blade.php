@@ -127,11 +127,8 @@
             // Clic sur #prev-button
             $('.prev-button').click(onPrevButtonClick);
 
-            // Clic sur #next-button
-            $('.next-button').click(onNextButtonClick);
-
             //Clic sur #submitBtn
-            $('.submitBtn').click(submitAnswer);
+            $('.next-button').click(submitAnswer);
 
             updateProgressBar();
 
@@ -182,23 +179,32 @@
             updateProgressBar();
         }
 
+        $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+                }
+            });
+
         function submitAnswer() {
             //on récupère l'id du bouton coché (qui est l'id de la réponse)
             var answer_id = $('input[name=question_{{ $questions->first()->id }}]:checked').val();
             $.ajax({
-                type : 'GET',
-                url :  'poll/' + answer_id,
+                type : 'POST',
+                url :  '/poll/' + answer_id,
                 data: {_id:answer_id},
-                success : function (data){
-                    alert("success");
+                //dataType : 'text'
+                success : function (response){
+                    var label = JSON.parse(response);
+                    // juste pour montrer que l'on a bien le bon contenu
+                    alert("Vous avez cocher la réponse: " + label.content);
                     //les trucs à faire au retour
                     console.log("ok submitAnswer");
                 },
-                error: function(data) {
-                    alert("error")
-                        console.log("error ajax submitAnswer: " + data);
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus, errorThrown);
                     }
-            })
+            });
+            onNextButtonClick()   
         }
 
 

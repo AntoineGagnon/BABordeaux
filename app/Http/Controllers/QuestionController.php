@@ -80,7 +80,9 @@ class QuestionController extends Controller
      */
     public function updateVisibilityQuestion($id, $show)
     {
-
+        if(!Auth::check())
+            return redirect()->intended('login');
+        
         $question = question::find($id);
         if($show == 1){
             $question->isVisible = 1;

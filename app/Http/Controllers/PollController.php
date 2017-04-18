@@ -210,7 +210,9 @@ class PollController extends Controller
     }
     public function submitAnswer($id) {
         $answer = answer::find($id);
+        $result = array('content' => $answer->label, );
         //le truc a retourné ici je renvoie le label mais faudra voir pour retourné une image
-        return Response::text($answer->label); 
+        echo json_encode($result);
+        
     }   
 }
