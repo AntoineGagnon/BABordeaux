@@ -47,14 +47,15 @@
                                 <div class="form-group">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            <h3>{{ $questions->first()->label }}@if($questions->first()->isRequired)<span
+                                            <h3>{{ $questions->first()->label }}@if($questions->first()->is_required)
+                                                    <span
                                                         style="color: #DA4453;"> *</span>
 
                                                 @endif
                                             </h3>
                                         </div>
 
-                                        @if($questions->first()->questionType == "openAnswer")
+                                        @if($questions->first()->question_type == "openAnswer")
                                             <textarea class="form-control" style="resize: none" rows="5"
                                                       @if($questions->first()->isRequired)
                                                       required
@@ -64,7 +65,7 @@
                                         @else
 
                                             @foreach ($questions->first()->answers as $answer)
-                                                @if($questions->first()->questionType == "singleChoice")
+                                                @if($questions->first()->question_type == "singleChoice")
                                                     <div class="form-check">
                                                         <label class="form-check-label">
                                                             <input class="form-check-input" type="radio"
@@ -75,7 +76,7 @@
                                                                    value="{{ $answer->id }}"> {{ $answer->label }}
                                                         </label>
                                                     </div>
-                                                @elseif($questions->first()->questionType == "multipleChoice")
+                                                @elseif($questions->first()->question_type == "multipleChoice")
                                                     <div class="form-check">
                                                         <label class="form-check-label">
 
