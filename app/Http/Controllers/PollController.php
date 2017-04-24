@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\answer;
@@ -84,11 +85,11 @@ class PollController extends Controller
      */
     public function index()
     {
-        $artworks = artwork::where('id',5)->get();
+        $artworks = artwork::where('id', 5)->get();
 
         $questions = question::where('is_visible', 1)->get();
         foreach ($questions as $question) {
-                $question['answers'] = answer::where('question_id', $question->id)->orderBy('answer_order', 'asc')->get();
+            $question['answers'] = answer::where('question_id', $question->id)->orderBy('answer_order', 'asc')->get();
 
         }
 
@@ -167,7 +168,6 @@ class PollController extends Controller
     }
 
 
-
     /**
      * ADMIN: Exports results of the poll to the specified format
      * @param Format of the file exported (PDF or Excel)
@@ -208,11 +208,41 @@ class PollController extends Controller
         else
             $spreadsheet->download('xlsx');
     }
-    public function submitAnswer($id) {
+
+    public function submitAnswer($id)
+    {
         $answer = answer::find($id);
-        $result = array('content' => $answer->label, );
-        //le truc a retourné ici je renvoie le label mais faudra voir pour retourné une image
-        echo json_encode($result);
-        
-    }   
+        $rule = rule::find($answer->rule_id);
+
+        if ($rule->type == 'text') {
+            $results = artwork::whereRaw($rule->attribute . ' REGEXP ' . '\'' . $rule->regexp->compile() . '\'')->get();
+        } else {
+
+            if ($rule->regexp . containsString("between")) {
+                preg_match_all('!\d+!', $rule->regexp, $matches);
+
+                $results = artwork::whereRaw($rule->attribute . ' BETWEEN ' . $matches[0] . ' AND ' . $matches[1])->get();
+            }
+            if ($rule->regexp . containsString("morethan")) {
+                $value = $int = filter_var($rule->regexp, FILTER_SANITIZE_NUMBER_INT);
+
+                $results = artwork::whereRaw($rule->attribute . ' > ' . $value)->get();
+            }
+            if ($rule->regexp . containsString("lessthan")) {
+                $value = $int = filter_var($rule->regexp, FILTER_SANITIZE_NUMBER_INT);
+
+                $results = artwork::whereRaw($rule->attribute . ' < ' . $value)->get();
+            }
+            if ($rule->regexp . containsString("equalto")) {
+                $value = $int = filter_var($rule->regexp, FILTER_SANITIZE_NUMBER_INT);
+
+                $results = artwork::whereRaw($rule->attribute . ' = ' . $value)->get();
+            }
+        }
+
+        $result = $results->random();
+
+        return $result->json();
+
+    }
 }

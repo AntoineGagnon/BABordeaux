@@ -100,15 +100,22 @@ class ArtworkController extends Controller
                 break;
 
             case "between":
+                $rule->regexp = "between " . $value . " " . $request->value_greater0;
                 $results = artwork::whereRaw($attribute . ' BETWEEN ' . $value . ' AND '. $request->value_greater0)->get();
                 break;
             case "morethan":
+                $rule->regexp = "morethan " . $value;
+
                 $results = artwork::whereRaw($attribute . ' > ' . $value )->get();
                 break;
             case "lessthan":
+                $rule->regexp = "lessthan " . $value;
+
                 $results = artwork::whereRaw($attribute . ' < ' . $value )->get();
                 break;
             case "equalto":
+                $rule->regexp = "equalto " . $value;
+
                 $results = artwork::whereRaw($attribute . ' = ' . $value )->get();
                 break;
 

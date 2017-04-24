@@ -24,11 +24,12 @@ class RuleController extends Controller
 
     public function destroy($id)
     {
-        if(!Auth::check())
+        if (!Auth::check())
             return redirect()->intended('login');
         rule::destroy($id);
         return redirect('rule');
     }
+
 
     public function store(Request $request)
     {
@@ -50,7 +51,6 @@ class RuleController extends Controller
                 $regex->anything()
                     ->anythingBut($value)
                     ->anything();
-                // ^((?!WORD).)*$
                 $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
 
                 break;
@@ -64,8 +64,8 @@ class RuleController extends Controller
                 $regex->endOfLine()
                     ->add($value);
                 $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
-
                 break;
+
 
             case "between":
                 $results = artwork::whereRaw($attribute . ' BETWEEN ' . $value . ' AND ' . $request->value_greater0)->get();
@@ -86,16 +86,11 @@ class RuleController extends Controller
         }
 
         $rule->regexp = $regex->compile();
+        $rule->attribute = $attribute;
 
         $rule->save();
 
         return view('rules.rules_create', ['results' => $results]);
-    }
-
-    public function search(Request $request)
-    {
-
-
     }
 
     public function ruleMaker()
@@ -110,4 +105,5 @@ class RuleController extends Controller
         return view('rules.rules_create', ['attributes' => $attributes]);
 
     }
+
 }

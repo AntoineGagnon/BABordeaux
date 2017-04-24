@@ -192,12 +192,12 @@
             $.ajax({
                 type : 'POST',
                 url :  '/poll/' + answer_id,
-                data: {_id:answer_id},
+                data: {id: answer_id},
                 //dataType : 'text'
                 success : function (response){
                     var label = JSON.parse(response);
                     // juste pour montrer que l'on a bien le bon contenu
-                    alert("Vous avez cocher la réponse: " + label.content);
+                    alert("Vous avez cocher la réponse: " + response.id);
                     //les trucs à faire au retour
                     console.log("ok submitAnswer");
                 },

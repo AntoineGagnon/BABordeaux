@@ -16,7 +16,9 @@ class CreateRulesTable extends Migration
         Schema::create('rules', function (Blueprint $table) {
             $table->increments('id');
             $table->string('label');
+            $table->string('attribute');
             $table->string('regexp');
+            $table->enum('rule_type', ['number', 'text']);
         });
     }
 
