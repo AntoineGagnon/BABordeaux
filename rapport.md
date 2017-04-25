@@ -1,6 +1,6 @@
 # Rapport de réalisation - Projet d'étude de public
 
-Guillaume CHUPIN / Timothée DAUBASSE / Célia PAQUE / Cyril NIOBE / Antoine GAGNON / Andy AMELOZARA
+Guillaume CHUPIN / Timothée DAUBASSE / Célia PAQUE / Cyril NIOBÉ / Antoine GAGNON / Andy AMELOZARA
 
 
 ## Cahier des charges
@@ -42,6 +42,7 @@ regroupant tous les résultats sous forme de graphiques.
 
 ### Présentation du projet réalisé
 
+### Affichage des questions et des oeuvres
 
 ### Gestion des oeuvres
 
