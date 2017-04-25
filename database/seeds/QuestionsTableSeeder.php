@@ -20,7 +20,7 @@ class QuestionsTableSeeder extends Seeder
             'question_order' => '1',
             'is_visible' => true,
             'question_type' => 'singleChoice',
-            'label' => "Quel est votre age ",
+            'label' => "Quel est votre âge ?",
             'is_required' => true
         ]);
 
