@@ -8,17 +8,13 @@ use App\choice;
 use App\Choix;
 use App\Http\Requests;
 use App\question;
-use App\question_group;
 use App\Reponse;
 use App\rule;
 use App\Sondage;
-use App\guestbook_submission;
 use App\submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Khill\Lavacharts\Laravel\LavachartsFacade as Lava;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class PollController extends Controller

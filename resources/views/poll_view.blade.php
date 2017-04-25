@@ -25,7 +25,7 @@
                 <div class="form-group">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h3>DÉCOUVREZ QUELLE OEUVRE ARTISTIQUE VOUS CORRESPOND !</h3>
+                            <h3 style="color: dodgerblue">DÉCOUVREZ QUELLE OEUVRE ARTISTIQUE VOUS CORRESPOND !</h3>
                         </div>
                         <div class="panel-body">
 
@@ -46,49 +46,39 @@
                             <h4>Nous vous invitons à découvrir quelle oeuvre artistique vous correspond en commençant par répondre à la question suivante: </h4>
                                 <div class="form-group">
                                     <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <h3>{{ $questions->first()->label }}@if($questions->first()->is_required)
-                                                    <span
-                                                        style="color: #DA4453;"> *</span>
-
-                                                @endif
+                                        @foreach($questions as $question)
+                                            <div class="panel-heading">
+                                            <h3>{{ $question->label }}@if($question->is_required)<span style="color: #DA4453;"> *</span>@endif
                                             </h3>
-                                        </div>
-
-                                        @if($questions->first()->question_type == "openAnswer")
-                                            <textarea class="form-control" style="resize: none" rows="5"
-                                                      @if($questions->first()->isRequired)
-                                                      required
-                                                      @endif
-                                                      name="question_{{ $questions->first()->id }}"></textarea>
-                                            <br>
-                                        @else
-
-                                            @foreach ($questions->first()->answers as $answer)
-                                                @if($questions->first()->question_type == "singleChoice")
-                                                    <div class="form-check">
-                                                        <label class="form-check-label">
-                                                            <input class="form-check-input" type="radio"
-                                                                   @if($questions->first()->isRequired)
-                                                                   required
-                                                                   @endif
-                                                                   name="question_{{ $questions->first()->id }}"
-                                                                   value="{{ $answer->id }}"> {{ $answer->label }}
-                                                        </label>
-                                                    </div>
-                                                @elseif($questions->first()->question_type == "multipleChoice")
-                                                    <div class="form-check">
-                                                        <label class="form-check-label">
-
-                                                            <input class="form-check-input" type="checkbox"
-                                                                   name="question_{{ $questions->first()->id }}[]"
-                                                                   value="{{ $answer->id }}"> {{ $answer->label }}
-                                                        </label>
-                                                    </div>
-                                                @endif
-                                            @endforeach
-
-                                        @endif
+                                            </div>
+                                            @if($question->question_type == "openAnswer")
+                                                <textarea class="form-control" style="resize: none" rows="5" @if($question->isRequired)required @endif name="question_{{ $question->id }}"></textarea>
+                                                <br>
+                                            @else
+                                                @foreach ($question->answers as $answer)
+                                                    @if($question->question_type == "singleChoice")
+                                                        <div class="form-check">
+                                                            <label class="form-check-label">
+                                                                <input class="form-check-input" type="radio"
+                                                                       @if($question->isRequired)
+                                                                       required
+                                                                       @endif
+                                                                       name="question_{{ $question->id }}"
+                                                                       value="{{ $answer->id }}"> {{ $answer->label }}
+                                                            </label>
+                                                        </div>
+                                                    @elseif($question->question_type == "multipleChoice")
+                                                        <div class="form-check">
+                                                            <label class="form-check-label">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                       name="question_{{ $question->id }}[]"
+                                                                       value="{{ $answer->id }}"> {{ $answer->label }}
+                                                            </label>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            @endif
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
@@ -174,7 +164,7 @@
             console.log(page);
 
             jQuery('#next').removeClass('hidden');
-            
+
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             $(currentQuestionGroup).removeClass('hidden');
             updateProgressBar();
@@ -188,7 +178,7 @@
 
         function submitAnswer() {
             //on récupère l'id du bouton coché (qui est l'id de la réponse)
-            var answer_id = $('input[name=question_{{ $questions->first()->id }}]:checked').val();
+            var answer_id = $('input[name=question_{{ $question->id }}]:checked').val();
             $.ajax({
                 type : 'POST',
                 url :  '/poll/' + answer_id,
@@ -205,7 +195,7 @@
                     console.log(textStatus, errorThrown);
                     }
             });
-            onNextButtonClick()   
+            onNextButtonClick()
         }
 
 
