@@ -29,55 +29,57 @@
                         </div>
                         <div class="panel-body">
 
-                            <div id="next" class="hidden">
-                                @foreach($artworks as $artwork)
-                                    <img style="width: 50%; height: 50%; float:left;" src="{{$artwork->image_url}}" alt="artwork_image" />
+                            {{--<div id="next" class="hidden">--}}
+                                {{--@foreach($artworks as $artwork)--}}
+                                    {{--<img style="width: 50%; height: 50%; float:left;" src="{{$artwork->image_url}}" alt="artwork_image" />--}}
 
-                                    <div style="overflow: hidden; border: double;">
-                                        <p>Title: {{$artwork->title}} </p>
-                                        <p>Artist: {{$artwork->artist}} ({{$artwork->born_died}}</p>
-                                        <p>Date: {{$artwork->date}}</p>
-                                        <p>Technique: {{$artwork->technique}}</p>
-                                        <p>Type: {{$artwork->type}}</p>
-                                    </div>
-                                @endforeach
-                            </div>
+                                    {{--<div style="overflow: hidden; border: double;">--}}
+                                        {{--<p>Title: {{$artwork->title}} </p>--}}
+                                        {{--<p>Artist: {{$artwork->artist}} ({{$artwork->born_died}}</p>--}}
+                                        {{--<p>Date: {{$artwork->date}}</p>--}}
+                                        {{--<p>Technique: {{$artwork->technique}}</p>--}}
+                                        {{--<p>Type: {{$artwork->type}}</p>--}}
+                                    {{--</div>--}}
+                                {{--@endforeach--}}
+                            {{--</div>--}}
                             <div id="first">
                             <h4>Nous vous invitons à découvrir quelle oeuvre artistique vous correspond en commençant par répondre à la question suivante: </h4>
                                 <div class="form-group">
                                     <div class="panel panel-default">
                                         @foreach($questions as $question)
-                                            <div class="panel-heading">
-                                            <h3>{{ $question->label }}@if($question->is_required)<span style="color: #DA4453;"> *</span>@endif
-                                            </h3>
+                                            <div class="panel @if($question != $questions->first()) hidden @endif " id="question_id_{{$question->id}}">
+                                                <div class="panel-heading">
+                                                <h3>{{ $question->label }}@if($question->is_required)<span style="color: #DA4453;"> *</span>@endif
+                                                </h3>
+                                                </div>
+                                                @if($question->question_type == "openAnswer")
+                                                    <textarea class="form-control" style="resize: none" rows="5" @if($question->isRequired)required @endif name="question_{{ $question->id }}"></textarea>
+                                                    <br>
+                                                @else
+                                                    @foreach ($question->answers as $answer)
+                                                        @if($question->question_type == "singleChoice")
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="radio"
+                                                                           @if($question->isRequired)
+                                                                           required
+                                                                           @endif
+                                                                           name="question_{{ $question->id }}"
+                                                                           value="{{ $answer->id }}"> {{ $answer->label }}
+                                                                </label>
+                                                            </div>
+                                                        @elseif($question->question_type == "multipleChoice")
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox"
+                                                                           name="question_{{ $question->id }}[]"
+                                                                           value="{{ $answer->id }}"> {{ $answer->label }}
+                                                                </label>
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+                                                @endif
                                             </div>
-                                            @if($question->question_type == "openAnswer")
-                                                <textarea class="form-control" style="resize: none" rows="5" @if($question->isRequired)required @endif name="question_{{ $question->id }}"></textarea>
-                                                <br>
-                                            @else
-                                                @foreach ($question->answers as $answer)
-                                                    @if($question->question_type == "singleChoice")
-                                                        <div class="form-check">
-                                                            <label class="form-check-label">
-                                                                <input class="form-check-input" type="radio"
-                                                                       @if($question->isRequired)
-                                                                       required
-                                                                       @endif
-                                                                       name="question_{{ $question->id }}"
-                                                                       value="{{ $answer->id }}"> {{ $answer->label }}
-                                                            </label>
-                                                        </div>
-                                                    @elseif($question->question_type == "multipleChoice")
-                                                        <div class="form-check">
-                                                            <label class="form-check-label">
-                                                                <input class="form-check-input" type="checkbox"
-                                                                       name="question_{{ $question->id }}[]"
-                                                                       value="{{ $answer->id }}"> {{ $answer->label }}
-                                                            </label>
-                                                        </div>
-                                                    @endif
-                                                @endforeach
-                                            @endif
                                         @endforeach
                                     </div>
                                 </div>
@@ -85,8 +87,10 @@
                         </div>
                         </div>
                     </div>
-                <button type="button" class="btn btn-info pull-right glyphicon glyphicon-arrow-right next-button" id="nextButton"></button>
-                <button type="submit" style="display: none" class="btn btn-primary pull-right btn-lg" id="submitBtn">Valider</button>
+
+                    <button type="button" class="btn btn-info pull-right glyphicon glyphicon-arrow-right next-button" id="nextButton"></button>
+                    <button type="submit" class="btn btn-primary pull-right btn-lg hidden" id="submitBtn">Valider</button>
+
             </form>
 
         </div>
@@ -106,22 +110,22 @@
     @parent
     <script>
         var page = 0;
-        var questionGroupsList = [];
+        var questionsList = [];
 
-        {{--var i = 0;--}}
-        {{--@foreach($questionGroups as $questionGroup)--}}
-            {{--questionGroupsList[i] = {{$questionGroup->id}}--}}
-            {{--i++;--}}
-        {{--@endforeach--}}
+        var i = 0;
+        @foreach($questions as $question)
+            questionsList[i] = {{$question->id}}
+            i++;
+        @endforeach
 
         $(document).ready(function () {
-            // Clic sur #prev-button
-            $('.prev-button').click(onPrevButtonClick);
+            // Clic sur #next-button
+            //$('.next-button').click(onNextButtonClick());
 
             //Clic sur #submitBtn
             $('.next-button').click(submitAnswer);
 
-            updateProgressBar();
+            //updateProgressBar();
 
         });
 
@@ -144,7 +148,6 @@
             currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
             currentQuestionGroup.addClass('hidden');
             console.log(page);
-
             page--;
             console.log(page);
 
@@ -156,18 +159,25 @@
 
         function onNextButtonClick() {
             console.log("NextButtonClicked");
-            console.log(page);
-
-            jQuery('#first').addClass('hidden');
+            //console.log("page " + page);
+            currentQuestion = $('#question_id_' + questionsList[page]);
+            //jQuery('#first').addClass('hidden');
+            jQuery('#question_id_1').addClass('hidden');
+            jQuery('#question_id_'+questionsList[page]).addClass('hidden');
 
             page++;
-            console.log(page);
+            console.log("page " + page);
 
-            jQuery('#next').removeClass('hidden');
+            //jQuery('#next').removeClass('hidden');
 
-            currentQuestionGroup = $('#question_group_' + questionGroupsList[page]);
-            $(currentQuestionGroup).removeClass('hidden');
-            updateProgressBar();
+            currentQuestion = $('#question_id_' + questionsList[page]);
+
+            $(currentQuestion).removeClass('hidden');
+            //updateProgressBar();
+            if(page+1 == questionsList[questionsList.length-1]){
+                jQuery('#nextButton').addClass('hidden');
+                jQuery('#submitBtn').removeClass('hidden');
+            }
         }
 
         $.ajaxSetup({
