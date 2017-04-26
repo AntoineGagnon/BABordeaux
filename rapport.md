@@ -41,11 +41,12 @@ regroupant tous les résultats sous forme de graphiques.
 ## Travail réalisé
 
 ### Présentation du projet réalisé
+Nous avons réalisé un projet s'axant autour de l'axe du ludique. Le visiteur du musée réponds à différents questions axées autour de sa visite, quelques informations sur lui-même afin de permettre de cerner un tableau lui correspondant. Ces questions sont en liens avec des attributs de tableaux permettant une liaisons question/tableau plus facile.
 
 ### Affichage des questions et des oeuvres
 
 ### Gestion des oeuvres
-
+La gestion des oeuvres se fait via une base de données. Au premier en sql elle est aujourd'hui gérée via des seeds en php.
 ### Gestion des règles
 
 ### Liaison des questions aux règles
