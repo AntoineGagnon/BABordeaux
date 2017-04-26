@@ -119,11 +119,11 @@
         @endforeach
 
         $(document).ready(function () {
-            // Clic sur #next-button
-            //$('.next-button').click(onNextButtonClick());
+            //Clic sur #next-button
+            $('.next-button').click(onNextButtonClick);
 
             //Clic sur #submitBtn
-            $('.next-button').click(submitAnswer);
+            $('.submitBtn').click(submitAnswer);
 
             //updateProgressBar();
 
@@ -197,7 +197,7 @@
                 success : function (response){
                     var label = JSON.parse(response);
                     // juste pour montrer que l'on a bien le bon contenu
-                    alert("Vous avez cocher la réponse: " + response.id);
+                    alert("Label.id");
                     //les trucs à faire au retour
                     console.log("ok submitAnswer");
                 },
@@ -205,7 +205,6 @@
                     console.log(textStatus, errorThrown);
                     }
             });
-            onNextButtonClick()
         }
 
 

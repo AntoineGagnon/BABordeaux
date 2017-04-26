@@ -13,7 +13,7 @@
 
 Route::resource('/', 'PollController');
 Route::resource('poll','PollController');
-Route::get('poll/{id}', 'PollController@submitAnswer');
+Route::post('/poll/{id}', 'PollController@submitAnswer');
 Route::get('regexp','ArtworkController@regexpTester');
 Route::post('regexp/search','ArtworkController@searchForArtwork');
 

@@ -237,8 +237,9 @@ class PollController extends Controller
         }
 
         $result = $results->random();
-
-        return $result->json();
+        $retour = array('id' => $result->id, );
+        echo json_encode($retour);
+        //return $result->json();
 
     }
 }
