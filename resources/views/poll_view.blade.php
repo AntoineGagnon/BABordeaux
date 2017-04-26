@@ -188,13 +188,11 @@
             console.log("SubmitAnswer");
             var answer_id = $('input[name=question_' + questionsList[page] + '\\[\\]]:checked').val();
             $.ajax({
-                type: 'POST',
-                url: '/poll/' + answer_id,
+                type: 'GET',
+                url: '/getArtworkFromAnswer/' + answer_id,
                 data: {id: answer_id},
                 //dataType : 'text'
                 success: function (response) {
-                    var label = JSON.parse(response);
-                    // juste pour montrer que l'on a bien le bon contenu
                     alert("Label.id");
                     //les trucs à faire au retour
                     console.log("ok submitAnswer");

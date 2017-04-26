@@ -69,6 +69,7 @@ class QuestionController extends Controller
     {
         if(!Auth::check())
             return redirect()->intended('login');
+        answer::where('question_id', $id)->destroy();
         question::destroy($id);
     }
 

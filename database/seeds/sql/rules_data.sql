@@ -1,0 +1,28 @@
+
+
+INSERT INTO `rules` (`id`, `label`, `attribute`, `regexp`) VALUES
+(3, 'Date moins 1500', 'date', 'lessthan 1500'),
+(9, 'Entre 1500 et 1650', 'date', 'between 1500 1650'),
+(10, 'Entre 1650 et 1750', 'date', 'between 1650 1750'),
+(11, 'Supérieur à 1750', 'date', 'morethan 1750'),
+(12, 'Ecole française', 'school', '(French)'),
+(13, 'Ecole Allemande', 'school', '(German)'),
+(14, 'Ecole italienne', 'school', '(Italian)'),
+(16, 'ID + de 500', 'id', 'morethan 500'),
+(17, 'Id - de 500', 'id', 'lessthan 500'),
+(19, 'Oil', 'technique', '(Oil)'),
+(20, 'Sand', 'technique', '(Sand)'),
+(21, 'Wood', 'technique', '(Wood)'),
+(23, 'Marble', 'technique', '(Marble)'),
+(24, 'Photo', 'technique', '(Photo)'),
+(25, 'Polychrome', 'technique', '(Poly)'),
+(26, 'Commence par ABC', 'artist', '^(\\[ABC\\])'),
+(27, 'Commence par DE', 'artist', '^(\\[DE\\])'),
+(28, 'Commence FGH', 'artist', '^(\\[FGH\\])'),
+(29, 'Commence par IJ', 'artist', '^(\\[IJ\\])'),
+(30, 'Commence par KLM', 'artist', '^(\\[KLM\\])'),
+(31, 'Commence par NO', 'artist', '^(\\[NO\\])'),
+(32, 'Commence par PQR', 'artist', '^(\\[PQR\\])'),
+(33, 'Commence par STU', 'artist', '^(\\[STU\\])'),
+(34, 'Commence VW', 'artist', '^(\\[VW\\])'),
+(35, 'Commence XYZ', 'artist', '^(\\[XYZ\\])');
