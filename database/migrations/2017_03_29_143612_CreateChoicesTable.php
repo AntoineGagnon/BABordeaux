@@ -18,9 +18,9 @@ class CreateChoicesTable extends Migration
             $table->integer('question_id')->unsigned();
             $table->integer('answer_id')->unsigned();
             $table->integer('submission_id')->unsigned();
-            $table->foreign('question_id')->references('id')->on('questions');
-            $table->foreign('answer_id')->references('id')->on('answers');
-            $table->foreign('submission_id')->references('id')->on('submissions');
+            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
+            $table->foreign('answer_id')->references('id')->on('answers')->onDelete('cascade');
+            $table->foreign('submission_id')->references('id')->on('submissions')->onDelete('cascade');
         });
     }
 

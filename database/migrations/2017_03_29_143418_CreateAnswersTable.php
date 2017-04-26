@@ -20,7 +20,7 @@ class CreateAnswersTable extends Migration
             $table->integer('answer_order');
             $table->string('label');
 
-            $table->foreign('question_id')->references('id')->on('questions');
+            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
             $table->foreign('rule_id')->references('id')->on('rules');
         });
     }
