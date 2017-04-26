@@ -16,9 +16,9 @@
                 @foreach ($rules as $rule)
                     <div class="list-group-item">
                         <div class="row">
-                            <a href="/rule/{{$rule->id}}" class="col-lg-8">
+                            <div class="col-lg-8">
                                 {{$rule->label}}
-                            </a>
+                            </div>
 
                             <form action="/rule/{{$rule->id}}" method="POST">
                                 {{csrf_field()}}
