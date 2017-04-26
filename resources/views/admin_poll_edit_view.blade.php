@@ -69,7 +69,6 @@
                                                                placeholder="choix"/>
                                                     </div>
                                                     <div class="form-group">
-
                                                         <label>
                                                             Règle associée
                                                             <select name="rule_0" class="form-control">
@@ -79,7 +78,6 @@
                                                             </select>
                                                         </label>
                                                     </div>
-
                                                 </div>
                                             </div>
                                         </div>
@@ -209,6 +207,17 @@
         function initialise() {
             var countChoice = 0;
 
+            var html = '<div class="form-group" >' +
+                    '<label>' +
+                    'Règle associée ' +
+                    '<select name="rule_0" class="form-control">' +
+                    '@foreach($rules as $rule)' +
+                    '<option value="{{$rule->id}}">{{$rule->label}}</option>' +
+                    '@endforeach' +
+                    '</select>' +
+                    '</label>' +
+                    '</div>';
+
             $('select').on('change', function () {
                 if (this.value == "openAnswer") {
                     $("#choices-group").css("display", "none");
@@ -229,8 +238,11 @@
                     return ++oldval;
                 });
                 countChoice++;
-                $("#choices-group").append("<input type='text' class='form-control choice' name='choice" + countChoice + "' placeholder='choix' required/>");
+                $("#choices-group").append("</br> <input type='text' class='form-control choice' name='choice" + countChoice + "' placeholder='choix' required/>");
 
+
+
+                $("#choices-group").append(html);
             });
 
             $("#btnRemoveChoice").click(function () {
