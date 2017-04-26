@@ -462,6 +462,7 @@ class ComposerStaticInitc2502e9d4ac79d09402b513ece651ea4
         'Positioner' => __DIR__ . '/..' . '/dompdf/dompdf/include/positioner.cls.php',
         'QuestionsTableSeeder' => __DIR__ . '/../..' . '/database/seeds/QuestionsTableSeeder.php',
         'Renderer' => __DIR__ . '/..' . '/dompdf/dompdf/include/renderer.cls.php',
+        'RulesTableSeeder' => __DIR__ . '/../..' . '/database/seeds/RulesTableSeeder.php',
         'Style' => __DIR__ . '/..' . '/dompdf/dompdf/include/style.cls.php',
         'Stylesheet' => __DIR__ . '/..' . '/dompdf/dompdf/include/stylesheet.cls.php',
         'TCPDF_Adapter' => __DIR__ . '/..' . '/dompdf/dompdf/include/tcpdf_adapter.cls.php',

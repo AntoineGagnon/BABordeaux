@@ -43,12 +43,15 @@ class RuleController extends Controller
 
         switch ($constraint) {
             case "contains":
+                $rule->rule_type = 'text';
                 $regex->find($value);
                 $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
                 $rule->regexp = $regex->compile();
 
                 break;
             case "notcontains":
+                $rule->rule_type = 'text';
+
                 $regex->anything()
                     ->anythingBut($value)
                     ->anything();
@@ -57,6 +60,8 @@ class RuleController extends Controller
 
                 break;
             case "begins":
+                $rule->rule_type = 'text';
+
                 $regex->startOfLine()
                     ->then($value);
                 $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
@@ -64,6 +69,8 @@ class RuleController extends Controller
 
                 break;
             case "ends":
+                $rule->rule_type = 'text';
+
                 $regex->endOfLine()
                     ->add($value);
                 $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
@@ -73,19 +80,27 @@ class RuleController extends Controller
 
 
             case "between":
+                $rule->rule_type = 'number';
+
                 $results = artwork::whereRaw($attribute . ' BETWEEN ' . $value . ' AND ' . $request->value_greater)->get();
                 $rule->regexp = "between " . $value . " " . $request->value_greater;
                 break;
             case "morethan":
+                $rule->rule_type = 'number';
+
                 $results = artwork::whereRaw($attribute . ' > ' . $value)->get();
                 $rule->regexp = "morethan " . $value;
                 break;
             case "lessthan":
+                $rule->rule_type = 'number';
+
                 $results = artwork::whereRaw($attribute . ' < ' . $value)->get();
                 $rule->regexp = "lessthan " . $value;
 
                 break;
             case "equalto":
+                $rule->rule_type = 'number';
+
                 $results = artwork::whereRaw($attribute . ' = ' . $value)->get();
                 $rule->regexp = "equalto " . $value;
 
