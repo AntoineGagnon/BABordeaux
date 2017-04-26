@@ -20,23 +20,22 @@
             <form action="/poll" method="POST">
                 {{ csrf_field() }}
 
-                <h4>Nous vous invitons à découvrir quelle oeuvre artistique vous correspond en commençant par répondre à
+                <h4 id="instructions">Nous vous invitons à découvrir quelle oeuvre artistique vous correspond en
+                    commençant par répondre à
                     la question suivante: </h4>
 
+                <div id="artworkHolder" class="hidden row">
 
-                {{--<div id="next" class="hidden">--}}
-                {{--@foreach($artworks as $artwork)--}}
-                {{--<img style="width: 50%; height: 50%; float:left;" src="{{$artwork->image_url}}" alt="artwork_image" />--}}
+                    <img id="image" style="width: 50%; height: 50%; float:left;" src="" alt="artwork_image"/>
 
-                {{--<div style="overflow: hidden; border: double;">--}}
-                {{--<p>Title: {{$artwork->title}} </p>--}}
-                {{--<p>Artist: {{$artwork->artist}} ({{$artwork->born_died}}</p>--}}
-                {{--<p>Date: {{$artwork->date}}</p>--}}
-                {{--<p>Technique: {{$artwork->technique}}</p>--}}
-                {{--<p>Type: {{$artwork->type}}</p>--}}
-                {{--</div>--}}
-                {{--@endforeach--}}
-                {{--</div>--}}
+                    <div style="overflow: hidden; border: double;">
+                        <p id="title">Title: </p>
+                        <p id="artist">Artist: </p>
+                        <p id="date">Date: </p>
+                        <p id="technique">Technique: </p>
+                        <p id="type">Type: </p>
+                    </div>
+                </div>
                 <div class="form-group">
                     @foreach($questions as $question)
                         <div class="panel panel-default @if($question != $questions->first()) hide @endif "
@@ -49,7 +48,7 @@
                             <div class="panel-body">
                                 @if($question->question_type == "openAnswer")
                                     <textarea class="form-control" style="resize: none" rows="5"
-                                              @if($question->isRequired)required
+                                              @if($question->is_required)required
                                               @endif name="question_{{ $question->id }}"></textarea>
                                     <br>
                                 @else
@@ -59,7 +58,7 @@
                                             <div class="form-check">
                                                 <label class="form-check-label">
                                                     <input class="form-check-input" type="radio"
-                                                           @if($question->isRequired)
+                                                           @if($question->is_required)
                                                            required
                                                            @endif
                                                            name="question_{{ $question->id }}[]"
@@ -103,6 +102,9 @@
         </div>
     </div>
 
+    <!--To put  a facebook and a twitter share buttons-->
+    <div class="sharethis-inline-share-buttons"></div>
+
 @endsection
 
 
@@ -115,10 +117,11 @@
         var i = 0;
         @foreach($questions as $question)
             questionsList[i] = {{$question->id}};
-            i++;
+        i++;
         @endforeach
 
         $(document).ready(function () {
+            updateProgressBar();
             //Clic sur #next-button
             nextButton = $('.next-button');
             nextButton.click(onNextButtonClick);
@@ -132,14 +135,8 @@
 
         function updateProgressBar() {
             var progressBar = $('.progress-bar');
-            {{--if ({{$questionGroups->count()}} == 1)--}}
-            {{--{--}}
-                {{--value = 100;--}}
-            {{--}--}}
-        {{--else--}}
-            {{--{--}}
-                {{--var value = Math.ceil(((page + 1) / {{$questionGroups->count()}}  ) * 100);--}}
-            {{--}--}}
+            var value = Math.ceil(((page + 1) / {{$questions->count()}}  ) * 100);
+            console.log(value);
             progressBar.css('width', value + '%').attr('aria-valuenow', value);
             progressBar.text(value + "%");
         }
@@ -159,6 +156,10 @@
         }
 
         function onNextButtonClick() {
+            if (page === 0) {
+                $("#instructions").addClass("hidden");
+                $("#artworkHolder").removeClass("hidden");
+            }
             submitAnswer();
             console.log("NextButtonClicked");
             //console.log("page " + page);
@@ -170,8 +171,8 @@
             currentQuestion = $('#question_id_' + questionsList[page]);
 
             $(currentQuestion).removeClass('hide');
-            //updateProgressBar();
-            if (page + 1 == i) {
+            updateProgressBar();
+            if (page + 1 === i) {
                 jQuery('#nextButton').addClass('hide');
                 jQuery('#submitBtn').removeClass('hide');
             }
@@ -183,17 +184,32 @@
             }
         });
 
+        function changeArtwork(data) {
+            jsonResponse = JSON.parse(data);
+            titleDiv = $('#title');
+            artistDiv = $('#artist');
+            dateDiv = $('#date');
+            techniqueDiv = $('#technique');
+            typeDiv = $('#type');
+            image = $('#image');
+
+            titleDiv.html("Titre : " + jsonResponse.title);
+            artistDiv.html("Artist : " + jsonResponse.artist + " Né et mort : " + jsonResponse.born_died);
+            dateDiv.html("Date : " + jsonResponse.date);
+            techniqueDiv.html("Technique : " + jsonResponse.technique);
+            typeDiv.html("Type : " + jsonResponse.type);
+            image.attr("src", jsonResponse.image_url);
+        }
         function submitAnswer() {
             //on récupère l'id du bouton coché (qui est l'id de la réponse)
             console.log("SubmitAnswer");
             var answer_id = $('input[name=question_' + questionsList[page] + '\\[\\]]:checked').val();
             $.ajax({
-                type: 'GET',
+                type: 'POST',
                 url: '/getArtworkFromAnswer/' + answer_id,
-                data: {id: answer_id},
-                //dataType : 'text'
-                success: function (response) {
-                    alert("Label.id");
+                success: function (data, status, xhttp) {
+
+                    changeArtwork(data);
                     //les trucs à faire au retour
                     console.log("ok submitAnswer");
                 },

@@ -201,6 +201,7 @@ return array(
     'Positioner' => $vendorDir . '/dompdf/dompdf/include/positioner.cls.php',
     'QuestionsTableSeeder' => $baseDir . '/database/seeds/QuestionsTableSeeder.php',
     'Renderer' => $vendorDir . '/dompdf/dompdf/include/renderer.cls.php',
+    'RulesTableSeeder' => $baseDir . '/database/seeds/RulesTableSeeder.php',
     'Style' => $vendorDir . '/dompdf/dompdf/include/style.cls.php',
     'Stylesheet' => $vendorDir . '/dompdf/dompdf/include/stylesheet.cls.php',
     'TCPDF_Adapter' => $vendorDir . '/dompdf/dompdf/include/tcpdf_adapter.cls.php',

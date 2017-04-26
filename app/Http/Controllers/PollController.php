@@ -205,41 +205,36 @@ class PollController extends Controller
             $spreadsheet->download('xlsx');
     }
 
-    public function submitAnswer($id)
+    public function getArtworkFromAnswer($id)
     {
         $answer = answer::find($id);
         $rule = rule::find($answer->rule_id);
 
         if (!is_null($rule)) {
-            if ($rule->type == 'text') {
-                $results = artwork::whereRaw($rule->attribute . ' REGEXP ' . '\'' . $rule->regexp->compile() . '\'')->get();
+            if ($rule->rule_type == 'text') {
+                $results = artwork::whereRaw($rule->attribute . ' REGEXP ' . '\'' . $rule->regexp . '\'')->get();
             } else {
 
-                if ($rule->regexp . containsString("between")) {
+                if (str_contains($rule->regexp, "between")) {
                     preg_match_all('!\d+!', $rule->regexp, $matches);
-
-                    $results = artwork::whereRaw($rule->attribute . ' BETWEEN ' . $matches[0] . ' AND ' . $matches[1])->get();
+                    $results = artwork::whereRaw($rule->attribute . ' BETWEEN ' . $matches[0][0] . ' AND ' . $matches[0][1])->get();
                 }
-                if ($rule->regexp . containsString("morethan")) {
+                if (str_contains($rule->regexp, "morethan")) {
                     $value = $int = filter_var($rule->regexp, FILTER_SANITIZE_NUMBER_INT);
-
                     $results = artwork::whereRaw($rule->attribute . ' > ' . $value)->get();
                 }
-                if ($rule->regexp . containsString("lessthan")) {
+                if (str_contains($rule->regexp, "lessthan")) {
                     $value = $int = filter_var($rule->regexp, FILTER_SANITIZE_NUMBER_INT);
-
                     $results = artwork::whereRaw($rule->attribute . ' < ' . $value)->get();
                 }
-                if ($rule->regexp . containsString("equalto")) {
+                if (str_contains($rule->regexp, "equalto")) {
                     $value = $int = filter_var($rule->regexp, FILTER_SANITIZE_NUMBER_INT);
-
                     $results = artwork::whereRaw($rule->attribute . ' = ' . $value)->get();
                 }
             }
         }
 
-        $result = $results->random();
-        echo $result->json();
-
+        $json = $results->random()->toJson();
+        return $json;
     }
 }

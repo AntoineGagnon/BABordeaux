@@ -11,9 +11,9 @@
 |
 */
 
+Route::post('/getArtworkFromAnswer/{id}', 'PollController@getArtworkFromAnswer');
 Route::resource('/', 'PollController');
 Route::resource('poll','PollController');
-Route::get('/getArtworkFromAnswer/{id}', 'PollController@submitAnswer');
 Route::get('regexp','ArtworkController@regexpTester');
 Route::post('regexp/search','ArtworkController@searchForArtwork');
 
