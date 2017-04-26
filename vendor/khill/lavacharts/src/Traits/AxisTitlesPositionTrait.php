@@ -3,6 +3,7 @@
 namespace Khill\Lavacharts\Traits;
 
 
+
 trait AxisTitlesPositionTrait
 {
     /**

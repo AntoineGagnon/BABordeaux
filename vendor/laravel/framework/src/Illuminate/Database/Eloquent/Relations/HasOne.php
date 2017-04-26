@@ -40,33 +40,6 @@ class HasOne extends HasOneOrMany
     }
 
     /**
-     * Get the default value for this relation.
-     *
-     * @param  \Illuminate\Database\Eloquent\Model $model
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
-    protected function getDefaultFor(Model $model)
-    {
-        if (!$this->withDefault) {
-            return;
-        }
-
-        $instance = $this->related->newInstance()->setAttribute(
-            $this->getPlainForeignKey(), $model->getAttribute($this->localKey)
-        );
-
-        if (is_callable($this->withDefault)) {
-            return call_user_func($this->withDefault, $instance) ?: $instance;
-        }
-
-        if (is_array($this->withDefault)) {
-            $instance->forceFill($this->withDefault);
-        }
-
-        return $instance;
-    }
-
-    /**
      * Initialize the relation on a set of models.
      *
      * @param  array   $models
@@ -93,5 +66,32 @@ class HasOne extends HasOneOrMany
     public function match(array $models, Collection $results, $relation)
     {
         return $this->matchOne($models, $results, $relation);
+    }
+
+    /**
+     * Get the default value for this relation.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    protected function getDefaultFor(Model $model)
+    {
+        if (! $this->withDefault) {
+            return;
+        }
+
+        $instance = $this->related->newInstance()->setAttribute(
+            $this->getPlainForeignKey(), $model->getAttribute($this->localKey)
+        );
+
+        if (is_callable($this->withDefault)) {
+            return call_user_func($this->withDefault, $instance) ?: $instance;
+        }
+
+        if (is_array($this->withDefault)) {
+            $instance->forceFill($this->withDefault);
+        }
+
+        return $instance;
     }
 }

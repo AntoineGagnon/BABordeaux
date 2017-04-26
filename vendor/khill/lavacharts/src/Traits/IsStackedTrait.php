@@ -50,7 +50,7 @@ trait IsStackedTrait
      */
     public function isStacked($isStacked)
     {
-        $values = [
+        $values =[
             'relative',
             'absolute',
             'percent'
@@ -64,7 +64,7 @@ trait IsStackedTrait
             throw new InvalidConfigValue(
                 static::TYPE . '->' . __FUNCTION__,
                 'bool|string',
-                'Whose value is one of ' . Utils::arrayToPipedString($values)
+                'Whose value is one of '.Utils::arrayToPipedString($values)
             );
         }
     }

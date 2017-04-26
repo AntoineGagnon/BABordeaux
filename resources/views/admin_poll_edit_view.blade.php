@@ -120,7 +120,7 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
-                                    <span class="glyphicon glyphicon-th-list"></span>MODIFIER OU SUPPRIMER DES QUESTIONS
+                                    <span class="glyphicon glyphicon-th-list"></span>MODIFIER OU SUPPRIMER DES QUESTIONS OU RÉPONSES
                                 </h4>
                             </div>
                             <div class="panel-collapse collapse in ">
@@ -182,6 +182,23 @@
                                                                    name="question_{{ $question->id }}"
                                                                    value="{{ $question->label }}" style="width: 100%"/>
                                                         </div>
+                                                        @foreach($question->answers as $answer)
+                                                            <br>
+                                                            <div class="divdeleteanswer">
+                                                                <button type="button" value="{{$answer->id}}"
+                                                                        class="btnRemoveAnswer confirm btn btn-danger btn-sm"
+                                                                        style="float:left; margin-right:2%;">
+                                                                    <span class="glyphicon glyphicon-trash"></span>
+                                                                    Supprimer
+                                                                </button>
+                                                            </div>
+                                                            <div style="overflow: hidden; padding-right: .5em;">
+                                                                <input type="text" class="form-control Answerlabel"
+                                                                       name="answer_{{ $answer->id }}"
+                                                                       value="{{ $answer->label }}" />
+                                                            </div>
+                                                        @endforeach
+                                                        <br>
                                                         <br>
                                                     @endforeach
                                                 </div>
@@ -351,13 +368,21 @@
                 });
             });
 
-            function labelChanged() {
+            function questionLabelChanged() {
                 var name = $(this).attr('name');
-                $(this).attr('name', name + '_changed');
-                console.log("changedlabel");
+                $(this).attr('name', name + '_questionchanged');
+                console.log("changedquestionlabel");
             }
 
-            $(".Questionlabel").on("change", labelChanged);
+            $(".Questionlabel").on("change", questionLabelChanged);
+
+            function answerLabelChanged() {
+                var name = $(this).attr('name');
+                $(this).attr('name', name + '_answerchanged');
+                console.log("changedanswerlabel");
+            }
+
+            $(".Answerlabel").on("change", answerLabelChanged);
 
         }
 

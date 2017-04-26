@@ -32,7 +32,7 @@ class OneToOne extends Binding
      * Creates the new Binding.
      *
      * @param \Khill\Lavacharts\Dashboards\ControlWrapper $controlWrapper
-     * @param \Khill\Lavacharts\Dashboards\ChartWrapper $chartWrapper
+     * @param \Khill\Lavacharts\Dashboards\ChartWrapper   $chartWrapper
      */
     public function __construct(ControlWrapper $controlWrapper, ChartWrapper $chartWrapper)
     {

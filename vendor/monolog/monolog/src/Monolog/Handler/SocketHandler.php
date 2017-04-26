@@ -45,6 +45,21 @@ class SocketHandler extends AbstractProcessingHandler
     }
 
     /**
+     * Connect (if necessary) and write to the socket
+     *
+     * @param array $record
+     *
+     * @throws \UnexpectedValueException
+     * @throws \RuntimeException
+     */
+    protected function write(array $record)
+    {
+        $this->connectIfNotConnected();
+        $data = $this->generateDataStream($record);
+        $this->writeToSocket($data);
+    }
+
+    /**
      * We will not close a PersistentSocket instance so it can be reused in other requests.
      */
     public function close()
@@ -55,23 +70,24 @@ class SocketHandler extends AbstractProcessingHandler
     }
 
     /**
-     * Get current connection string
-     *
-     * @return string
+     * Close socket, if open
      */
-    public function getConnectionString()
+    public function closeSocket()
     {
-        return $this->connectionString;
+        if (is_resource($this->resource)) {
+            fclose($this->resource);
+            $this->resource = null;
+        }
     }
 
     /**
-     * Get current connection timeout setting
+     * Set socket connection to nbe persistent. It only has effect before the connection is initiated.
      *
-     * @return float
+     * @param bool $persistent
      */
-    public function getConnectionTimeout()
+    public function setPersistent($persistent)
     {
-        return $this->connectionTimeout;
+        $this->persistent = (boolean) $persistent;
     }
 
     /**
@@ -85,24 +101,6 @@ class SocketHandler extends AbstractProcessingHandler
     {
         $this->validateTimeout($seconds);
         $this->connectionTimeout = (float) $seconds;
-    }
-
-    private function validateTimeout($value)
-    {
-        $ok = filter_var($value, FILTER_VALIDATE_FLOAT);
-        if ($ok === false || $value < 0) {
-            throw new \InvalidArgumentException("Timeout must be 0 or a positive float (got $value)");
-        }
-    }
-
-    /**
-     * Get current in-transfer timeout
-     *
-     * @return float
-     */
-    public function getTimeout()
-    {
-        return $this->timeout;
     }
 
     /**
@@ -119,16 +117,6 @@ class SocketHandler extends AbstractProcessingHandler
     }
 
     /**
-     * Get current local writing timeout
-     *
-     * @return float
-     */
-    public function getWritingTimeout()
-    {
-        return $this->writingTimeout;
-    }
-
-    /**
      * Set writing timeout. Only has effect during connection in the writing cycle.
      *
      * @param float $seconds 0 for no timeout
@@ -140,26 +128,53 @@ class SocketHandler extends AbstractProcessingHandler
     }
 
     /**
-     * Connect (if necessary) and write to the socket
+     * Get current connection string
      *
-     * @param array $record
-     *
-     * @throws \UnexpectedValueException
-     * @throws \RuntimeException
+     * @return string
      */
-    protected function write(array $record)
+    public function getConnectionString()
     {
-        $this->connectIfNotConnected();
-        $data = $this->generateDataStream($record);
-        $this->writeToSocket($data);
+        return $this->connectionString;
     }
 
-    private function connectIfNotConnected()
+    /**
+     * Get persistent setting
+     *
+     * @return bool
+     */
+    public function isPersistent()
     {
-        if ($this->isConnected()) {
-            return;
-        }
-        $this->connect();
+        return $this->persistent;
+    }
+
+    /**
+     * Get current connection timeout setting
+     *
+     * @return float
+     */
+    public function getConnectionTimeout()
+    {
+        return $this->connectionTimeout;
+    }
+
+    /**
+     * Get current in-transfer timeout
+     *
+     * @return float
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * Get current local writing timeout
+     *
+     * @return float
+     */
+    public function getWritingTimeout()
+    {
+        return $this->writingTimeout;
     }
 
     /**
@@ -172,7 +187,81 @@ class SocketHandler extends AbstractProcessingHandler
     public function isConnected()
     {
         return is_resource($this->resource)
-        && !feof($this->resource);  // on TCP - other party can close connection.
+            && !feof($this->resource);  // on TCP - other party can close connection.
+    }
+
+    /**
+     * Wrapper to allow mocking
+     */
+    protected function pfsockopen()
+    {
+        return @pfsockopen($this->connectionString, -1, $this->errno, $this->errstr, $this->connectionTimeout);
+    }
+
+    /**
+     * Wrapper to allow mocking
+     */
+    protected function fsockopen()
+    {
+        return @fsockopen($this->connectionString, -1, $this->errno, $this->errstr, $this->connectionTimeout);
+    }
+
+    /**
+     * Wrapper to allow mocking
+     *
+     * @see http://php.net/manual/en/function.stream-set-timeout.php
+     */
+    protected function streamSetTimeout()
+    {
+        $seconds = floor($this->timeout);
+        $microseconds = round(($this->timeout - $seconds) * 1e6);
+
+        return stream_set_timeout($this->resource, $seconds, $microseconds);
+    }
+
+    /**
+     * Wrapper to allow mocking
+     */
+    protected function fwrite($data)
+    {
+        return @fwrite($this->resource, $data);
+    }
+
+    /**
+     * Wrapper to allow mocking
+     */
+    protected function streamGetMetadata()
+    {
+        return stream_get_meta_data($this->resource);
+    }
+
+    private function validateTimeout($value)
+    {
+        $ok = filter_var($value, FILTER_VALIDATE_FLOAT);
+        if ($ok === false || $value < 0) {
+            throw new \InvalidArgumentException("Timeout must be 0 or a positive float (got $value)");
+        }
+    }
+
+    private function connectIfNotConnected()
+    {
+        if ($this->isConnected()) {
+            return;
+        }
+        $this->connect();
+    }
+
+    protected function generateDataStream($record)
+    {
+        return (string) $record['formatted'];
+    }
+
+    /**
+     * @return resource|null
+     */
+    protected function getResource()
+    {
+        return $this->resource;
     }
 
     private function connect()
@@ -194,65 +283,11 @@ class SocketHandler extends AbstractProcessingHandler
         $this->resource = $resource;
     }
 
-    /**
-     * Get persistent setting
-     *
-     * @return bool
-     */
-    public function isPersistent()
-    {
-        return $this->persistent;
-    }
-
-    /**
-     * Set socket connection to nbe persistent. It only has effect before the connection is initiated.
-     *
-     * @param bool $persistent
-     */
-    public function setPersistent($persistent)
-    {
-        $this->persistent = (boolean)$persistent;
-    }
-
-    /**
-     * Wrapper to allow mocking
-     */
-    protected function pfsockopen()
-    {
-        return @pfsockopen($this->connectionString, -1, $this->errno, $this->errstr, $this->connectionTimeout);
-    }
-
-    /**
-     * Wrapper to allow mocking
-     */
-    protected function fsockopen()
-    {
-        return @fsockopen($this->connectionString, -1, $this->errno, $this->errstr, $this->connectionTimeout);
-    }
-
     private function setSocketTimeout()
     {
         if (!$this->streamSetTimeout()) {
             throw new \UnexpectedValueException("Failed setting timeout with stream_set_timeout()");
         }
-    }
-
-    /**
-     * Wrapper to allow mocking
-     *
-     * @see http://php.net/manual/en/function.stream-set-timeout.php
-     */
-    protected function streamSetTimeout()
-    {
-        $seconds = floor($this->timeout);
-        $microseconds = round(($this->timeout - $seconds) * 1e6);
-
-        return stream_set_timeout($this->resource, $seconds, $microseconds);
-    }
-
-    protected function generateDataStream($record)
-    {
-        return (string) $record['formatted'];
     }
 
     private function writeToSocket($data)
@@ -284,22 +319,6 @@ class SocketHandler extends AbstractProcessingHandler
         }
     }
 
-    /**
-     * Wrapper to allow mocking
-     */
-    protected function fwrite($data)
-    {
-        return @fwrite($this->resource, $data);
-    }
-
-    /**
-     * Wrapper to allow mocking
-     */
-    protected function streamGetMetadata()
-    {
-        return stream_get_meta_data($this->resource);
-    }
-
     private function writingIsTimedOut($sent)
     {
         $writingTimeout = (int) floor($this->writingTimeout);
@@ -323,24 +342,5 @@ class SocketHandler extends AbstractProcessingHandler
         }
 
         return false;
-    }
-
-    /**
-     * Close socket, if open
-     */
-    public function closeSocket()
-    {
-        if (is_resource($this->resource)) {
-            fclose($this->resource);
-            $this->resource = null;
-        }
-    }
-
-    /**
-     * @return resource|null
-     */
-    protected function getResource()
-    {
-        return $this->resource;
     }
 }

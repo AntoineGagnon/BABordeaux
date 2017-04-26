@@ -22,6 +22,11 @@ function mail($to, $subject, $message, $additional_headers = null, $additional_p
 
 class NativeMailerHandlerTest extends TestCase
 {
+    protected function setUp()
+    {
+        $GLOBALS['mail'] = array();
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
@@ -102,10 +107,5 @@ class NativeMailerHandlerTest extends TestCase
         $params = $GLOBALS['mail'][0];
         $this->assertCount(5, $params);
         $this->assertSame('Alert: ERROR Foo Bar  Baz', $params[1]);
-    }
-
-    protected function setUp()
-    {
-        $GLOBALS['mail'] = array();
     }
 }

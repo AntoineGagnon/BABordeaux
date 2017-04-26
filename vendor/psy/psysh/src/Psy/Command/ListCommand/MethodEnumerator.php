@@ -40,7 +40,8 @@ class MethodEnumerator extends Enumerator
         }
 
         $showAll = $input->getOption('all');
-        $methods = $this->prepareMethods($this->getMethods($showAll, $reflector));
+        $noInherit = $input->getOption('no-inherit');
+        $methods = $this->prepareMethods($this->getMethods($showAll, $reflector, $noInherit));
 
         if (empty($methods)) {
             return;
@@ -50,6 +51,36 @@ class MethodEnumerator extends Enumerator
         $ret[$this->getKindLabel($reflector)] = $methods;
 
         return $ret;
+    }
+
+    /**
+     * Get defined methods for the given class or object Reflector.
+     *
+     * @param bool       $showAll   Include private and protected methods
+     * @param \Reflector $reflector
+     * @param bool       $noInherit Exclude inherited methods
+     *
+     * @return array
+     */
+    protected function getMethods($showAll, \Reflector $reflector, $noInherit = false)
+    {
+        $className = $reflector->getName();
+
+        $methods = array();
+        foreach ($reflector->getMethods() as $name => $method) {
+            if ($noInherit && $method->getDeclaringClass()->getName() !== $className) {
+                continue;
+            }
+
+            if ($showAll || $method->isPublic()) {
+                $methods[$method->getName()] = $method;
+            }
+        }
+
+        // TODO: this should be natcasesort
+        ksort($methods);
+
+        return $methods;
     }
 
     /**
@@ -78,47 +109,6 @@ class MethodEnumerator extends Enumerator
     }
 
     /**
-     * Get output style for the given method's visibility.
-     *
-     * @param \ReflectionMethod $method
-     *
-     * @return string
-     */
-    private function getVisibilityStyle(\ReflectionMethod $method)
-    {
-        if ($method->isPublic()) {
-            return self::IS_PUBLIC;
-        } elseif ($method->isProtected()) {
-            return self::IS_PROTECTED;
-        } else {
-            return self::IS_PRIVATE;
-        }
-    }
-
-    /**
-     * Get defined methods for the given class or object Reflector.
-     *
-     * @param bool $showAll Include private and protected methods
-     * @param \Reflector $reflector
-     *
-     * @return array
-     */
-    protected function getMethods($showAll, \Reflector $reflector)
-    {
-        $methods = array();
-        foreach ($reflector->getMethods() as $name => $method) {
-            if ($showAll || $method->isPublic()) {
-                $methods[$method->getName()] = $method;
-            }
-        }
-
-        // TODO: this should be natcasesort
-        ksort($methods);
-
-        return $methods;
-    }
-
-    /**
      * Get a label for the particular kind of "class" represented.
      *
      * @param \ReflectionClass $reflector
@@ -133,6 +123,24 @@ class MethodEnumerator extends Enumerator
             return 'Trait Methods';
         } else {
             return 'Class Methods';
+        }
+    }
+
+    /**
+     * Get output style for the given method's visibility.
+     *
+     * @param \ReflectionMethod $method
+     *
+     * @return string
+     */
+    private function getVisibilityStyle(\ReflectionMethod $method)
+    {
+        if ($method->isPublic()) {
+            return self::IS_PUBLIC;
+        } elseif ($method->isProtected()) {
+            return self::IS_PROTECTED;
+        } else {
+            return self::IS_PRIVATE;
         }
     }
 }

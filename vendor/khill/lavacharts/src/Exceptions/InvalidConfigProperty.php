@@ -8,7 +8,7 @@ class InvalidConfigProperty extends \Exception
     {
         natcasesort($acceptedProps);
 
-        $message = '"' . $rejectedProp . '" is not a valid property for ' . $class . '->' . $function . ', ';
+        $message  = '"'.$rejectedProp.'" is not a valid property for ' . $class . '->' . $function . ', ';
         $message .= 'must be one of [ ' . implode(' | ', $acceptedProps) . ' ]';
 
         parent::__construct($message, $code);

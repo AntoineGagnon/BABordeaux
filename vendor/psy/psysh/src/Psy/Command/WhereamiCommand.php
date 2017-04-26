@@ -67,17 +67,24 @@ HELP
     }
 
     /**
-     * {@inheritdoc}
+     * Obtains the correct trace in the full backtrace.
+     *
+     * @return array
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function trace()
     {
-        $info = $this->fileInfo();
-        $num = $input->getOption('num');
-        $factory = new ConsoleColorFactory($this->colorMode);
-        $colors = $factory->getConsoleColor();
-        $highlighter = new Highlighter($colors);
-        $contents = file_get_contents($info['file']);
-        $output->page($highlighter->getCodeSnippet($contents, $info['line'], $num, $num), ShellOutput::OUTPUT_RAW);
+        foreach ($this->backtrace as $i => $backtrace) {
+            if (!isset($backtrace['class'], $backtrace['function'])) {
+                continue;
+            }
+            $correctClass = $backtrace['class'] === 'Psy\Shell';
+            $correctFunction = $backtrace['function'] === 'debug';
+            if ($correctClass && $correctFunction) {
+                return $backtrace;
+            }
+        }
+
+        return end($this->backtrace);
     }
 
     /**
@@ -101,23 +108,16 @@ HELP
     }
 
     /**
-     * Obtains the correct trace in the full backtrace.
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    protected function trace()
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
-        foreach ($this->backtrace as $i => $backtrace) {
-            if (!isset($backtrace['class'], $backtrace['function'])) {
-                continue;
-            }
-            $correctClass = $backtrace['class'] === 'Psy\Shell';
-            $correctFunction = $backtrace['function'] === 'debug';
-            if ($correctClass && $correctFunction) {
-                return $backtrace;
-            }
-        }
-
-        return end($this->backtrace);
+        $info = $this->fileInfo();
+        $num = $input->getOption('num');
+        $factory = new ConsoleColorFactory($this->colorMode);
+        $colors = $factory->getConsoleColor();
+        $highlighter = new Highlighter($colors);
+        $contents = file_get_contents($info['file']);
+        $output->page($highlighter->getCodeSnippet($contents, $info['line'], $num, $num), ShellOutput::OUTPUT_RAW);
     }
 }

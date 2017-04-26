@@ -36,18 +36,6 @@ abstract class Facade
     }
 
     /**
-     * Get the registered name of the component.
-     *
-     * @return string
-     *
-     * @throws \RuntimeException
-     */
-    protected static function getFacadeAccessor()
-    {
-        throw new RuntimeException('Facade does not implement getFacadeAccessor method.');
-    }
-
-    /**
      * Convert the facade into a Mockery spy.
      *
      * @return void
@@ -69,6 +57,56 @@ abstract class Facade
                 static::$app->instance($name, $mock);
             }
         }
+    }
+
+    /**
+     * Initiate a mock expectation on the facade.
+     *
+     * @return \Mockery\Expectation
+     */
+    public static function shouldReceive()
+    {
+        $name = static::getFacadeAccessor();
+
+        if (static::isMock()) {
+            $mock = static::$resolvedInstance[$name];
+        } else {
+            $mock = static::createFreshMockInstance($name);
+        }
+
+        return call_user_func_array([$mock, 'shouldReceive'], func_get_args());
+    }
+
+    /**
+     * Create a fresh mock instance for the given class.
+     *
+     * @param  string  $name
+     * @return \Mockery\Expectation
+     */
+    protected static function createFreshMockInstance($name)
+    {
+        static::$resolvedInstance[$name] = $mock = static::createMockByName($name);
+
+        $mock->shouldAllowMockingProtectedMethods();
+
+        if (isset(static::$app)) {
+            static::$app->instance($name, $mock);
+        }
+
+        return $mock;
+    }
+
+    /**
+     * Create a fresh mock instance for the given class.
+     *
+     * @param  string  $name
+     * @return \Mockery\MockInterface
+     */
+    protected static function createMockByName($name)
+    {
+        $class = static::getMockableClass($name);
+
+        return $class ? Mockery::mock($class) : Mockery::mock();
     }
 
     /**
@@ -107,6 +145,18 @@ abstract class Facade
     }
 
     /**
+     * Get the registered name of the component.
+     *
+     * @return string
+     *
+     * @throws \RuntimeException
+     */
+    protected static function getFacadeAccessor()
+    {
+        throw new RuntimeException('Facade does not implement getFacadeAccessor method.');
+    }
+
+    /**
      * Resolve the facade root instance from the container.
      *
      * @param  string|object  $name
@@ -123,56 +173,6 @@ abstract class Facade
         }
 
         return static::$resolvedInstance[$name] = static::$app[$name];
-    }
-
-    /**
-     * Initiate a mock expectation on the facade.
-     *
-     * @return \Mockery\Expectation
-     */
-    public static function shouldReceive()
-    {
-        $name = static::getFacadeAccessor();
-
-        if (static::isMock()) {
-            $mock = static::$resolvedInstance[$name];
-        } else {
-            $mock = static::createFreshMockInstance($name);
-        }
-
-        return call_user_func_array([$mock, 'shouldReceive'], func_get_args());
-    }
-
-    /**
-     * Create a fresh mock instance for the given class.
-     *
-     * @param  string $name
-     * @return \Mockery\Expectation
-     */
-    protected static function createFreshMockInstance($name)
-    {
-        static::$resolvedInstance[$name] = $mock = static::createMockByName($name);
-
-        $mock->shouldAllowMockingProtectedMethods();
-
-        if (isset(static::$app)) {
-            static::$app->instance($name, $mock);
-        }
-
-        return $mock;
-    }
-
-    /**
-     * Create a fresh mock instance for the given class.
-     *
-     * @param  string $name
-     * @return \Mockery\MockInterface
-     */
-    protected static function createMockByName($name)
-    {
-        $class = static::getMockableClass($name);
-
-        return $class ? Mockery::mock($class) : Mockery::mock();
     }
 
     /**

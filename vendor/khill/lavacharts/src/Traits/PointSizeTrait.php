@@ -16,6 +16,6 @@ trait PointSizeTrait
      */
     public function pointSize($size)
     {
-        return $this->setIntOption(__FUNCTION__, $size);
+        return  $this->setIntOption(__FUNCTION__, $size);
     }
 }

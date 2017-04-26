@@ -46,7 +46,7 @@ class ColorAxis extends JsonConfig
     /**
      * Builds the ColorAxis object with specified options
      *
-     * @param  array $config
+     * @param  array                 $config
      * @return \Khill\Lavacharts\Configs\ColorAxis
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigProperty

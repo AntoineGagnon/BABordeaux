@@ -11,28 +11,18 @@
 
 namespace Symfony\Component\EventDispatcher\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Test class for Event.
  */
-class EventTest extends \PHPUnit_Framework_TestCase
+class EventTest extends TestCase
 {
     /**
      * @var \Symfony\Component\EventDispatcher\Event
      */
     protected $event;
-
-    public function testIsPropagationStopped()
-    {
-        $this->assertFalse($this->event->isPropagationStopped());
-    }
-
-    public function testStopPropagationAndIsPropagationStopped()
-    {
-        $this->event->stopPropagation();
-        $this->assertTrue($this->event->isPropagationStopped());
-    }
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -50,5 +40,16 @@ class EventTest extends \PHPUnit_Framework_TestCase
     protected function tearDown()
     {
         $this->event = null;
+    }
+
+    public function testIsPropagationStopped()
+    {
+        $this->assertFalse($this->event->isPropagationStopped());
+    }
+
+    public function testStopPropagationAndIsPropagationStopped()
+    {
+        $this->event->stopPropagation();
+        $this->assertTrue($this->event->isPropagationStopped());
     }
 }

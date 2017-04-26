@@ -73,7 +73,7 @@ class Row implements \JsonSerializable
     {
         return [
             'c' => array_map(function ($cellValue) {
-                return ['v' => $cellValue];
+                return [ 'v' => $cellValue ];
             }, $this->values)
         ];
     }

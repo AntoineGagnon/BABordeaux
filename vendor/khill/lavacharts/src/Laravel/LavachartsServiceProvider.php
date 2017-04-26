@@ -34,16 +34,16 @@ class LavachartsServiceProvider extends ServiceProvider
             $this->package('khill/lavacharts');
         }
 
-        include __DIR__ . '/BladeTemplateExtensions.php';
+        include __DIR__.'/BladeTemplateExtensions.php';
     }
 
     public function register()
     {
-        $this->app->singleton('lavacharts', function () {
+        $this->app->singleton('lavacharts', function() {
             return new Lavacharts;
         });
 
-        $this->app->booting(function () {
+        $this->app->booting(function() {
             $loader = AliasLoader::getInstance();
             $loader->alias('Lava', 'Khill\Lavacharts\Laravel\LavachartsFacade');
         });

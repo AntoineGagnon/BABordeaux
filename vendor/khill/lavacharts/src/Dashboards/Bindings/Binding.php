@@ -40,7 +40,7 @@ class Binding
      */
     public function __construct($controlWrappers, $chartWrappers)
     {
-        $this->chartWrappers = $chartWrappers;
+        $this->chartWrappers   = $chartWrappers;
         $this->controlWrappers = $controlWrappers;
     }
 

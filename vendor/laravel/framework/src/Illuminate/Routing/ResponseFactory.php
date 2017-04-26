@@ -43,6 +43,19 @@ class ResponseFactory implements FactoryContract
     }
 
     /**
+     * Return a new response from the application.
+     *
+     * @param  string  $content
+     * @param  int  $status
+     * @param  array  $headers
+     * @return \Illuminate\Http\Response
+     */
+    public function make($content = '', $status = 200, array $headers = [])
+    {
+        return new Response($content, $status, $headers);
+    }
+
+    /**
      * Return a new view response from the application.
      *
      * @param  string  $view
@@ -57,16 +70,17 @@ class ResponseFactory implements FactoryContract
     }
 
     /**
-     * Return a new response from the application.
+     * Return a new JSON response from the application.
      *
-     * @param  string $content
+     * @param  mixed  $data
      * @param  int  $status
      * @param  array  $headers
-     * @return \Illuminate\Http\Response
+     * @param  int  $options
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function make($content = '', $status = 200, array $headers = [])
+    public function json($data = [], $status = 200, array $headers = [], $options = 0)
     {
-        return new Response($content, $status, $headers);
+        return new JsonResponse($data, $status, $headers, $options);
     }
 
     /**
@@ -82,20 +96,6 @@ class ResponseFactory implements FactoryContract
     public function jsonp($callback, $data = [], $status = 200, array $headers = [], $options = 0)
     {
         return $this->json($data, $status, $headers, $options)->setCallback($callback);
-    }
-
-    /**
-     * Return a new JSON response from the application.
-     *
-     * @param  mixed $data
-     * @param  int $status
-     * @param  array $headers
-     * @param  int $options
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function json($data = [], $status = 200, array $headers = [], $options = 0)
-    {
-        return new JsonResponse($data, $status, $headers, $options);
     }
 
     /**

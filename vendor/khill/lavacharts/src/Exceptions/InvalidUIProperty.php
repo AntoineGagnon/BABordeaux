@@ -8,7 +8,7 @@ class InvalidUIProperty extends \Exception
     {
         natcasesort($acceptedProps);
 
-        $message = $rejectedProp . ' is not a valid UI property.';
+        $message  = $rejectedProp . ' is not a valid UI property.';
         $message .= ' Must be one of [ ' . implode(' | ', $acceptedProps) . ' ]';
 
         parent::__construct($message);

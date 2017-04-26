@@ -58,21 +58,6 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('_' => null, 'this' => $this), $shell->getScopeVariables());
     }
 
-    private function getConfig(array $config = array())
-    {
-        // Mebbe there's a better way than this?
-        $dir = tempnam(sys_get_temp_dir(), 'psysh_shell_test_');
-        unlink($dir);
-
-        $defaults = array(
-            'configDir' => $dir,
-            'dataDir' => $dir,
-            'runtimeDir' => $dir,
-        );
-
-        return new Configuration(array_merge($defaults, $config));
-    }
-
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -143,16 +128,6 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('PHP Parse error', $streamContents);
         $this->assertContains('message', $streamContents);
         $this->assertContains('line 13', $streamContents);
-    }
-
-    private function getOutput()
-    {
-        $stream = fopen('php://memory', 'w+');
-        $this->streams[] = $stream;
-
-        $output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, false);
-
-        return $output;
     }
 
     public function testHandlingErrors()
@@ -342,5 +317,30 @@ class ShellTest extends \PHPUnit_Framework_TestCase
         return array(
             array(new \Exception('{{message}}'), "Exception with message '{{message}}'" . PHP_EOL),
         );
+    }
+
+    private function getOutput()
+    {
+        $stream = fopen('php://memory', 'w+');
+        $this->streams[] = $stream;
+
+        $output = new StreamOutput($stream, StreamOutput::VERBOSITY_NORMAL, false);
+
+        return $output;
+    }
+
+    private function getConfig(array $config = array())
+    {
+        // Mebbe there's a better way than this?
+        $dir = tempnam(sys_get_temp_dir(), 'psysh_shell_test_');
+        unlink($dir);
+
+        $defaults = array(
+            'configDir'  => $dir,
+            'dataDir'    => $dir,
+            'runtimeDir' => $dir,
+        );
+
+        return new Configuration(array_merge($defaults, $config));
     }
 }

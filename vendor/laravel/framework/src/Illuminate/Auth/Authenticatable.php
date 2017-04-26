@@ -48,8 +48,21 @@ trait Authenticatable
      */
     public function getRememberToken()
     {
-        if (!empty($this->getRememberTokenName())) {
+        if (! empty($this->getRememberTokenName())) {
             return $this->{$this->getRememberTokenName()};
+        }
+    }
+
+    /**
+     * Set the token value for the "remember me" session.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setRememberToken($value)
+    {
+        if (! empty($this->getRememberTokenName())) {
+            $this->{$this->getRememberTokenName()} = $value;
         }
     }
 
@@ -61,18 +74,5 @@ trait Authenticatable
     public function getRememberTokenName()
     {
         return $this->rememberTokenName;
-    }
-
-    /**
-     * Set the token value for the "remember me" session.
-     *
-     * @param  string  $value
-     * @return void
-     */
-    public function setRememberToken($value)
-    {
-        if (!empty($this->getRememberTokenName())) {
-            $this->{$this->getRememberTokenName()} = $value;
-        }
     }
 }

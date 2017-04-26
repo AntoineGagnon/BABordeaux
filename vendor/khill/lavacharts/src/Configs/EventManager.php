@@ -24,6 +24,13 @@ use \Khill\Lavacharts\Exceptions\InvalidEventCallback;
 class EventManager implements \Countable, \IteratorAggregate
 {
     /**
+     * Enabled chart events with callbacks.
+     *
+     * @var array
+     */
+    private $events = [];
+
+    /**
      * The chart's defined events.
      *
      * @var array
@@ -37,12 +44,6 @@ class EventManager implements \Countable, \IteratorAggregate
         'select',
         'statechange'
     ];
-    /**
-     * Enabled chart events with callbacks.
-     *
-     * @var array
-     */
-    private $events = [];
 
     /**
      * Returns the number of events when the EventManager is counted.
@@ -89,21 +90,6 @@ class EventManager implements \Countable, \IteratorAggregate
     }
 
     /**
-     * Checks whether the event is a valid chart event.
-     *
-     * @access private
-     * @param  string $event
-     * @return bool
-     * @throws \Khill\Lavacharts\Exceptions\InvalidEvent
-     */
-    private function validEvent($event)
-    {
-        if (in_array($event, static::$defaultEvents) === false) {
-            throw new InvalidEvent($event, static::$defaultEvents);
-        }
-    }
-
-    /**
      * Retrieves the javascript callback for a chart event.
      *
      * @access public
@@ -116,5 +102,20 @@ class EventManager implements \Countable, \IteratorAggregate
         $this->validEvent($event);
 
         return $this->events[$event];
+    }
+
+    /**
+     * Checks whether the event is a valid chart event.
+     *
+     * @access private
+     * @param  string $event
+     * @return bool
+     * @throws \Khill\Lavacharts\Exceptions\InvalidEvent
+     */
+    private function validEvent($event)
+    {
+        if (in_array($event, static::$defaultEvents) === false) {
+            throw new InvalidEvent($event, static::$defaultEvents);
+        }
     }
 }

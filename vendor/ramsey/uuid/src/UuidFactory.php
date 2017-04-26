@@ -111,16 +111,6 @@ class UuidFactory implements UuidFactoryInterface
     }
 
     /**
-     * Sets the random UUID generator this factory will use to generate version 4 UUIDs
-     *
-     * @param RandomGeneratorInterface $generator
-     */
-    public function setRandomGenerator(RandomGeneratorInterface $generator)
-    {
-        $this->randomGenerator = $generator;
-    }
-
-    /**
      * Returns the time-based UUID generator used by this factory
      *
      * @return TimeGeneratorInterface
@@ -148,6 +138,16 @@ class UuidFactory implements UuidFactoryInterface
     public function getNumberConverter()
     {
         return $this->numberConverter;
+    }
+
+    /**
+     * Sets the random UUID generator this factory will use to generate version 4 UUIDs
+     *
+     * @param RandomGeneratorInterface $generator
+     */
+    public function setRandomGenerator(RandomGeneratorInterface $generator)
+    {
+        $this->randomGenerator = $generator;
     }
 
     /**
@@ -185,18 +185,18 @@ class UuidFactory implements UuidFactoryInterface
         return $this->codec->decodeBytes($bytes);
     }
 
+    public function fromString($uuid)
+    {
+        $uuid = strtolower($uuid);
+        return $this->codec->decode($uuid);
+    }
+
     public function fromInteger($integer)
     {
         $hex = $this->numberConverter->toHex($integer);
         $hex = str_pad($hex, 32, '0', STR_PAD_LEFT);
 
         return $this->fromString($hex);
-    }
-
-    public function fromString($uuid)
-    {
-        $uuid = strtolower($uuid);
-        return $this->codec->decode($uuid);
     }
 
     public function uuid1($node = null, $clockSeq = null)
@@ -207,29 +207,26 @@ class UuidFactory implements UuidFactoryInterface
         return $this->uuidFromHashedName($hex, 1);
     }
 
-    /**
-     * Returns a `Uuid` created from `$hash` with the version field set to `$version`
-     * and the variant field set for RFC 4122
-     *
-     * @param string $hash The hash to use when creating the UUID
-     * @param int $version The UUID version to set for this hash (1, 3, 4, or 5)
-     * @return UuidInterface
-     */
-    protected function uuidFromHashedName($hash, $version)
+    public function uuid3($ns, $name)
     {
-        $timeHi = BinaryUtils::applyVersion(substr($hash, 12, 4), $version);
-        $clockSeqHi = BinaryUtils::applyVariant(hexdec(substr($hash, 16, 2)));
+        return $this->uuidFromNsAndName($ns, $name, 3, 'md5');
+    }
 
-        $fields = array(
-            'time_low' => substr($hash, 0, 8),
-            'time_mid' => substr($hash, 8, 4),
-            'time_hi_and_version' => sprintf('%04x', $timeHi),
-            'clock_seq_hi_and_reserved' => sprintf('%02x', $clockSeqHi),
-            'clock_seq_low' => substr($hash, 18, 2),
-            'node' => substr($hash, 20, 12),
-        );
+    public function uuid4()
+    {
+        $bytes = $this->randomGenerator->generate(16);
 
-        return $this->uuid($fields);
+        // When converting the bytes to hex, it turns into a 32-character
+        // hexadecimal string that looks a lot like an MD5 hash, so at this
+        // point, we can just pass it to uuidFromHashedName.
+        $hex = bin2hex($bytes);
+
+        return $this->uuidFromHashedName($hex, 4);
+    }
+
+    public function uuid5($ns, $name)
+    {
+        return $this->uuidFromNsAndName($ns, $name, 5, 'sha1');
     }
 
     /**
@@ -245,11 +242,6 @@ class UuidFactory implements UuidFactoryInterface
     public function uuid(array $fields)
     {
         return $this->uuidBuilder->build($this->codec, $fields);
-    }
-
-    public function uuid3($ns, $name)
-    {
-        return $this->uuidFromNsAndName($ns, $name, 3, 'md5');
     }
 
     /**
@@ -273,20 +265,28 @@ class UuidFactory implements UuidFactoryInterface
         return $this->uuidFromHashedName($hash, $version);
     }
 
-    public function uuid4()
+    /**
+     * Returns a `Uuid` created from `$hash` with the version field set to `$version`
+     * and the variant field set for RFC 4122
+     *
+     * @param string $hash The hash to use when creating the UUID
+     * @param int $version The UUID version to set for this hash (1, 3, 4, or 5)
+     * @return UuidInterface
+     */
+    protected function uuidFromHashedName($hash, $version)
     {
-        $bytes = $this->randomGenerator->generate(16);
+        $timeHi = BinaryUtils::applyVersion(substr($hash, 12, 4), $version);
+        $clockSeqHi = BinaryUtils::applyVariant(hexdec(substr($hash, 16, 2)));
 
-        // When converting the bytes to hex, it turns into a 32-character
-        // hexadecimal string that looks a lot like an MD5 hash, so at this
-        // point, we can just pass it to uuidFromHashedName.
-        $hex = bin2hex($bytes);
+        $fields = array(
+            'time_low' => substr($hash, 0, 8),
+            'time_mid' => substr($hash, 8, 4),
+            'time_hi_and_version' => str_pad(dechex($timeHi), 4, '0', STR_PAD_LEFT),
+            'clock_seq_hi_and_reserved' => str_pad(dechex($clockSeqHi), 2, '0', STR_PAD_LEFT),
+            'clock_seq_low' => substr($hash, 18, 2),
+            'node' => substr($hash, 20, 12),
+        );
 
-        return $this->uuidFromHashedName($hex, 4);
-    }
-
-    public function uuid5($ns, $name)
-    {
-        return $this->uuidFromNsAndName($ns, $name, 5, 'sha1');
+        return $this->uuid($fields);
     }
 }

@@ -43,8 +43,8 @@ class Filter extends JsonConfig
      * created internally, so no need to set defaults. The child filter objects will set them.
      *
      * @param  \Khill\Lavacharts\Options $options
-     * @param  array $columnLabelOrIndex
-     * @param  array $config Array of options to set.
+     * @param  array                     $columnLabelOrIndex
+     * @param  array                     $config Array of options to set.
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      */
     public function __construct(Options $options, $columnLabelOrIndex, $config = [])
@@ -121,7 +121,7 @@ class Filter extends JsonConfig
      */
     public function ui($uiConfig)
     {
-        $uiClass = '\\Khill\\Lavacharts\\Configs\\UIs\\';
+        $uiClass  = '\\Khill\\Lavacharts\\Configs\\UIs\\';
         $uiClass .= str_replace('Filter', 'UI', static::TYPE);
 
         return $this->setOption(__FUNCTION__, new $uiClass($uiConfig));

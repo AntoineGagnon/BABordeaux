@@ -38,6 +38,14 @@ class NormalizerFormatter implements FormatterInterface
     /**
      * {@inheritdoc}
      */
+    public function format(array $record)
+    {
+        return $this->normalize($record);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function formatBatch(array $records)
     {
         foreach ($records as $key => $record) {
@@ -45,14 +53,6 @@ class NormalizerFormatter implements FormatterInterface
         }
 
         return $records;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function format(array $record)
-    {
-        return $this->normalize($record);
     }
 
     protected function normalize($data)
@@ -76,7 +76,7 @@ class NormalizerFormatter implements FormatterInterface
             $count = 1;
             foreach ($data as $key => $value) {
                 if ($count++ >= 1000) {
-                    $normalized['...'] = 'Over 1000 items (' . count($data) . ' total), aborting normalization';
+                    $normalized['...'] = 'Over 1000 items ('.count($data).' total), aborting normalization';
                     break;
                 }
                 $normalized[$key] = $this->normalize($value);

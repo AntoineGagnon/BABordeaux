@@ -50,15 +50,6 @@ class Cache {
     }
 
     /**
-     * Check if caching is enabled
-     * @return boolean
-     */
-    public function isEnabled()
-    {
-        return config($this->configName . '.enable', true) ? true : false;
-    }
-
-    /**
      * Init the cache
      * @return void
      */
@@ -107,7 +98,7 @@ class Cache {
                 // Add extra memcache settings
                 $this->settings = array_merge($this->settings, [
                     'memcacheServer' => config($this->configName . '.memcache.host', 'localhost'),
-                    'memcachePort' => config($this->configName . '.memcache.port', 11211)
+                    'memcachePort'   => config($this->configName . '.memcache.port', 11211)
                 ]);
 
                 break;
@@ -121,5 +112,14 @@ class Cache {
 
                 break;
         }
+    }
+
+    /**
+     * Check if caching is enabled
+     * @return boolean
+     */
+    public function isEnabled()
+    {
+        return config($this->configName . '.enable', true) ? true : false;
     }
 }

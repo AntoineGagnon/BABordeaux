@@ -7,17 +7,40 @@ use Illuminate\Support\Str;
 class ResourceRegistrar
 {
     /**
+     * The router instance.
+     *
+     * @var \Illuminate\Routing\Router
+     */
+    protected $router;
+
+    /**
+     * The default actions for a resourceful controller.
+     *
+     * @var array
+     */
+    protected $resourceDefaults = ['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'];
+
+    /**
+     * The parameters set for this resource instance.
+     *
+     * @var array|string
+     */
+    protected $parameters;
+
+    /**
      * The global parameter mapping.
      *
      * @var array
      */
     protected static $parameterMap = [];
+
     /**
      * Singular global parameters.
      *
      * @var bool
      */
     protected static $singularParameters = true;
+
     /**
      * The verbs used in the resource URIs.
      *
@@ -27,24 +50,6 @@ class ResourceRegistrar
         'create' => 'create',
         'edit' => 'edit',
     ];
-    /**
-     * The router instance.
-     *
-     * @var \Illuminate\Routing\Router
-     */
-    protected $router;
-    /**
-     * The default actions for a resourceful controller.
-     *
-     * @var array
-     */
-    protected $resourceDefaults = ['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'];
-    /**
-     * The parameters set for this resource instance.
-     *
-     * @var array|string
-     */
-    protected $parameters;
 
     /**
      * Create a new resource registrar instance.
@@ -55,53 +60,6 @@ class ResourceRegistrar
     public function __construct(Router $router)
     {
         $this->router = $router;
-    }
-
-    /**
-     * Set or unset the unmapped global parameters to singular.
-     *
-     * @param  bool $singular
-     * @return void
-     */
-    public static function singularParameters($singular = true)
-    {
-        static::$singularParameters = (bool)$singular;
-    }
-
-    /**
-     * Get the global parameter map.
-     *
-     * @return array
-     */
-    public static function getParameters()
-    {
-        return static::$parameterMap;
-    }
-
-    /**
-     * Set the global parameter mapping.
-     *
-     * @param  array $parameters
-     * @return void
-     */
-    public static function setParameters(array $parameters = [])
-    {
-        static::$parameterMap = $parameters;
-    }
-
-    /**
-     * Get or set the action verbs used in the resource URIs.
-     *
-     * @param  array $verbs
-     * @return array
-     */
-    public static function verbs(array $verbs = [])
-    {
-        if (empty($verbs)) {
-            return static::$verbs;
-        } else {
-            static::$verbs = array_merge(static::$verbs, $verbs);
-        }
     }
 
     /**
@@ -180,25 +138,6 @@ class ResourceRegistrar
     }
 
     /**
-     * Format a resource parameter for usage.
-     *
-     * @param  string $value
-     * @return string
-     */
-    public function getResourceWildcard($value)
-    {
-        if (isset($this->parameters[$value])) {
-            $value = $this->parameters[$value];
-        } elseif (isset(static::$parameterMap[$value])) {
-            $value = static::$parameterMap[$value];
-        } elseif ($this->parameters === 'singular' || static::$singularParameters) {
-            $value = Str::singular($value);
-        }
-
-        return str_replace('-', '_', $value);
-    }
-
-    /**
      * Get the applicable resource methods.
      *
      * @param  array  $defaults
@@ -214,24 +153,6 @@ class ResourceRegistrar
         }
 
         return $defaults;
-    }
-
-    /**
-     * Add the index method for a resourceful route.
-     *
-     * @param  string $name
-     * @param  string $base
-     * @param  string $controller
-     * @param  array $options
-     * @return \Illuminate\Routing\Route
-     */
-    protected function addResourceIndex($name, $base, $controller, $options)
-    {
-        $uri = $this->getResourceUri($name);
-
-        $action = $this->getResourceAction($name, $controller, 'index', $options);
-
-        return $this->router->get($uri, $action);
     }
 
     /**
@@ -332,6 +253,43 @@ class ResourceRegistrar
     }
 
     /**
+     * Format a resource parameter for usage.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public function getResourceWildcard($value)
+    {
+        if (isset($this->parameters[$value])) {
+            $value = $this->parameters[$value];
+        } elseif (isset(static::$parameterMap[$value])) {
+            $value = static::$parameterMap[$value];
+        } elseif ($this->parameters === 'singular' || static::$singularParameters) {
+            $value = Str::singular($value);
+        }
+
+        return str_replace('-', '_', $value);
+    }
+
+    /**
+     * Add the index method for a resourceful route.
+     *
+     * @param  string  $name
+     * @param  string  $base
+     * @param  string  $controller
+     * @param  array   $options
+     * @return \Illuminate\Routing\Route
+     */
+    protected function addResourceIndex($name, $base, $controller, $options)
+    {
+        $uri = $this->getResourceUri($name);
+
+        $action = $this->getResourceAction($name, $controller, 'index', $options);
+
+        return $this->router->get($uri, $action);
+    }
+
+    /**
      * Add the create method for a resourceful route.
      *
      * @param  string  $name
@@ -342,7 +300,7 @@ class ResourceRegistrar
      */
     protected function addResourceCreate($name, $base, $controller, $options)
     {
-        $uri = $this->getResourceUri($name) . '/' . static::$verbs['create'];
+        $uri = $this->getResourceUri($name).'/'.static::$verbs['create'];
 
         $action = $this->getResourceAction($name, $controller, 'create', $options);
 
@@ -396,7 +354,7 @@ class ResourceRegistrar
      */
     protected function addResourceEdit($name, $base, $controller, $options)
     {
-        $uri = $this->getResourceUri($name) . '/{' . $base . '}/' . static::$verbs['edit'];
+        $uri = $this->getResourceUri($name).'/{'.$base.'}/'.static::$verbs['edit'];
 
         $action = $this->getResourceAction($name, $controller, 'edit', $options);
 
@@ -437,5 +395,52 @@ class ResourceRegistrar
         $action = $this->getResourceAction($name, $controller, 'destroy', $options);
 
         return $this->router->delete($uri, $action);
+    }
+
+    /**
+     * Set or unset the unmapped global parameters to singular.
+     *
+     * @param  bool  $singular
+     * @return void
+     */
+    public static function singularParameters($singular = true)
+    {
+        static::$singularParameters = (bool) $singular;
+    }
+
+    /**
+     * Get the global parameter map.
+     *
+     * @return array
+     */
+    public static function getParameters()
+    {
+        return static::$parameterMap;
+    }
+
+    /**
+     * Set the global parameter mapping.
+     *
+     * @param  array $parameters
+     * @return void
+     */
+    public static function setParameters(array $parameters = [])
+    {
+        static::$parameterMap = $parameters;
+    }
+
+    /**
+     * Get or set the action verbs used in the resource URIs.
+     *
+     * @param  array  $verbs
+     * @return array
+     */
+    public static function verbs(array $verbs = [])
+    {
+        if (empty($verbs)) {
+            return static::$verbs;
+        } else {
+            static::$verbs = array_merge(static::$verbs, $verbs);
+        }
     }
 }

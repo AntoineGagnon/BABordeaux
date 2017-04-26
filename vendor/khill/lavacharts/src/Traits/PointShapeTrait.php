@@ -27,6 +27,6 @@ trait PointShapeTrait
             'polygon'
         ];
 
-        return $this->setStringInArrayOption(__FUNCTION__, $shape, $values);
+        return  $this->setStringInArrayOption(__FUNCTION__, $shape, $values);
     }
 }

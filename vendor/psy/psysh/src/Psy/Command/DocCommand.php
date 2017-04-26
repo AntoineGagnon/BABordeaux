@@ -84,15 +84,6 @@ HELP
         $this->setCommandScopeVariables($reflector);
     }
 
-    private function getManualDocById($id)
-    {
-        if ($db = $this->getApplication()->getManualDb()) {
-            return $db
-                ->query(sprintf('SELECT doc FROM php_manual WHERE id = %s', $db->quote($id)))
-                ->fetchColumn(0);
-        }
-    }
-
     private function getManualDoc($reflector)
     {
         switch (get_class($reflector)) {
@@ -109,5 +100,14 @@ HELP
         }
 
         return $this->getManualDocById($id);
+    }
+
+    private function getManualDocById($id)
+    {
+        if ($db = $this->getApplication()->getManualDb()) {
+            return $db
+                ->query(sprintf('SELECT doc FROM php_manual WHERE id = %s', $db->quote($id)))
+                ->fetchColumn(0);
+        }
     }
 }

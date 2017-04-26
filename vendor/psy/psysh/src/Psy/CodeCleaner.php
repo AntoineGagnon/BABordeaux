@@ -50,8 +50,8 @@ class CodeCleaner
     /**
      * CodeCleaner constructor.
      *
-     * @param Parser $parser A PhpParser Parser instance. One will be created if not explicitly supplied
-     * @param Printer $printer A PhpParser Printer instance. One will be created if not explicitly supplied
+     * @param Parser        $parser    A PhpParser Parser instance. One will be created if not explicitly supplied
+     * @param Printer       $printer   A PhpParser Printer instance. One will be created if not explicitly supplied
      * @param NodeTraverser $traverser A PhpParser NodeTraverser instance. One will be created if not explicitly supplied
      */
     public function __construct(Parser $parser = null, Printer $printer = null, NodeTraverser $traverser = null)
@@ -62,7 +62,7 @@ class CodeCleaner
         }
 
         $this->parser    = $parser;
-        $this->printer = $printer ?: new Printer();
+        $this->printer   = $printer ?: new Printer();
         $this->traverser = $traverser ?: new NodeTraverser();
 
         foreach ($this->getDefaultPasses() as $pass) {
@@ -125,6 +125,28 @@ class CodeCleaner
     }
 
     /**
+     * Set the current local namespace.
+     *
+     * @param null|array $namespace (default: null)
+     *
+     * @return null|array
+     */
+    public function setNamespace(array $namespace = null)
+    {
+        $this->namespace = $namespace;
+    }
+
+    /**
+     * Get the current local namespace.
+     *
+     * @return null|array
+     */
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
+
+    /**
      * Lex and parse a block of code.
      *
      * @see Parser::parse
@@ -167,6 +189,13 @@ class CodeCleaner
         }
     }
 
+    private function parseErrorIsEOF(\PhpParser\Error $e)
+    {
+        $msg = $e->getRawMessage();
+
+        return ($msg === 'Unexpected token EOF') || (strpos($msg, 'Syntax error, unexpected EOF') !== false);
+    }
+
     /**
      * A special test for unclosed single-quoted strings.
      *
@@ -197,34 +226,5 @@ class CodeCleaner
     private function parseErrorIsUnterminatedComment(\PhpParser\Error $e, $code)
     {
         return $e->getRawMessage() === 'Unterminated comment';
-    }
-
-    private function parseErrorIsEOF(\PhpParser\Error $e)
-    {
-        $msg = $e->getRawMessage();
-
-        return ($msg === 'Unexpected token EOF') || (strpos($msg, 'Syntax error, unexpected EOF') !== false);
-    }
-
-    /**
-     * Get the current local namespace.
-     *
-     * @return null|array
-     */
-    public function getNamespace()
-    {
-        return $this->namespace;
-    }
-
-    /**
-     * Set the current local namespace.
-     *
-     * @param null|array $namespace (default: null)
-     *
-     * @return null|array
-     */
-    public function setNamespace(array $namespace = null)
-    {
-        $this->namespace = $namespace;
     }
 }

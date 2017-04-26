@@ -33,6 +33,33 @@ class RedisTaggedCache extends TaggedCache
     }
 
     /**
+     * Store an item in the cache indefinitely.
+     *
+     * @param  string  $key
+     * @param  mixed   $value
+     * @return void
+     */
+    public function forever($key, $value)
+    {
+        $this->pushForeverKeys($this->tags->getNamespace(), $key);
+
+        parent::forever($key, $value);
+    }
+
+    /**
+     * Remove all items from the cache.
+     *
+     * @return void
+     */
+    public function flush()
+    {
+        $this->deleteForeverKeys();
+        $this->deleteStandardKeys();
+
+        parent::flush();
+    }
+
+    /**
      * Store standard key references into store.
      *
      * @param  string  $namespace
@@ -42,6 +69,18 @@ class RedisTaggedCache extends TaggedCache
     protected function pushStandardKeys($namespace, $key)
     {
         $this->pushKeys($namespace, $key, self::REFERENCE_KEY_STANDARD);
+    }
+
+    /**
+     * Store forever key references into store.
+     *
+     * @param  string  $namespace
+     * @param  string  $key
+     * @return void
+     */
+    protected function pushForeverKeys($namespace, $key)
+    {
+        $this->pushKeys($namespace, $key, self::REFERENCE_KEY_FOREVER);
     }
 
     /**
@@ -62,57 +101,6 @@ class RedisTaggedCache extends TaggedCache
     }
 
     /**
-     * Get the reference key for the segment.
-     *
-     * @param  string $segment
-     * @param  string $suffix
-     * @return string
-     */
-    protected function referenceKey($segment, $suffix)
-    {
-        return $this->store->getPrefix() . $segment . ':' . $suffix;
-    }
-
-    /**
-     * Store an item in the cache indefinitely.
-     *
-     * @param  string $key
-     * @param  mixed $value
-     * @return void
-     */
-    public function forever($key, $value)
-    {
-        $this->pushForeverKeys($this->tags->getNamespace(), $key);
-
-        parent::forever($key, $value);
-    }
-
-    /**
-     * Store forever key references into store.
-     *
-     * @param  string $namespace
-     * @param  string $key
-     * @return void
-     */
-    protected function pushForeverKeys($namespace, $key)
-    {
-        $this->pushKeys($namespace, $key, self::REFERENCE_KEY_FOREVER);
-    }
-
-    /**
-     * Remove all items from the cache.
-     *
-     * @return void
-     */
-    public function flush()
-    {
-        $this->deleteForeverKeys();
-        $this->deleteStandardKeys();
-
-        parent::flush();
-    }
-
-    /**
      * Delete all of the items that were stored forever.
      *
      * @return void
@@ -120,6 +108,16 @@ class RedisTaggedCache extends TaggedCache
     protected function deleteForeverKeys()
     {
         $this->deleteKeysByReference(self::REFERENCE_KEY_FOREVER);
+    }
+
+    /**
+     * Delete all standard items.
+     *
+     * @return void
+     */
+    protected function deleteStandardKeys()
+    {
+        $this->deleteKeysByReference(self::REFERENCE_KEY_STANDARD);
     }
 
     /**
@@ -155,12 +153,14 @@ class RedisTaggedCache extends TaggedCache
     }
 
     /**
-     * Delete all standard items.
+     * Get the reference key for the segment.
      *
-     * @return void
+     * @param  string  $segment
+     * @param  string  $suffix
+     * @return string
      */
-    protected function deleteStandardKeys()
+    protected function referenceKey($segment, $suffix)
     {
-        $this->deleteKeysByReference(self::REFERENCE_KEY_STANDARD);
+        return $this->store->getPrefix().$segment.':'.$suffix;
     }
 }

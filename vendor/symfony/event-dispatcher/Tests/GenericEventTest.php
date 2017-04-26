@@ -11,12 +11,13 @@
 
 namespace Symfony\Component\EventDispatcher\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 /**
  * Test class for Event.
  */
-class GenericEventTest extends \PHPUnit_Framework_TestCase
+class GenericEventTest extends TestCase
 {
     /**
      * @var GenericEvent
@@ -24,6 +25,28 @@ class GenericEventTest extends \PHPUnit_Framework_TestCase
     private $event;
 
     private $subject;
+
+    /**
+     * Prepares the environment before running a test.
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->subject = new \stdClass();
+        $this->event = new GenericEvent($this->subject, array('name' => 'Event'));
+    }
+
+    /**
+     * Cleans up the environment after running a test.
+     */
+    protected function tearDown()
+    {
+        $this->subject = null;
+        $this->event = null;
+
+        parent::tearDown();
+    }
 
     public function testConstruct()
     {
@@ -73,7 +96,7 @@ class GenericEventTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Event', $this->event['name']);
 
         // test getting invalid arg
-        $this->setExpectedException('InvalidArgumentException');
+        $this->{method_exists($this, $_ = 'expectException') ? $_ : 'setExpectedException'}('InvalidArgumentException');
         $this->assertFalse($this->event['nameNotExist']);
     }
 
@@ -113,27 +136,5 @@ class GenericEventTest extends \PHPUnit_Framework_TestCase
             $data[$key] = $value;
         }
         $this->assertEquals(array('name' => 'Event'), $data);
-    }
-
-    /**
-     * Prepares the environment before running a test.
-     */
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $this->subject = new \stdClass();
-        $this->event = new GenericEvent($this->subject, array('name' => 'Event'));
-    }
-
-    /**
-     * Cleans up the environment after running a test.
-     */
-    protected function tearDown()
-    {
-        $this->subject = null;
-        $this->event = null;
-
-        parent::tearDown();
     }
 }

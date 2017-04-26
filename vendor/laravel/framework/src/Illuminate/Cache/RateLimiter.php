@@ -51,6 +51,20 @@ class RateLimiter
     }
 
     /**
+     * Increment the counter for a given key for a given decay time.
+     *
+     * @param  string  $key
+     * @param  float|int  $decayMinutes
+     * @return int
+     */
+    public function hit($key, $decayMinutes = 1)
+    {
+        $this->cache->add($key, 1, $decayMinutes);
+
+        return (int) $this->cache->increment($key);
+    }
+
+    /**
      * Get the number of attempts for the given key.
      *
      * @param  string  $key
@@ -70,20 +84,6 @@ class RateLimiter
     public function resetAttempts($key)
     {
         return $this->cache->forget($key);
-    }
-
-    /**
-     * Increment the counter for a given key for a given decay time.
-     *
-     * @param  string $key
-     * @param  float|int $decayMinutes
-     * @return int
-     */
-    public function hit($key, $decayMinutes = 1)
-    {
-        $this->cache->add($key, 1, $decayMinutes);
-
-        return (int)$this->cache->increment($key);
     }
 
     /**

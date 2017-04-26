@@ -102,27 +102,13 @@ class JavascriptFactory
     public function getCoreJs()
     {
         //$coreJs  = self::JSAPI;
-        $coreJs = self::JS_OPEN;
-        $coreJs .= file_get_contents(__DIR__ . '/../../javascript/lava.js');
+        $coreJs  = self::JS_OPEN;
+        $coreJs .= file_get_contents(__DIR__.'/../../javascript/lava.js');
         $coreJs .= self::JS_CLOSE;
 
         $this->coreJsRendered = true;
 
         return $coreJs;
-    }
-
-    /**
-     * Checks for an element id to output the chart into and builds the Javascript.
-     *
-     * @access public
-     * @uses   \Khill\Lavacharts\Charts\Chart
-     * @param  \Khill\Lavacharts\Charts\Chart $chart Chart to render.
-     * @param  \Khill\Lavacharts\Values\ElementId $elementId HTML element id to output the chart into.
-     * @return string Javascript code block.
-     */
-    public function getChartJs(Chart $chart, ElementId $elementId)
-    {
-        return (new ChartFactory($chart, $elementId))->getJavascript();
     }
 
     /**
@@ -136,6 +122,35 @@ class JavascriptFactory
         $this->parseTemplate();
 
         return $this->scriptTagWrap($this->out);
+    }
+
+    /**
+     * Checks for an element id to output the chart into and builds the Javascript.
+     *
+     * @access public
+     * @uses   \Khill\Lavacharts\Charts\Chart
+     * @param  \Khill\Lavacharts\Charts\Chart     $chart Chart to render.
+     * @param  \Khill\Lavacharts\Values\ElementId $elementId HTML element id to output the chart into.
+     * @return string Javascript code block.
+     */
+    public function getChartJs(Chart $chart, ElementId $elementId)
+    {
+        return (new ChartFactory($chart, $elementId))->getJavascript();
+    }
+
+    /**
+     * Checks for an element id to output the chart into and builds the Javascript.
+     *
+     * @since  3.0.0
+     * @access public
+     * @uses   \Khill\Lavacharts\Dashboards\Dashboard
+     * @param  \Khill\Lavacharts\Dashboards\Dashboard $dashboard Dashboard to render.
+     * @param  \Khill\Lavacharts\Values\ElementId     $elementId HTML element id to output the dashboard into.
+     * @return string Javascript code block.
+     */
+    public function getDashboardJs(Dashboard $dashboard, ElementId $elementId)
+    {
+        return (new DashboardFactory($dashboard, $elementId))->getJavascript();
     }
 
     /**
@@ -161,20 +176,5 @@ class JavascriptFactory
     protected function scriptTagWrap($javascript)
     {
         return PHP_EOL . self::JS_OPEN . PHP_EOL . $javascript . PHP_EOL . self::JS_CLOSE;
-    }
-
-    /**
-     * Checks for an element id to output the chart into and builds the Javascript.
-     *
-     * @since  3.0.0
-     * @access public
-     * @uses   \Khill\Lavacharts\Dashboards\Dashboard
-     * @param  \Khill\Lavacharts\Dashboards\Dashboard $dashboard Dashboard to render.
-     * @param  \Khill\Lavacharts\Values\ElementId $elementId HTML element id to output the dashboard into.
-     * @return string Javascript code block.
-     */
-    public function getDashboardJs(Dashboard $dashboard, ElementId $elementId)
-    {
-        return (new DashboardFactory($dashboard, $elementId))->getJavascript();
     }
 }

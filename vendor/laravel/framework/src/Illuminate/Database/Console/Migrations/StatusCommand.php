@@ -62,8 +62,8 @@ class StatusCommand extends BaseCommand
                                 $migrationName = $this->migrator->getMigrationName($migration);
 
                                 return in_array($migrationName, $ran)
-                                    ? ['<info>Y</info>', $migrationName]
-                                    : ['<fg=red>N</fg=red>', $migrationName];
+                                        ? ['<info>Y</info>', $migrationName]
+                                        : ['<fg=red>N</fg=red>', $migrationName];
                             });
 
         if (count($migrations) > 0) {

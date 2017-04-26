@@ -10,6 +10,6 @@ class InvalidOption extends \Exception
             $option = gettype($option);
         }
 
-        parent::__construct("'$option' is not a valid option, must be one of [ " . implode(' | ', $choices) . ' ]');
+        parent::__construct("'$option' is not a valid option, must be one of [ ".implode(' | ', $choices).' ]');
     }
 }

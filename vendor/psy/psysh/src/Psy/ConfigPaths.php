@@ -19,6 +19,40 @@ use XdgBaseDir\Xdg;
 class ConfigPaths
 {
     /**
+     * Get potential config directory paths.
+     *
+     * Returns `~/.psysh`, `%APPDATA%/PsySH` (when on Windows), and all
+     * XDG Base Directory config directories:
+     *
+     *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+     *
+     * @return string[]
+     */
+    public static function getConfigDirs()
+    {
+        $xdg = new Xdg();
+
+        return self::getDirNames($xdg->getConfigDirs());
+    }
+
+    /**
+     * Get potential home config directory paths.
+     *
+     * Returns `~/.psysh`, `%APPDATA%/PsySH` (when on Windows), and the
+     * XDG Base Directory home config directory:
+     *
+     *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+     *
+     * @return string[]
+     */
+    public static function getHomeConfigDirs()
+    {
+        $xdg = new Xdg();
+
+        return self::getDirNames(array($xdg->getHomeConfigDir()));
+    }
+
+    /**
      * Get the current home config directory.
      *
      * Returns the highest precedence home config directory which actually
@@ -43,20 +77,66 @@ class ConfigPaths
     }
 
     /**
-     * Get potential home config directory paths.
+     * Find real config files in config directories.
      *
-     * Returns `~/.psysh`, `%APPDATA%/PsySH` (when on Windows), and the
-     * XDG Base Directory home config directory:
+     * @param string[] $names     Config file names
+     * @param string   $configDir Optionally use a specific config directory
+     *
+     * @return string[]
+     */
+    public static function getConfigFiles(array $names, $configDir = null)
+    {
+        $dirs = ($configDir === null) ? self::getConfigDirs() : array($configDir);
+
+        return self::getRealFiles($dirs, $names);
+    }
+
+    /**
+     * Get potential data directory paths.
+     *
+     * If a `dataDir` option was explicitly set, returns an array containing
+     * just that directory.
+     *
+     * Otherwise, it returns `~/.psysh` and all XDG Base Directory data directories:
      *
      *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
      *
      * @return string[]
      */
-    public static function getHomeConfigDirs()
+    public static function getDataDirs()
     {
         $xdg = new Xdg();
 
-        return self::getDirNames(array($xdg->getHomeConfigDir()));
+        return self::getDirNames($xdg->getDataDirs());
+    }
+
+    /**
+     * Find real data files in config directories.
+     *
+     * @param string[] $names   Config file names
+     * @param string   $dataDir Optionally use a specific config directory
+     *
+     * @return string[]
+     */
+    public static function getDataFiles(array $names, $dataDir = null)
+    {
+        $dirs = ($dataDir === null) ? self::getDataDirs() : array($dataDir);
+
+        return self::getRealFiles($dirs, $names);
+    }
+
+    /**
+     * Get a runtime directory.
+     *
+     * Defaults to  `/psysh` inside the system's temp dir.
+     *
+     * @return string
+     */
+    public static function getRuntimeDir()
+    {
+        $xdg = new Xdg();
+
+        return $xdg->getRuntimeDir(false) . '/psysh';
     }
 
     private static function getDirNames(array $baseDirs)
@@ -86,38 +166,6 @@ class ConfigPaths
         return $dirs;
     }
 
-    /**
-     * Find real config files in config directories.
-     *
-     * @param string[] $names Config file names
-     * @param string $configDir Optionally use a specific config directory
-     *
-     * @return string[]
-     */
-    public static function getConfigFiles(array $names, $configDir = null)
-    {
-        $dirs = ($configDir === null) ? self::getConfigDirs() : array($configDir);
-
-        return self::getRealFiles($dirs, $names);
-    }
-
-    /**
-     * Get potential config directory paths.
-     *
-     * Returns `~/.psysh`, `%APPDATA%/PsySH` (when on Windows), and all
-     * XDG Base Directory config directories:
-     *
-     *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-     *
-     * @return string[]
-     */
-    public static function getConfigDirs()
-    {
-        $xdg = new Xdg();
-
-        return self::getDirNames($xdg->getConfigDirs());
-    }
-
     private static function getRealFiles(array $dirNames, array $fileNames)
     {
         $files = array();
@@ -131,54 +179,6 @@ class ConfigPaths
         }
 
         return $files;
-    }
-
-    /**
-     * Find real data files in config directories.
-     *
-     * @param string[] $names Config file names
-     * @param string $dataDir Optionally use a specific config directory
-     *
-     * @return string[]
-     */
-    public static function getDataFiles(array $names, $dataDir = null)
-    {
-        $dirs = ($dataDir === null) ? self::getDataDirs() : array($dataDir);
-
-        return self::getRealFiles($dirs, $names);
-    }
-
-    /**
-     * Get potential data directory paths.
-     *
-     * If a `dataDir` option was explicitly set, returns an array containing
-     * just that directory.
-     *
-     * Otherwise, it returns `~/.psysh` and all XDG Base Directory data directories:
-     *
-     *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-     *
-     * @return string[]
-     */
-    public static function getDataDirs()
-    {
-        $xdg = new Xdg();
-
-        return self::getDirNames($xdg->getDataDirs());
-    }
-
-    /**
-     * Get a runtime directory.
-     *
-     * Defaults to  `/psysh` inside the system's temp dir.
-     *
-     * @return string
-     */
-    public static function getRuntimeDir()
-    {
-        $xdg = new Xdg();
-
-        return $xdg->getRuntimeDir(false) . '/psysh';
     }
 
     /**

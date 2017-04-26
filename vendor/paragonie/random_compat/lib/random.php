@@ -3,12 +3,12 @@
  * Random_* Compatibility Library
  * for using the new PHP 7 random_* API in PHP 5 projects
  *
- * @version 2.0.4
- * @released 2016-11-07
+ * @version 2.0.10
+ * @released 2017-03-13
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 - 2016 Paragon Initiative Enterprises
+ * Copyright (c) 2015 - 2017 Paragon Initiative Enterprises
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -97,9 +97,9 @@ if (!is_callable('random_bytes')) {
                 strtolower($RandomCompat_basedir)
             );
             $RandomCompatUrandom = (array() !== array_intersect(
-                    array('/dev', '/dev/', '/dev/urandom'),
-                    $RandomCompat_open_basedir
-                ));
+                array('/dev', '/dev/', '/dev/urandom'),
+                $RandomCompat_open_basedir
+            ));
             $RandomCompat_open_basedir = null;
         }
 
@@ -131,7 +131,6 @@ if (!is_callable('random_bytes')) {
      * We only want to use mcypt_create_iv() if:
      *
      * - random_bytes() hasn't already been defined
-     * - PHP >= 5.3.7
      * - the mcrypt extensions is loaded
      * - One of these two conditions is true:
      *   - We're on Windows (DIRECTORY_SEPARATOR !== '/')
@@ -141,23 +140,26 @@ if (!is_callable('random_bytes')) {
      *   - If we're not on Windows, but the PHP version is between
      *     5.6.10 and 5.6.12, we don't want to use mcrypt. It will
      *     hang indefinitely. This is bad.
+     *   - If we're on Windows, we want to use PHP >= 5.3.7 or else
+     *     we get insufficient entropy errors.
      */
     if (
         !is_callable('random_bytes')
         &&
-        PHP_VERSION_ID >= 50307
+        // Windows on PHP < 5.3.7 is broken, but non-Windows is not known to be.
+        (DIRECTORY_SEPARATOR === '/' || PHP_VERSION_ID >= 50307)
+        &&
+        // Prevent this code from hanging indefinitely on non-Windows;
+        // see https://bugs.php.net/bug.php?id=69833
+        (
+            DIRECTORY_SEPARATOR !== '/' ||
+            (PHP_VERSION_ID <= 50609 || PHP_VERSION_ID >= 50613)
+        )
         &&
         extension_loaded('mcrypt')
     ) {
-        // Prevent this code from hanging indefinitely on non-Windows;
-        // see https://bugs.php.net/bug.php?id=69833
-        if (
-            DIRECTORY_SEPARATOR !== '/' ||
-            (PHP_VERSION_ID <= 50609 || PHP_VERSION_ID >= 50613)
-        ) {
-            // See random_bytes_mcrypt.php
-            require_once $RandomCompatDIR . '/random_bytes_mcrypt.php';
-        }
+        // See random_bytes_mcrypt.php
+        require_once $RandomCompatDIR . '/random_bytes_mcrypt.php';
     }
     $RandomCompatUrandom = null;
 
@@ -206,6 +208,7 @@ if (!is_callable('random_bytes')) {
          */
         function random_bytes($length)
         {
+            unset($length); // Suppress "variable not used" warnings.
             throw new Exception(
                 'There is no suitable CSPRNG installed on your system'
             );

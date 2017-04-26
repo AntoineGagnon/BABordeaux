@@ -102,13 +102,15 @@ class PollController extends Controller
         if (!Auth::check())
             return redirect()->intended('login');
 
-
         //fetch all question from database.
         $questions = question::all();
         $rules = rule::all();
+        $answers = answer::all();
 
-
-        return view('admin_poll_edit_view', ['questions' => $questions, 'rules' => $rules]);
+        foreach ($questions as $question) {
+            $question['answers'] = answer::where('question_id', $question->id)->get();
+        }
+        return view('admin_poll_edit_view', ['questions' => $questions, 'rules' => $rules, 'answers' => $answers]);
     }
 
     /**
@@ -175,7 +177,6 @@ class PollController extends Controller
 
         if (!Auth::check())
             return redirect()->intended('login');
-
 
         // Generate and return the spreadsheet
         $spreadsheet = Excel::create('resultats_sondage', function ($excel) {

@@ -27,7 +27,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
     const CLASS_STATIC    = '/^([\\\\\w]+)::\$(\w+)$/';
     const INSTANCE_MEMBER = '/^\$(\w+)(::|->)(\w+)$/';
     const INSTANCE_STATIC = '/^\$(\w+)::\$(\w+)$/';
-    const SUPERGLOBAL = '/^\$(GLOBALS|_(?:SERVER|ENV|FILES|COOKIE|POST|GET|SESSION))$/';
+    const SUPERGLOBAL     = '/^\$(GLOBALS|_(?:SERVER|ENV|FILES|COOKIE|POST|GET|SESSION))$/';
 
     /**
      * Context instance (for ContextAware interface).
@@ -44,21 +44,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
     public function setContext(Context $context)
     {
         $this->context = $context;
-    }
-
-    /**
-     * Get a Reflector and documentation for a function, class or instance, constant, method or property.
-     *
-     * @param string $valueName Function, class, variable, constant, method or property name
-     * @param bool $classOnly True if the name should only refer to a class, function or instance
-     *
-     * @return array (value, Reflector)
-     */
-    protected function getTargetAndReflector($valueName, $classOnly = false)
-    {
-        list($value, $member, $kind) = $this->getTarget($valueName, $classOnly);
-
-        return array($value, Mirror::get($value, $member, $kind));
     }
 
     /**
@@ -136,6 +121,21 @@ abstract class ReflectingCommand extends Command implements ContextAware
         }
 
         return $name;
+    }
+
+    /**
+     * Get a Reflector and documentation for a function, class or instance, constant, method or property.
+     *
+     * @param string $valueName Function, class, variable, constant, method or property name
+     * @param bool   $classOnly True if the name should only refer to a class, function or instance
+     *
+     * @return array (value, Reflector)
+     */
+    protected function getTargetAndReflector($valueName, $classOnly = false)
+    {
+        list($value, $member, $kind) = $this->getTarget($valueName, $classOnly);
+
+        return array($value, Mirror::get($value, $member, $kind));
     }
 
     /**
@@ -224,7 +224,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 if ($fileName = $reflector->getExecutingFile()) {
                     $vars['__file'] = $fileName;
                     $vars['__line'] = $reflector->getExecutingLine();
-                    $vars['__dir'] = dirname($fileName);
+                    $vars['__dir']  = dirname($fileName);
                 }
                 break;
 
@@ -238,7 +238,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 // no line for these, but this'll do
                 if ($fileName = $reflector->getDeclaringClass()->getFileName()) {
                     $vars['__file'] = $fileName;
-                    $vars['__dir'] = dirname($fileName);
+                    $vars['__dir']  = dirname($fileName);
                 }
                 break;
         }
@@ -247,7 +247,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
             if ($fileName = $reflector->getFileName()) {
                 $vars['__file'] = $fileName;
                 $vars['__line'] = $reflector->getStartLine();
-                $vars['__dir'] = dirname($fileName);
+                $vars['__dir']  = dirname($fileName);
             }
         }
 

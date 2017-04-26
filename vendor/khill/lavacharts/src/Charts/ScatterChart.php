@@ -106,9 +106,9 @@ class ScatterChart extends Chart
     /**
      * Builds a new ScatterChart with the given label, datatable and options.
      *
-     * @param  \Khill\Lavacharts\Values\Label $chartLabel Identifying label for the chart.
+     * @param  \Khill\Lavacharts\Values\Label         $chartLabel Identifying label for the chart.
      * @param  \Khill\Lavacharts\DataTables\DataTable $datatable DataTable used for the chart.
-     * @param array $config
+     * @param array                                   $config
      */
     public function __construct(Label $chartLabel, DataTable $datatable, $config = [])
     {

@@ -33,7 +33,7 @@ class JsonConfig implements \JsonSerializable
      * Creates a new JsonConfig object
      *
      * @param  \Khill\Lavacharts\Options $options
-     * @param  array $config
+     * @param  array                             $config
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigProperty
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      */
@@ -88,23 +88,6 @@ class JsonConfig implements \JsonSerializable
     }
 
     /**
-     * Shortcut method to set the value of an option and return $this.
-     *
-     * In order to maintain backwards compatibility, ConfigObjects will be unwrapped.
-     *
-     * @access public
-     * @param  string $option Option to set.
-     * @param  mixed $value Value of the option.
-     * @return \Khill\Lavacharts\JsonConfig
-     */
-    public function setOption($option, $value)
-    {
-        $this->options->set($option, $value);
-
-        return $this;
-    }
-
-    /**
      * Gets the Options object for the JsonConfig
      *
      * @access public
@@ -113,6 +96,23 @@ class JsonConfig implements \JsonSerializable
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * Shortcut method to set the value of an option and return $this.
+     *
+     * In order to maintain backwards compatibility, ConfigObjects will be unwrapped.
+     *
+     * @access public
+     * @param  string $option Option to set.
+     * @param  mixed  $value Value of the option.
+     * @return \Khill\Lavacharts\JsonConfig
+     */
+    public function setOption($option, $value)
+    {
+        $this->options->set($option, $value);
+
+        return $this;
     }
 
     /**
@@ -148,16 +148,6 @@ class JsonConfig implements \JsonSerializable
     }
 
     /**
-     * Custom serialization of the JsonConfig object.
-     *
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return $this->options;
-    }
-
-    /**
      * Sets the value of a string option.
      *
      * @param  string $option Option to set.
@@ -185,7 +175,7 @@ class JsonConfig implements \JsonSerializable
      *
      * @param  string $option Option to set.
      * @param  string $value Value of the option.
-     * @param  array $validValues Array of valid values
+     * @param  array  $validValues Array of valid values
      * @return \Khill\Lavacharts\JsonConfig
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      * @throws \Khill\Lavacharts\Exceptions\InvalidOption
@@ -196,7 +186,7 @@ class JsonConfig implements \JsonSerializable
             throw new InvalidConfigValue(
                 static::TYPE . '->' . $option,
                 'string',
-                'Whose value is one of ' . Utils::arrayToPipedString($validValues)
+                'Whose value is one of '.Utils::arrayToPipedString($validValues)
             );
         }
 
@@ -209,7 +199,7 @@ class JsonConfig implements \JsonSerializable
      * Sets the value of an integer option.
      *
      * @param  string $option Option to set.
-     * @param  int $value Value of the option.
+     * @param  int    $value Value of the option.
      * @return \Khill\Lavacharts\JsonConfig
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      * @throws \Khill\Lavacharts\Exceptions\InvalidOption
@@ -255,7 +245,7 @@ class JsonConfig implements \JsonSerializable
      * Sets the value of an integer option.
      *
      * @param  string $option Option to set.
-     * @param  int $value Value of the option.
+     * @param  int    $value Value of the option.
      * @return \Khill\Lavacharts\JsonConfig
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      * @throws \Khill\Lavacharts\Exceptions\InvalidOption
@@ -279,7 +269,7 @@ class JsonConfig implements \JsonSerializable
      * Sets the value of an boolean option.
      *
      * @param  string $option Option to set.
-     * @param  bool $value Value of the option.
+     * @param  bool   $value Value of the option.
      * @return \Khill\Lavacharts\JsonConfig
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      * @throws \Khill\Lavacharts\Exceptions\InvalidOption
@@ -296,5 +286,15 @@ class JsonConfig implements \JsonSerializable
         $this->options->set($option, $value);
 
         return $this;
+    }
+
+    /**
+     * Custom serialization of the JsonConfig object.
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return $this->options;
     }
 }

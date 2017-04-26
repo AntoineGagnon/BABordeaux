@@ -62,18 +62,6 @@ class Unique
     }
 
     /**
-     * Set a "where not" constraint on the query.
-     *
-     * @param  string $column
-     * @param  string $value
-     * @return $this
-     */
-    public function whereNot($column, $value)
-    {
-        return $this->where($column, '!' . $value);
-    }
-
-    /**
      * Set a "where" constraint on the query.
      *
      * @param  string  $column
@@ -92,16 +80,15 @@ class Unique
     }
 
     /**
-     * Register a custom query callback.
+     * Set a "where not" constraint on the query.
      *
-     * @param  \Closure $callback
+     * @param  string  $column
+     * @param  string  $value
      * @return $this
      */
-    public function using(Closure $callback)
+    public function whereNot($column, $value)
     {
-        $this->using = $callback;
-
-        return $this;
+        return $this->where($column, '!'.$value);
     }
 
     /**
@@ -142,6 +129,31 @@ class Unique
     }
 
     /**
+     * Register a custom query callback.
+     *
+     * @param  \Closure $callback
+     * @return $this
+     */
+    public function using(Closure $callback)
+    {
+        $this->using = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Format the where clauses.
+     *
+     * @return string
+     */
+    protected function formatWheres()
+    {
+        return collect($this->wheres)->map(function ($where) {
+            return $where['column'].','.$where['value'];
+        })->implode(',');
+    }
+
+    /**
      * Get the custom query callbacks for the rule.
      *
      * @return array
@@ -161,21 +173,9 @@ class Unique
         return rtrim(sprintf('unique:%s,%s,%s,%s,%s',
             $this->table,
             $this->column,
-            $this->ignore ? '"' . $this->ignore . '"' : 'NULL',
+            $this->ignore ? '"'.$this->ignore.'"' : 'NULL',
             $this->idColumn,
             $this->formatWheres()
         ), ',');
-    }
-
-    /**
-     * Format the where clauses.
-     *
-     * @return string
-     */
-    protected function formatWheres()
-    {
-        return collect($this->wheres)->map(function ($where) {
-            return $where['column'] . ',' . $where['value'];
-        })->implode(',');
     }
 }

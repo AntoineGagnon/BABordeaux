@@ -108,16 +108,6 @@ class ConfigReader {
     }
 
     /**
-     * Dynamically get a value by config
-     * @param  string $field
-     * @return string
-     */
-    public function __get($field)
-    {
-        return $this->valueByIndex($field);
-    }
-
-    /**
      * Get value by index
      * @param  string $field
      * @return string|null
@@ -135,16 +125,6 @@ class ConfigReader {
         }
 
         return null;
-    }
-
-    /**
-     * Get the coordinates from the config file
-     * @param  string $field
-     * @return string|boolean
-     */
-    protected function getCoordinateByKey($field)
-    {
-        return config($this->configName . '.' . $this->sheetName . '.' . $field, false);
     }
 
     /**
@@ -171,5 +151,25 @@ class ConfigReader {
         }
 
         return null;
+    }
+
+    /**
+     * Get the coordinates from the config file
+     * @param  string $field
+     * @return string|boolean
+     */
+    protected function getCoordinateByKey($field)
+    {
+        return config($this->configName . '.' . $this->sheetName . '.' . $field, false);
+    }
+
+    /**
+     * Dynamically get a value by config
+     * @param  string $field
+     * @return string
+     */
+    public function __get($field)
+    {
+        return $this->valueByIndex($field);
     }
 }

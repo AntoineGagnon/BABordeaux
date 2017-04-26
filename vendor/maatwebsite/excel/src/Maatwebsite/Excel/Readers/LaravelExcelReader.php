@@ -94,66 +94,119 @@ class LaravelExcelReader
      * @var boolean
      */
     public $calculate;
+
+    /**
+     * Limit of rows
+     *
+     * @var boolean
+     */
+    protected $limitRows = false;
+
+    /**
+     * Amount of rows to skip
+     *
+     * @var integer
+     */
+    protected $skipRows = 0;
+
+    /**
+     * Target columns
+     *
+     * @var array
+     */
+    protected $targetColumns = [];
+
+    /**
+     * Limit of columns
+     *
+     * @var boolean
+     */
+    protected $limitColumns = false;
+
+    /**
+     * Amount of columns to skip
+     *
+     * @var integer
+     */
+    protected $skipColumns = 0;
+
     /**
      * Slug separator
      *
      * @var string
      */
     public $separator = false;
+
     /**
      * Ignore empty cells
      *
      * @var boolean
      */
     public $ignoreEmpty = false;
+
     /**
      * Format dates
      *
      * @var boolean
      */
     public $formatDates = true;
+
     /**
      * The date columns
      *
      * @var array
      */
     public $dateColumns = [];
+
     /**
      * If the file has a heading or not
      *
      * @var boolean
      */
     public $noHeading = false;
+
     /**
      * Default date format
      *
      * @var string
      */
     public $dateFormat;
+
     /**
      * Whether the results are cached or not
      *
      * @var boolean
      */
     public $remembered = false;
+
     /**
      * Amount of minutes the results will remain cached
      *
      * @var integer
      */
     public $cacheMinutes = 10;
+
     /**
      * Selected sheets
      *
      * @var array
      */
     public $selectedSheets = [];
+
     /**
      * Selected sheet indices
      *
      * @var array
      */
     public $selectedSheetIndices = [];
+
+    /**
+     * Active filter
+     *
+     * @var PHPExcel_Reader_IReadFilter
+     */
+    protected $filter;
+
     /**
      * Filters
      *
@@ -162,24 +215,7 @@ class LaravelExcelReader
     public $filters = [
         'registered' => []
     ];
-    /**
-     * Limit data
-     *
-     * @var boolean
-     */
-    protected $limit = false;
-    /**
-     * Amount of rows to skip
-     *
-     * @var integer
-     */
-    protected $skip = 0;
-    /**
-     * Active filter
-     *
-     * @var PHPExcel_Reader_IReadFilter
-     */
-    protected $filter;
+
     /**
      * @var LaravelExcelWorksheet
      */
@@ -255,69 +291,6 @@ class LaravelExcelReader
     }
 
     /**
-     * Init the loading
-     *
-     * @param      $file
-     * @param bool $encoding
-     * @param bool $noBasePath
-     */
-    public function _init($file, $encoding = false, $noBasePath = false)
-    {
-        // Set the extension
-        $this->_setFile($file, $noBasePath)
-            ->setExtension()
-            ->setTitle()
-            ->_setFormat()
-            ->_setReader()
-            ->_enableFilters()
-            ->_setInputEncoding($encoding);
-    }
-
-    /**
-     * Set extension
-     *
-     * @param string|boolean $ext
-     *
-     * @return LaraveExcelReader
-     */
-    public function setExtension($ext = false)
-    {
-        $this->ext = $ext ? $ext : $this->filesystem->extension($this->file);
-
-        return $this;
-    }
-
-    /**
-     * Set the file
-     *
-     * @param string $file
-     * @param bool $noBasePath
-     *
-     * @return $this
-     */
-    protected function _setFile($file, $noBasePath = false)
-    {
-        // check if we have a correct path
-        if (!$noBasePath && !realpath($file)) {
-            $file = base_path($file);
-        }
-
-        $this->file = $file;
-
-        return $this;
-    }
-
-    /**
-     * Check if sheets were selected
-     *
-     * @return integer
-     */
-    public function sheetsSelected()
-    {
-        return count($this->selectedSheets) > 0;
-    }
-
-    /**
      * @param integer|callable|string $sheetID
      * @param null                    $callback
      *
@@ -361,34 +334,6 @@ class LaravelExcelReader
     }
 
     /**
-     * @param $clone
-     */
-    protected function initClonedExcelObject($clone)
-    {
-        $this->excel = new PHPExcel();
-        $this->excel->cloneParent(clone $clone);
-        $this->excel->disconnectWorksheets();
-    }
-
-    /**
-     * Get the sheet by id or name, else get the active sheet
-     *
-     * @param callable|integer|string $sheetID
-     *
-     * @return \PHPExcel_Worksheet
-     */
-    protected function getSheetByIdOrName($sheetID)
-    {
-        // If is a string, return the sheet by name
-        if (is_string($sheetID)) {
-            return $this->excel->getSheetByName($sheetID);
-        }
-
-        // Else it should be the sheet index
-        return $this->excel->getSheet($sheetID);
-    }
-
-    /**
      * Set csv delimiter
      *
      * @param $delimiter
@@ -427,6 +372,16 @@ class LaravelExcelReader
     }
 
     /**
+     * Check if sheets were selected
+     *
+     * @return integer
+     */
+    public function sheetsSelected()
+    {
+        return count($this->selectedSheets) > 0;
+    }
+
+    /**
      * Check if the file was selected by index
      *
      * @param  $index
@@ -444,16 +399,6 @@ class LaravelExcelReader
     }
 
     /**
-     * Return the selected sheets
-     *
-     * @return array
-     */
-    public function getSelectedSheetIndices()
-    {
-        return $this->selectedSheetIndices;
-    }
-
-    /**
      * Set the selected sheet indices
      *
      * @param  $sheets
@@ -465,6 +410,16 @@ class LaravelExcelReader
         $this->selectedSheetIndices = $sheets;
 
         return $this;
+    }
+
+    /**
+     * Return the selected sheets
+     *
+     * @return array
+     */
+    public function getSelectedSheetIndices()
+    {
+        return $this->selectedSheetIndices;
     }
 
     /**
@@ -498,20 +453,29 @@ class LaravelExcelReader
     }
 
     /**
-     * Limit the results by x
+     * Take x rows
      *
-     * @param  integer $take
-     * @param  integer $skip
+     * @param  integer $amount
      *
      * @return LaravelExcelReader
      */
-    public function limit($take, $skip = 0)
+    public function take($amount)
     {
-        // Skip x records
-        $this->skip($skip);
+        // Set limit
+        return $this->takeRows($amount);
+    }
 
-        // Take x records
-        $this->take($take);
+    /**
+     * Take x rows
+     *
+     * @param  integer $amount
+     *
+     * @return LaravelExcelReader
+     */
+    public function takeRows($amount)
+    {
+        // Set limit
+        $this->limitRows = $amount;
 
         return $this;
     }
@@ -526,22 +490,102 @@ class LaravelExcelReader
     public function skip($amount)
     {
         // Set skip amount
-        $this->skip = $amount;
-
-        return $this;
+        return $this->skipRows($amount);
     }
 
     /**
-     * Take x rows
+     * Skip x rows
      *
      * @param  integer $amount
      *
      * @return LaravelExcelReader
      */
-    public function take($amount)
+    public function skipRows($amount)
+    {
+        // Set skip amount
+        $this->skipRows = $amount;
+
+        return $this;
+    }
+
+    /**
+     * Limit the results by x
+     *
+     * @param  integer $take
+     * @param  integer $skip
+     *
+     * @return LaravelExcelReader
+     */
+    public function limit($take, $skip = 0)
+    {
+        // Limit the results by x
+        return $this->limitRows($take, $skip);
+    }
+
+    /**
+     * Limit the results by x
+     *
+     * @param  integer $take
+     * @param  integer $skip
+     *
+     * @return LaravelExcelReader
+     */
+    public function limitRows($take, $skip = 0)
+    {
+        // Skip x records
+        $this->skipRows($skip);
+
+        // Take x records
+        $this->takeRows($take);
+
+        return $this;
+    }
+
+    /**
+     * Take x columns
+     *
+     * @param  integer $amount
+     *
+     * @return LaravelExcelReader
+     */
+    public function takeColumns($amount)
     {
         // Set limit
-        $this->limit = $amount;
+        $this->limitColumns = $amount;
+
+        return $this;
+    }
+
+    /**
+     * Skip x columns
+     *
+     * @param  integer $amount
+     *
+     * @return LaravelExcelReader
+     */
+    public function skipColumns($amount)
+    {
+        // Set skip amount
+        $this->skipColumns = $amount;
+
+        return $this;
+    }
+
+    /**
+     * Limit the results by x
+     *
+     * @param  integer $take
+     * @param  integer $skip
+     *
+     * @return LaravelExcelReader
+     */
+    public function limitColumns($take, $skip = 0)
+    {
+        // Skip x records
+        $this->skipColumns($skip);
+
+        // Take x records
+        $this->takeColumns($take);
 
         return $this;
     }
@@ -573,6 +617,18 @@ class LaravelExcelReader
     }
 
     /**
+     * Get first row/sheet only
+     *
+     * @param  array $columns
+     *
+     * @return SheetCollection|RowCollection
+     */
+    public function first($columns = [])
+    {
+        return $this->take(1)->get($columns)->first();
+    }
+
+    /**
      * Get all sheets/rows
      *
      * @param array $columns
@@ -594,35 +650,6 @@ class LaravelExcelReader
 
             return $this->parsed;
         }
-    }
-
-    /**
-     * Parse the file
-     *
-     * @param  array $columns
-     *
-     * @return void
-     */
-    protected function _parseFile($columns = [])
-    {
-        // Merge the selected columns
-        $columns = array_merge($this->columns, $columns);
-
-        // Parse the file
-        $parser = new ExcelParser($this);
-        $this->parsed = $parser->parseFile($columns);
-    }
-
-    /**
-     * Get first row/sheet only
-     *
-     * @param  array $columns
-     *
-     * @return SheetCollection|RowCollection
-     */
-    public function first($columns = [])
-    {
-        return $this->take(1)->get($columns)->first();
     }
 
     /**
@@ -672,41 +699,6 @@ class LaravelExcelReader
     }
 
     /**
-     * Get total rows of file
-     *
-     * @return integer
-     */
-    public function getTotalRowsOfFile()
-    {
-        // Get worksheet info
-        $spreadsheetInfo = $this->getSheetInfoForActive();
-
-        // return total rows
-        return $spreadsheetInfo['totalRows'];
-    }
-
-    /**
-     * Get sheet info for active sheet
-     *
-     * @return mixed
-     */
-    public function getSheetInfoForActive()
-    {
-        $spreadsheetInfo = $this->reader->listWorksheetInfo($this->file);
-
-        // Loop through the info
-        foreach ($spreadsheetInfo as $key => $value) {
-            // When we hit the right worksheet
-            if ($value['worksheetName'] == $this->getActiveSheet()->getTitle()) {
-                $index = $key;
-            }
-        }
-
-        // return total rows
-        return $spreadsheetInfo[$index];
-    }
-
-    /**
      * Each
      *
      * @param  callback $callback
@@ -743,18 +735,6 @@ class LaravelExcelReader
     }
 
     /**
-     * Die and dump
-     *
-     * @param array $columns
-     *
-     * @return string
-     */
-    public function dd($columns = [])
-    {
-        return $this->dump($columns, true);
-    }
-
-    /**
      *  Dump the parsed file to a readable array
      *
      * @param  array   $columns
@@ -770,6 +750,37 @@ class LaravelExcelReader
     }
 
     /**
+     * Die and dump
+     *
+     * @param array $columns
+     *
+     * @return string
+     */
+    public function dd($columns = [])
+    {
+        return $this->dump($columns, true);
+    }
+
+    /**
+     * Init the loading
+     *
+     * @param      $file
+     * @param bool $encoding
+     * @param bool $noBasePath
+     */
+    public function _init($file, $encoding = false, $noBasePath = false)
+    {
+        // Set the extension
+        $this->_setFile($file, $noBasePath)
+             ->setExtension()
+             ->setTitle()
+             ->_setFormat()
+             ->_setReader()
+             ->_enableFilters()
+             ->_setInputEncoding($encoding);
+    }
+
+    /**
      * Inject the excel object
      *
      * @param  PHPExcel $excel
@@ -780,30 +791,6 @@ class LaravelExcelReader
     {
         $this->excel = $excel;
         $this->_reset();
-    }
-
-    /**
-     * Reset the writer
-     *
-     * @return void
-     */
-    public function _reset()
-    {
-        $this->excel->disconnectWorksheets();
-        $this->resetValueBinder();
-        unset($this->parsed);
-    }
-
-    /**
-     * Reset the value binder back to default
-     *
-     * @return void
-     */
-    public function resetValueBinder()
-    {
-        PHPExcel_Cell::setValueBinder(new PHPExcel_Cell_DefaultValueBinder);
-
-        return $this;
     }
 
     /**
@@ -825,6 +812,81 @@ class LaravelExcelReader
     }
 
     /**
+     * Enable filters
+     *
+     * @return $this
+     */
+    protected function _enableFilters()
+    {
+        // Loop through the registered filters
+        foreach ($this->filters['registered'] as $key => $class) {
+            // Set the filter inside the reader when enabled and the class exists
+            if (in_array($key, $this->filters['enabled']) && class_exists($class)) {
+                // init new filter (and overrule the current)
+                $this->filter = new $class;
+
+                // Set default rows
+                if (method_exists($this->filter, 'setRows')) {
+                    $this->filter->setRows(0, 1);
+                }
+
+                // Set the read filter
+                $this->reader->setReadFilter($this->filter);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the file
+     *
+     * @param string $file
+     * @param bool   $noBasePath
+     *
+     * @return $this
+     */
+    protected function _setFile($file, $noBasePath = false)
+    {
+        // check if we have a correct path
+        if (!$noBasePath && !realpath($file)) {
+            $file = base_path($file);
+        }
+
+        $this->file = $file;
+
+        return $this;
+    }
+
+    /**
+     * Set the spreadsheet title
+     *
+     * @param string|boolean $title
+     *
+     * @return LaraveExcelReader
+     */
+    public function setTitle($title = false)
+    {
+        $this->title = $title ? $title : basename($this->file, '.' . $this->ext);
+
+        return $this;
+    }
+
+    /**
+     * Set extension
+     *
+     * @param string|boolean $ext
+     *
+     * @return LaraveExcelReader
+     */
+    public function setExtension($ext = false)
+    {
+        $this->ext = $ext ? $ext : $this->filesystem->extension($this->file);
+
+        return $this;
+    }
+
+    /**
      * Set custom value binder
      *
      * @param string|boolean $ext
@@ -834,6 +896,33 @@ class LaravelExcelReader
     public function setValueBinder(PHPExcel_Cell_IValueBinder $binder)
     {
         PHPExcel_Cell::setValueBinder($binder);
+
+        return $this;
+    }
+
+    /**
+     * Reset the value binder back to default
+     *
+     * @return void
+     */
+    public function resetValueBinder()
+    {
+        PHPExcel_Cell::setValueBinder(new PHPExcel_Cell_DefaultValueBinder);
+
+        return $this;
+    }
+
+    /**
+     * Set the date format
+     *
+     * @param bool|string $format The date format
+     *
+     * @return LaraveExcelReader
+     */
+    public function setDateFormat($format = false)
+    {
+        $this->formatDates = $format ? true : false;
+        $this->dateFormat  = $format;
 
         return $this;
     }
@@ -855,6 +944,20 @@ class LaravelExcelReader
     }
 
     /**
+     * Set the date columns
+     *
+     * @return LaraveExcelReader
+     */
+    public function setDateColumns()
+    {
+        $this->formatDates = true;
+        $columns           = func_get_args();
+        $this->dateColumns = array_merge($this->dateColumns, array_flatten($columns));
+
+        return $this;
+    }
+
+    /**
      * If the file has a table heading or not
      *
      * @param  boolean $boolean
@@ -864,6 +967,20 @@ class LaravelExcelReader
     public function noHeading($boolean = true)
     {
         $this->noHeading = $boolean;
+
+        return $this;
+    }
+
+    /**
+     * Set the cell name word separator
+     *
+     * @param string $separator
+     *
+     * @return LaraveExcelReader
+     */
+    public function setSeparator($separator)
+    {
+        $this->separator = $separator;
 
         return $this;
     }
@@ -939,20 +1056,6 @@ class LaravelExcelReader
     }
 
     /**
-     * Set the cell name word separator
-     *
-     * @param string $separator
-     *
-     * @return LaraveExcelReader
-     */
-    public function setSeparator($separator)
-    {
-        $this->separator = $separator;
-
-        return $this;
-    }
-
-    /**
      * Get the dateFormat
      *
      * @return string
@@ -963,21 +1066,6 @@ class LaravelExcelReader
     }
 
     /**
-     * Set the date format
-     *
-     * @param bool|string $format The date format
-     *
-     * @return LaraveExcelReader
-     */
-    public function setDateFormat($format = false)
-    {
-        $this->formatDates = $format ? true : false;
-        $this->dateFormat = $format;
-
-        return $this;
-    }
-
-    /**
      * Get the date columns
      *
      * @return array
@@ -985,20 +1073,6 @@ class LaravelExcelReader
     public function getDateColumns()
     {
         return $this->dateColumns;
-    }
-
-    /**
-     * Set the date columns
-     *
-     * @return LaraveExcelReader
-     */
-    public function setDateColumns()
-    {
-        $this->formatDates = true;
-        $columns = func_get_args();
-        $this->dateColumns = array_merge($this->dateColumns, array_flatten($columns));
-
-        return $this;
     }
 
     /**
@@ -1038,7 +1112,17 @@ class LaravelExcelReader
      */
     public function getSkip()
     {
-        return $this->skip;
+        return $this->getSkipRows();
+    }
+
+    /**
+     * Return the amount of rows to skip
+     *
+     * @return integer
+     */
+    public function getSkipRows()
+    {
+        return $this->skipRows;
     }
 
     /**
@@ -1048,42 +1132,171 @@ class LaravelExcelReader
      */
     public function getLimit()
     {
-        return $this->limit;
+        return $this->getLimitRows();
     }
 
     /**
-     * Get excel object
+     * Return the amount of rows to take
      *
-     * @return PHPExcel
+     * @return integer
      */
-    public function getExcel()
+    public function getLimitRows()
     {
-        return $this->excel;
+        return $this->limitRows;
     }
 
     /**
-     * Dynamically call methods
+     * Return the amount of columns to skip
      *
-     * @param  string $method
-     * @param  array $params
-     *
-     * @throws LaravelExcelException
+     * @return integer
      */
-    public function __call($method, $params)
+    public function getSkipColumns()
     {
-        // Call a php excel method
-        if (method_exists($this->excel, $method)) {
-            // Call the method from the excel object with the given params
-            return call_user_func_array([$this->excel, $method], $params);
-        } // If it's a reader method
-        elseif (method_exists($this->reader, $method)) {
-            // Call the method from the excel object with the given params
-            return call_user_func_array([$this->reader, $method], $params);
-        } elseif ($this->writerHasMethod($method)) {
-            return call_user_func_array([$this->writer, $method], $params);
+        return $this->skipColumns;
+    }
+
+    /**
+     * Return the target of columns to skip
+     *
+     * @return string
+     */
+    public function getTargetSkipColumns()
+    {
+        if (empty($this->skipColumns)) {
+            return 'A';
         }
 
-        throw new LaravelExcelException('[ERROR] Reader method [' . $method . '] does not exist.');
+        $columns = $this->getTargetColumns();
+
+        return $columns[$this->skipColumns];
+    }
+
+    /**
+     * Return the target columns
+     *
+     * @return array
+     */
+    private function getTargetColumns()
+    {
+        if (!empty($this->targetColumns)) {
+            return $this->targetColumns;
+        }
+
+        $this->targetColumns = [];
+        for ($letter = 'A'; $letter <= 'ZZZ'; $letter++) {
+            $this->targetColumns[] = $letter;
+        }
+
+        return $this->targetColumns;
+    }
+
+    /**
+     * Return the amount of columns to take
+     *
+     * @return integer
+     */
+    public function getLimitColumns()
+    {
+        return $this->limitColumns;
+    }
+
+    /**
+     * Return the target of columns to take
+     *
+     * @return string
+     */
+    public function getTargetLimitColumns()
+    {
+        if (empty($this->limitColumns)) {
+            return;
+        }
+
+        $columns = $this->getTargetColumns();
+
+        return $columns[$this->limitColumns -1];
+    }
+
+    /**
+     * Get total rows of file
+     *
+     * @return integer
+     */
+    public function getTotalRowsOfFile()
+    {
+        // Get worksheet info
+        $spreadsheetInfo = $this->getSheetInfoForActive();
+
+        // return total rows
+        return $spreadsheetInfo['totalRows'];
+    }
+
+    /**
+     * Get sheet info for active sheet
+     *
+     * @return mixed
+     */
+    public function getSheetInfoForActive()
+    {
+        $spreadsheetInfo = $this->reader->listWorksheetInfo($this->file);
+
+        // Loop through the info
+        foreach ($spreadsheetInfo as $key => $value) {
+            // When we hit the right worksheet
+            if ($value['worksheetName'] == $this->getActiveSheet()->getTitle()) {
+                $index = $key;
+            }
+        }
+
+        // return total rows
+        return $spreadsheetInfo[$index];
+    }
+
+    /**
+     * @param $clone
+     */
+    protected function initClonedExcelObject($clone)
+    {
+        $this->excel = new PHPExcel();
+        $this->excel->cloneParent(clone $clone);
+        $this->excel->disconnectWorksheets();
+    }
+
+    /**
+     * Get the sheet by id or name, else get the active sheet
+     *
+     * @param callable|integer|string $sheetID
+     *
+     * @return \PHPExcel_Worksheet
+     */
+    protected function getSheetByIdOrName($sheetID)
+    {
+        // If is a string, return the sheet by name
+        if (is_string($sheetID)) {
+            return $this->excel->getSheetByName($sheetID);
+        }
+
+        // Else it should be the sheet index
+        return $this->excel->getSheet($sheetID);
+    }
+
+    /**
+     * Get the file title
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->excel->getProperties()->getTitle();
+    }
+
+    /**
+     * Get the current filename
+     *
+     * @return mixed
+     */
+    public function getFileName()
+    {
+        return pathinfo($this->file, PATHINFO_FILENAME);
     }
 
     /**
@@ -1114,67 +1327,6 @@ class LaravelExcelReader
     }
 
     /**
-     * Get the current filename
-     *
-     * @return mixed
-     */
-    public function getFileName()
-    {
-        return pathinfo($this->file, PATHINFO_FILENAME);
-    }
-
-    /**
-     * Get the file title
-     *
-     * @return string
-     */
-    public function getTitle()
-    {
-        return $this->excel->getProperties()->getTitle();
-    }
-
-    /**
-     * Set the spreadsheet title
-     *
-     * @param string|boolean $title
-     *
-     * @return LaraveExcelReader
-     */
-    public function setTitle($title = false)
-    {
-        $this->title = $title ? $title : basename($this->file, '.' . $this->ext);
-
-        return $this;
-    }
-
-    /**
-     * Enable filters
-     *
-     * @return $this
-     */
-    protected function _enableFilters()
-    {
-        // Loop through the registered filters
-        foreach ($this->filters['registered'] as $key => $class) {
-            // Set the filter inside the reader when enabled and the class exists
-            if (in_array($key, $this->filters['enabled']) && class_exists($class)) {
-                // init new filter (and overrule the current)
-                $this->filter = new $class;
-
-                // Set default rows
-                if (method_exists($this->filter, 'setRows')) {
-                    $this->filter->setRows(0, 1);
-                }
-
-                // Set the read filter
-                $this->reader->setReadFilter($this->filter);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * Set the write format
      *
      * @return LaraveExcelReader
@@ -1187,6 +1339,23 @@ class LaravelExcelReader
     }
 
     /**
+     * Parse the file
+     *
+     * @param  array $columns
+     *
+     * @return void
+     */
+    protected function _parseFile($columns = [])
+    {
+        // Merge the selected columns
+        $columns = array_merge($this->columns, $columns);
+
+        // Parse the file
+        $parser       = new ExcelParser($this);
+        $this->parsed = $parser->parseFile($columns);
+    }
+
+    /**
      * Set the writer
      *
      * @return LaraveExcelReader
@@ -1196,6 +1365,24 @@ class LaravelExcelReader
         // Init the reader
         $this->reader = PHPExcel_IOFactory::createReader($this->format);
         $this->_setReaderDefaults();
+
+        return $this;
+    }
+
+    /**
+     * Set the input encoding
+     *
+     * @param boolean $encoding
+     *
+     * @return LaraveExcelReader
+     */
+    protected function _setInputEncoding($encoding = false)
+    {
+        if ($this->format == 'CSV') {
+            // If no encoding was given, use the config value
+            $encoding = $encoding ? $encoding : config('excel.import.encoding.input', 'UTF-8');
+            $this->reader->setInputEncoding($encoding);
+        }
 
         return $this;
     }
@@ -1243,21 +1430,50 @@ class LaravelExcelReader
     }
 
     /**
-     * Set the input encoding
+     * Reset the writer
      *
-     * @param boolean $encoding
-     *
-     * @return LaraveExcelReader
+     * @return void
      */
-    protected function _setInputEncoding($encoding = false)
+    public function _reset()
     {
-        if ($this->format == 'CSV') {
-            // If no encoding was given, use the config value
-            $encoding = $encoding ? $encoding : config('excel.import.encoding.input', 'UTF-8');
-            $this->reader->setInputEncoding($encoding);
+        $this->excel->disconnectWorksheets();
+        $this->resetValueBinder();
+        unset($this->parsed);
+    }
+
+    /**
+     * Get excel object
+     *
+     * @return PHPExcel
+     */
+    public function getExcel()
+    {
+        return $this->excel;
+    }
+
+    /**
+     * Dynamically call methods
+     *
+     * @param  string $method
+     * @param  array  $params
+     *
+     * @throws LaravelExcelException
+     */
+    public function __call($method, $params)
+    {
+        // Call a php excel method
+        if (method_exists($this->excel, $method)) {
+            // Call the method from the excel object with the given params
+            return call_user_func_array([$this->excel, $method], $params);
+        } // If it's a reader method
+        elseif (method_exists($this->reader, $method)) {
+            // Call the method from the excel object with the given params
+            return call_user_func_array([$this->reader, $method], $params);
+        } elseif ($this->writerHasMethod($method)) {
+            return call_user_func_array([$this->writer, $method], $params);
         }
 
-        return $this;
+        throw new LaravelExcelException('[ERROR] Reader method [' . $method . '] does not exist.');
     }
 
 }

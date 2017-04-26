@@ -97,9 +97,9 @@ class CalendarChart extends Chart
     /**
      * Builds a new chart with the given label.
      *
-     * @param  \Khill\Lavacharts\Values\Label $chartLabel Identifying label for the chart.
-     * @param  \Khill\Lavacharts\DataTables\DataTable $datatable DataTable used for the chart.
-     * @param array $config
+     * @param  \Khill\Lavacharts\Values\Label         $chartLabel Identifying label for the chart.
+     * @param  \Khill\Lavacharts\DataTables\DataTable $datatable  DataTable used for the chart.
+     * @param array                                   $config
      * @throws \Khill\Lavacharts\Exceptions\InvalidOption
      * @internal param array $options Array of options to set for the chart.
      */
@@ -112,6 +112,21 @@ class CalendarChart extends Chart
         $options->set('calendar', $calendarOptions);
 
         parent::__construct($chartLabel, $datatable, $options, $config);
+    }
+
+    /**
+     * Tweaking addOption function for wrapping all options into the calendar config option.
+     *
+     * @param  string $option Option to set
+     * @param  mixed  $value
+     * @return \Khill\Lavacharts\Charts\CalendarChart
+     * @throws \Khill\Lavacharts\Exceptions\InvalidOption
+     */
+    protected function setCalendarOption($option, $value)
+    {
+        $this->options->get('calendar')->set($option, $value);
+
+        return $this;
     }
 
     /**
@@ -137,7 +152,7 @@ class CalendarChart extends Chart
             throw new InvalidConfigValue(
                 static::TYPE . '->' . __FUNCTION__,
                 'string',
-                'must be one of ' . Utils::arrayToPipedString($options)
+                'must be one of '.Utils::arrayToPipedString($options)
             );
         }
     }
@@ -145,27 +160,12 @@ class CalendarChart extends Chart
     /**
      * The cellColor option lets you customize the border of the calendar day squares
      *
-     * @param  array $strokeConfig
+     * @param  array  $strokeConfig
      * @return \Khill\Lavacharts\Charts\CalendarChart
      */
     public function cellColor($strokeConfig)
     {
         return $this->setCalendarOption(__FUNCTION__, new Stroke($strokeConfig));
-    }
-
-    /**
-     * Tweaking addOption function for wrapping all options into the calendar config option.
-     *
-     * @param  string $option Option to set
-     * @param  mixed $value
-     * @return \Khill\Lavacharts\Charts\CalendarChart
-     * @throws \Khill\Lavacharts\Exceptions\InvalidOption
-     */
-    protected function setCalendarOption($option, $value)
-    {
-        $this->options->get('calendar')->set($option, $value);
-
-        return $this;
     }
 
     /**
@@ -190,7 +190,7 @@ class CalendarChart extends Chart
     /**
      * Controls the font style of the week labels at the top of the chart.
      *
-     * @param  TextStyle $labelConfig
+     * @param  TextStyle     $labelConfig
      * @return \Khill\Lavacharts\Charts\CalendarChart
      */
     public function dayOfWeekLabel($labelConfig)

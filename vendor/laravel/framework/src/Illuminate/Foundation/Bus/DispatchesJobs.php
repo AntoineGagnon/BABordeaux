@@ -7,6 +7,17 @@ use Illuminate\Contracts\Bus\Dispatcher;
 trait DispatchesJobs
 {
     /**
+     * Dispatch a job to its appropriate handler.
+     *
+     * @param  mixed  $job
+     * @return mixed
+     */
+    protected function dispatch($job)
+    {
+        return app(Dispatcher::class)->dispatch($job);
+    }
+
+    /**
      * Dispatch a command to its appropriate handler in the current process.
      *
      * @param  mixed  $job
@@ -15,16 +26,5 @@ trait DispatchesJobs
     public function dispatchNow($job)
     {
         return app(Dispatcher::class)->dispatchNow($job);
-    }
-
-    /**
-     * Dispatch a job to its appropriate handler.
-     *
-     * @param  mixed $job
-     * @return mixed
-     */
-    protected function dispatch($job)
-    {
-        return app(Dispatcher::class)->dispatch($job);
     }
 }

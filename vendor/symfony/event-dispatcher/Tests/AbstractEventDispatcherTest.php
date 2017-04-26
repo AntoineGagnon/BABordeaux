@@ -11,11 +11,12 @@
 
 namespace Symfony\Component\EventDispatcher\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-abstract class AbstractEventDispatcherTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractEventDispatcherTest extends TestCase
 {
     /* Some pseudo events */
     const preFoo = 'pre.foo';
@@ -29,6 +30,20 @@ abstract class AbstractEventDispatcherTest extends \PHPUnit_Framework_TestCase
     private $dispatcher;
 
     private $listener;
+
+    protected function setUp()
+    {
+        $this->dispatcher = $this->createEventDispatcher();
+        $this->listener = new TestEventListener();
+    }
+
+    protected function tearDown()
+    {
+        $this->dispatcher = null;
+        $this->listener = null;
+    }
+
+    abstract protected function createEventDispatcher();
 
     public function testInitialState()
     {
@@ -286,20 +301,6 @@ abstract class AbstractEventDispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertFalse($this->dispatcher->hasListeners('foo'));
         $this->assertFalse($this->dispatcher->hasListeners());
-    }
-
-    protected function setUp()
-    {
-        $this->dispatcher = $this->createEventDispatcher();
-        $this->listener = new TestEventListener();
-    }
-
-    abstract protected function createEventDispatcher();
-
-    protected function tearDown()
-    {
-        $this->dispatcher = null;
-        $this->listener = null;
     }
 }
 

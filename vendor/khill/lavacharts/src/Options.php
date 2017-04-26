@@ -56,6 +56,40 @@ class Options implements \JsonSerializable
     }
 
     /**
+     * Returns the array of options that can be set.
+     *
+     * @access public
+     * @return array
+     */
+    public function getDefaults()
+    {
+        return $this->options;
+    }
+
+    /**
+     * Returns an array representation of the options.
+     *
+     * @access public
+     * @return array Array of the defined options.
+     */
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    /**
+     * Checks to see if a given option is available to set.
+     *
+     * @access public
+     * @param  $option string Name of option.
+     * @return boolean
+     */
+    public function hasOption($option)
+    {
+        return in_array($option, $this->options, true);
+    }
+
+    /**
      * Checks to see if a given option is set.
      *
      * @access public
@@ -69,6 +103,26 @@ class Options implements \JsonSerializable
         } else {
             return false;
         }
+    }
+
+    /**
+     * Set the value of an option.
+     *
+     * @access public
+     * @param  string $option Name of option to set.
+     * @param  mixed $value Value to set the option to.
+     * @return \Khill\Lavacharts\Options
+     * @throws \Khill\Lavacharts\Exceptions\InvalidOption
+     */
+    public function set($option, $value)
+    {
+        if ($this->hasOption($option) === false) {
+            throw new InvalidOption($option, $this->options);
+        }
+
+        $this->values[$option] = $value;
+
+        return $this;
     }
 
     /**
@@ -90,6 +144,40 @@ class Options implements \JsonSerializable
         } else {
             return $this->values[$option];
         }
+    }
+
+    /**
+     * Batch set options from an array.
+     *
+     *
+     * The check flag can be used to bypass valid option checking
+     * (added for the customize chart method ported from the 2.5 branch)
+     *
+     * @access public
+     * @param  array $options Options to set
+     * @param  bool  $check Flag to check options against list of set options
+     * @return \Khill\Lavacharts\Options
+     * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
+     * @throws \Khill\Lavacharts\Exceptions\InvalidOption
+     */
+    public function setOptions($options, $check = true)
+    {
+        if (is_array($options) === false) {
+            throw new InvalidConfigValue(
+                'Options->setOptions',
+                'array'
+            );
+        }
+
+        foreach ($options as $option => $value) {
+            if ($check === true) {
+                $this->set($option, $value);
+            } else {
+                $this->values[$option] = $value;
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -127,94 +215,6 @@ class Options implements \JsonSerializable
         $this->options = array_merge($this->options, $options);
 
         return $this;
-    }
-
-    /**
-     * Returns the array of options that can be set.
-     *
-     * @access public
-     * @return array
-     */
-    public function getDefaults()
-    {
-        return $this->options;
-    }
-
-    /**
-     * Batch set options from an array.
-     *
-     *
-     * The check flag can be used to bypass valid option checking
-     * (added for the customize chart method ported from the 2.5 branch)
-     *
-     * @access public
-     * @param  array $options Options to set
-     * @param  bool $check Flag to check options against list of set options
-     * @return \Khill\Lavacharts\Options
-     * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
-     * @throws \Khill\Lavacharts\Exceptions\InvalidOption
-     */
-    public function setOptions($options, $check = true)
-    {
-        if (is_array($options) === false) {
-            throw new InvalidConfigValue(
-                'Options->setOptions',
-                'array'
-            );
-        }
-
-        foreach ($options as $option => $value) {
-            if ($check === true) {
-                $this->set($option, $value);
-            } else {
-                $this->values[$option] = $value;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set the value of an option.
-     *
-     * @access public
-     * @param  string $option Name of option to set.
-     * @param  mixed $value Value to set the option to.
-     * @return \Khill\Lavacharts\Options
-     * @throws \Khill\Lavacharts\Exceptions\InvalidOption
-     */
-    public function set($option, $value)
-    {
-        if ($this->hasOption($option) === false) {
-            throw new InvalidOption($option, $this->options);
-        }
-
-        $this->values[$option] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Checks to see if a given option is available to set.
-     *
-     * @access public
-     * @param  $option string Name of option.
-     * @return boolean
-     */
-    public function hasOption($option)
-    {
-        return in_array($option, $this->options, true);
-    }
-
-    /**
-     * Returns an array representation of the options.
-     *
-     * @access public
-     * @return array Array of the defined options.
-     */
-    public function getValues()
-    {
-        return $this->values;
     }
 
     /**

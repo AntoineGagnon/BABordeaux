@@ -102,7 +102,7 @@ class Gridlines extends JsonConfig
     public function units($units)
     {
         $unitFormats = [];
-        $unitValues = [
+        $unitValues  = [
             'years',
             'months',
             'days',
@@ -124,7 +124,7 @@ class Gridlines extends JsonConfig
                 throw new InvalidConfigValue(
                     __FUNCTION__,
                     'string',
-                    'Valid unit values are ' . Utils::arrayToPipedString($unitValues)
+                    'Valid unit values are '.Utils::arrayToPipedString($unitValues)
                 );
             }
 

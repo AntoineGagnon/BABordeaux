@@ -15,7 +15,7 @@ use \Khill\Lavacharts\Options;
  * @package    Khill\Lavacharts
  * @subpackage Configs
  * @author     Peter Draznik <peter.draznik@38thStreetStudios.com>
- * @since       3.0.0
+ * @since	   3.0.0
  * @copyright  (c) 2015, 38th Street Studios
  * @link       http://github.com/kevinkhill/lavacharts GitHub Repository Page
  * @link       http://lavacharts.com                   Official Docs Site
@@ -68,7 +68,7 @@ class CssClassNames extends JsonConfig
      */
     public function headerRow($headerRow)
     {
-        return $this->setStringOption($headerRow);
+         return $this->setStringOption($headerRow);
     }
 
 
@@ -81,7 +81,7 @@ class CssClassNames extends JsonConfig
      */
     public function tableRow($tableRow)
     {
-        return $this->setStringOption($tableRow);
+         return $this->setStringOption($tableRow);
     }
 
 
@@ -94,7 +94,7 @@ class CssClassNames extends JsonConfig
      */
     public function oddTableRow($oddTableRow)
     {
-        return $this->setStringOption($oddTableRow);
+         return $this->setStringOption($oddTableRow);
     }
 
 
@@ -107,7 +107,7 @@ class CssClassNames extends JsonConfig
      */
     public function selectedTableRow($selectedTableRow)
     {
-        return $this->setStringOption($selectedTableRow);
+         return $this->setStringOption($selectedTableRow);
     }
 
 
@@ -120,7 +120,7 @@ class CssClassNames extends JsonConfig
      */
     public function hoverTableRow($hoverTableRow)
     {
-        return $this->setStringOption($hoverTableRow);
+         return $this->setStringOption($hoverTableRow);
     }
 
 
@@ -133,7 +133,7 @@ class CssClassNames extends JsonConfig
      */
     public function headerCell($headerCell)
     {
-        return $this->setStringOption($headerCell);
+         return $this->setStringOption($headerCell);
     }
 
 
@@ -146,7 +146,7 @@ class CssClassNames extends JsonConfig
      */
     public function tableCell($tableCell)
     {
-        return $this->setStringOption($tableCell);
+         return $this->setStringOption($tableCell);
     }
 
 
@@ -159,6 +159,6 @@ class CssClassNames extends JsonConfig
      */
     public function rowNumberCell($rowNumberCell)
     {
-        return $this->setStringOption($rowNumberCell);
+         return $this->setStringOption($rowNumberCell);
     }
 }

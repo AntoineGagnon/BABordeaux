@@ -80,8 +80,8 @@ class TableChart extends Chart
      * Builds a new TableChart with the given label, datatable and options.
      *
      * @param  \Khill\Lavacharts\Values\Label $chartLabel Identifying label for the chart.
-     * @param  \Khill\Lavacharts\DataTables\DataTable $datatable DataTable used for the chart.
-     * @param  array $config
+     * @param  \Khill\Lavacharts\DataTables\DataTable                       $datatable DataTable used for the chart.
+     * @param  array                                                        $config
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      */
     public function __construct(Label $chartLabel, DataTable $datatable, $config = [])
@@ -161,7 +161,7 @@ class TableChart extends Chart
      */
     public function firstRowNumber($firstRowNumber)
     {
-        return $this > $this->setIntOption($firstRowNumber);
+        return $this>$this->setIntOption($firstRowNumber);
     }
 
 
@@ -187,12 +187,12 @@ class TableChart extends Chart
      * If and how to enable paging through the data.
      *
      * Choose one of the following string values:
-     *    'enable' - The table will include page-forward and page-back buttons. Clicking on these buttons will
-     *         perform the paging operation and change the displayed page. You might want to also set the pageSize option.
-     *    'event' - The table will include page-forward and page-back buttons, but clicking them will trigger a 'page'
-     *         event and will not change the displayed page. This option should be used when the code implements its own
-     *         page turning logic. See the TableQueryWrapper example for an example of how to handle paging events manually.
-     *    'disable' - [Default] Paging is not supported.
+     *	'enable' - The table will include page-forward and page-back buttons. Clicking on these buttons will
+     *		 perform the paging operation and change the displayed page. You might want to also set the pageSize option.
+     *	'event' - The table will include page-forward and page-back buttons, but clicking them will trigger a 'page'
+     *		 event and will not change the displayed page. This option should be used when the code implements its own
+     *		 page turning logic. See the TableQueryWrapper example for an example of how to handle paging events manually.
+     *	'disable' - [Default] Paging is not supported.
      *
      * @access public
      * @param  string $page
@@ -207,13 +207,13 @@ class TableChart extends Chart
             'disable',
         );
 
-        if (Utils::nonEmptyStringInArray($page, $values) || is_int($page)) {
+        if (Utils::nonEmptyStringInArray($page, $values)||is_int($page)) {
             $this->addOption(array(__FUNCTION__ => $page));
         } else {
             throw $this->invalidConfigValue(
                 __FUNCTION__,
                 'string',
-                'must be one of ' . Utils::arrayToPipedString($values)
+                'must be one of '.Utils::arrayToPipedString($values)
             );
         }
 
@@ -262,7 +262,7 @@ class TableChart extends Chart
             throw new InvalidConfigValue(
                 __FUNCTION__,
                 'string|int',
-                'must be int or one of ' . Utils::arrayToPipedString($values)
+                'must be int or one of '.Utils::arrayToPipedString($values)
             );
         }
 

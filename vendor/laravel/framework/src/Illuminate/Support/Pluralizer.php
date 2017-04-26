@@ -67,6 +67,19 @@ class Pluralizer
     }
 
     /**
+     * Get the singular form of an English word.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    public static function singular($value)
+    {
+        $singular = Inflector::singularize($value);
+
+        return static::matchCase($singular, $value);
+    }
+
+    /**
      * Determine if the given value is uncountable.
      *
      * @param  string  $value
@@ -95,18 +108,5 @@ class Pluralizer
         }
 
         return $value;
-    }
-
-    /**
-     * Get the singular form of an English word.
-     *
-     * @param  string $value
-     * @return string
-     */
-    public static function singular($value)
-    {
-        $singular = Inflector::singularize($value);
-
-        return static::matchCase($singular, $value);
     }
 }

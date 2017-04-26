@@ -28,7 +28,7 @@ class LavachartsExtension extends \Twig_Extension
 
         foreach ($chartClasses as $chartClass) {
             $renderFunctions[] = new \Twig_SimpleFunction(strtolower($chartClass),
-                function ($chartLabel, $elemId) use ($chartClass) {
+                function($chartLabel, $elemId) use ($chartClass) {
                     return $this->renderChart($chartClass, $chartLabel, $elemId);
                 }
             );

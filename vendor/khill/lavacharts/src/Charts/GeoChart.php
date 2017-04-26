@@ -85,9 +85,9 @@ class GeoChart extends Chart
     /**
      * Builds a new GeoChart with the given label, datatable and options.
      *
-     * @param \Khill\Lavacharts\Values\Label $chartLabel Identifying label for the chart.
+     * @param \Khill\Lavacharts\Values\Label         $chartLabel Identifying label for the chart.
      * @param \Khill\Lavacharts\DataTables\DataTable $datatable DataTable used for the chart.
-     * @param array $config
+     * @param array                                  $config
      */
     public function __construct(Label $chartLabel, DataTable $datatable, $config = [])
     {
@@ -99,7 +99,7 @@ class GeoChart extends Chart
     /**
      * Color to assign to regions with no associated data.
      *
-     * @param  string $drc
+     * @param  string             $drc
      * @return \Khill\Lavacharts\Charts\GeoChart
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      */

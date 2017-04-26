@@ -60,53 +60,6 @@ class EncryptCookies
     }
 
     /**
-     * Encrypt the cookies on an outgoing response.
-     *
-     * @param  \Symfony\Component\HttpFoundation\Response $response
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    protected function encrypt(Response $response)
-    {
-        foreach ($response->headers->getCookies() as $cookie) {
-            if ($this->isDisabled($cookie->getName())) {
-                continue;
-            }
-
-            $response->headers->setCookie($this->duplicate(
-                $cookie, $this->encrypter->encrypt($cookie->getValue())
-            ));
-        }
-
-        return $response;
-    }
-
-    /**
-     * Determine whether encryption has been disabled for the given cookie.
-     *
-     * @param  string $name
-     * @return bool
-     */
-    public function isDisabled($name)
-    {
-        return in_array($name, $this->except);
-    }
-
-    /**
-     * Duplicate a cookie with a new value.
-     *
-     * @param  \Symfony\Component\HttpFoundation\Cookie $c
-     * @param  mixed $value
-     * @return \Symfony\Component\HttpFoundation\Cookie
-     */
-    protected function duplicate(Cookie $c, $value)
-    {
-        return new Cookie(
-            $c->getName(), $value, $c->getExpiresTime(), $c->getPath(),
-            $c->getDomain(), $c->isSecure(), $c->isHttpOnly()
-        );
-    }
-
-    /**
      * Decrypt the cookies on the request.
      *
      * @param  \Symfony\Component\HttpFoundation\Request  $request
@@ -159,5 +112,52 @@ class EncryptCookies
         }
 
         return $decrypted;
+    }
+
+    /**
+     * Encrypt the cookies on an outgoing response.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function encrypt(Response $response)
+    {
+        foreach ($response->headers->getCookies() as $cookie) {
+            if ($this->isDisabled($cookie->getName())) {
+                continue;
+            }
+
+            $response->headers->setCookie($this->duplicate(
+                $cookie, $this->encrypter->encrypt($cookie->getValue())
+            ));
+        }
+
+        return $response;
+    }
+
+    /**
+     * Duplicate a cookie with a new value.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Cookie  $c
+     * @param  mixed  $value
+     * @return \Symfony\Component\HttpFoundation\Cookie
+     */
+    protected function duplicate(Cookie $c, $value)
+    {
+        return new Cookie(
+            $c->getName(), $value, $c->getExpiresTime(), $c->getPath(),
+            $c->getDomain(), $c->isSecure(), $c->isHttpOnly()
+        );
+    }
+
+    /**
+     * Determine whether encryption has been disabled for the given cookie.
+     *
+     * @param  string $name
+     * @return bool
+     */
+    public function isDisabled($name)
+    {
+        return in_array($name, $this->except);
     }
 }

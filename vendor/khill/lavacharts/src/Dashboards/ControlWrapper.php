@@ -32,7 +32,7 @@ class ControlWrapper extends Wrapper
      * Builds a ControlWrapper object.
      *
      * @param  \Khill\Lavacharts\Dashboards\Filters\Filter $filter
-     * @param  \Khill\Lavacharts\Values\ElementId $containerId
+     * @param  \Khill\Lavacharts\Values\ElementId          $containerId
      */
     public function __construct(Filter $filter, ElementId $containerId)
     {

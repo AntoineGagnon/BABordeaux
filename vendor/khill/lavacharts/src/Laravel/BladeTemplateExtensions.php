@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\App;
  * @license    http://opensource.org/licenses/MIT MIT
  */
 
-$app = App::getFacadeApplication();
+$app   = App::getFacadeApplication();
 $blade = $app['view']->getEngineResolver()->resolve('blade')->getCompiler();
 
 $charts = [

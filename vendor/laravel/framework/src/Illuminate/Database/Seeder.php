@@ -22,6 +22,13 @@ abstract class Seeder
     protected $command;
 
     /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    abstract public function run();
+
+    /**
      * Seed the given connection from the given path.
      *
      * @param  string  $class
@@ -35,13 +42,6 @@ abstract class Seeder
 
         $this->resolve($class)->run();
     }
-
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    abstract public function run();
 
     /**
      * Resolve an instance of the given seeder class.

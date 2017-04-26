@@ -57,7 +57,7 @@ class MagnifyingGlass extends JsonConfig
 
         if (is_array($config) === true && count($config) == 0) {
             $config = [
-                'enable' => true,
+                'enable'     => true,
                 'zoomFactor' => 5
             ];
         };

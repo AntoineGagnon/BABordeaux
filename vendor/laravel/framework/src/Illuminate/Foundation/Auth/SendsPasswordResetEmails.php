@@ -35,24 +35,14 @@ trait SendsPasswordResetEmails
         );
 
         return $response == Password::RESET_LINK_SENT
-            ? $this->sendResetLinkResponse($response)
-            : $this->sendResetLinkFailedResponse($request, $response);
-    }
-
-    /**
-     * Get the broker to be used during password reset.
-     *
-     * @return \Illuminate\Contracts\Auth\PasswordBroker
-     */
-    public function broker()
-    {
-        return Password::broker();
+                    ? $this->sendResetLinkResponse($response)
+                    : $this->sendResetLinkFailedResponse($request, $response);
     }
 
     /**
      * Get the response for a successful password reset link.
      *
-     * @param  string $response
+     * @param  string  $response
      * @return \Illuminate\Http\RedirectResponse
      */
     protected function sendResetLinkResponse($response)
@@ -64,7 +54,7 @@ trait SendsPasswordResetEmails
      * Get the response for a failed password reset link.
      *
      * @param  \Illuminate\Http\Request
-     * @param  string $response
+     * @param  string  $response
      * @return \Illuminate\Http\RedirectResponse
      */
     protected function sendResetLinkFailedResponse(Request $request, $response)
@@ -72,5 +62,15 @@ trait SendsPasswordResetEmails
         return back()->withErrors(
             ['email' => trans($response)]
         );
+    }
+
+    /**
+     * Get the broker to be used during password reset.
+     *
+     * @return \Illuminate\Contracts\Auth\PasswordBroker
+     */
+    public function broker()
+    {
+        return Password::broker();
     }
 }

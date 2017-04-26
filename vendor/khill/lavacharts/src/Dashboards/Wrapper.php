@@ -83,9 +83,9 @@ class Wrapper implements \JsonSerializable
         }
 
         return [
-            $type => $this->wrappedObject->getType(),
-            'containerId' => (string)$this->containerId,
-            'options' => $this->wrappedObject
+            $type         => $this->wrappedObject->getType(),
+            'containerId' => (string) $this->containerId,
+            'options'     => $this->wrappedObject
         ];
     }
 

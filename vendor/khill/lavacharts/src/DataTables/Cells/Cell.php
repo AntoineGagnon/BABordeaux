@@ -53,8 +53,8 @@ class Cell implements \JsonSerializable
      * numeric cell values of 1, 2, and 3.
      *
      *
-     * @param  string $v The cell value
-     * @param  string $f A string version of the v value
+     * @param  string      $v The cell value
+     * @param  string      $f A string version of the v value
      * @param array|string $p An object that is a map of custom values applied to the cell
      * @throws \Khill\Lavacharts\Exceptions\InvalidFunctionParam
      */

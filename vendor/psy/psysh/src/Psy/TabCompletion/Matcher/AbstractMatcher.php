@@ -43,6 +43,66 @@ abstract class AbstractMatcher
     const T_INCLUDE_ONCE = 'T_INCLUDE_ONCE';
 
     /**
+     * Check whether this matcher can provide completions for $tokens.
+     *
+     * @param array $tokens Tokenized readline input
+     *
+     * @return bool
+     */
+    public function hasMatched(array $tokens)
+    {
+        return false;
+    }
+
+    /**
+     * Get current readline input word.
+     *
+     * @param array $tokens Tokenized readline input (see token_get_all)
+     *
+     * @return string
+     */
+    protected function getInput(array $tokens)
+    {
+        $var = '';
+        $firstToken = array_pop($tokens);
+        if (self::tokenIs($firstToken, self::T_STRING)) {
+            $var = $firstToken[1];
+        }
+
+        return $var;
+    }
+
+    /**
+     * Get current namespace and class (if any) from readline input.
+     *
+     * @param array $tokens Tokenized readline input (see token_get_all)
+     *
+     * @return string
+     */
+    protected function getNamespaceAndClass($tokens)
+    {
+        $class = '';
+        while (self::hasToken(
+            array(self::T_NS_SEPARATOR, self::T_STRING),
+            $token = array_pop($tokens)
+        )) {
+            $class = $token[1] . $class;
+        }
+
+        return $class;
+    }
+
+    /**
+     * Provide tab completion matches for readline input.
+     *
+     * @param array $tokens information substracted with get_token_all
+     * @param array $info   readline_info object
+     *
+     * @return array The matches resulting from the query
+     */
+    abstract public function getMatches(array $tokens, array $info = array());
+
+    /**
      * Check whether $word starts with $prefix.
      *
      * @param string $prefix
@@ -75,62 +135,6 @@ abstract class AbstractMatcher
     }
 
     /**
-     * Check whether $token is an operator.
-     *
-     * @param mixed $token A PHP token (see token_get_all)
-     *
-     * @return bool
-     */
-    public static function isOperator($token)
-    {
-        if (!is_string($token)) {
-            return false;
-        }
-
-        return strpos(self::MISC_OPERATORS, $token) !== false;
-    }
-
-    /**
-     * Check whether this matcher can provide completions for $tokens.
-     *
-     * @param array $tokens Tokenized readline input
-     *
-     * @return bool
-     */
-    public function hasMatched(array $tokens)
-    {
-        return false;
-    }
-
-    /**
-     * Provide tab completion matches for readline input.
-     *
-     * @param array $tokens information substracted with get_token_all
-     * @param array $info readline_info object
-     *
-     * @return array The matches resulting from the query
-     */
-    abstract public function getMatches(array $tokens, array $info = array());
-
-    /**
-     * Get current readline input word.
-     *
-     * @param array $tokens Tokenized readline input (see token_get_all)
-     *
-     * @return string
-     */
-    protected function getInput(array $tokens)
-    {
-        $var = '';
-        $firstToken = array_pop($tokens);
-        if (self::tokenIs($firstToken, self::T_STRING)) {
-            $var = $firstToken[1];
-        }
-
-        return $var;
-    }
-
-    /**
      * Check whether $token type is $which.
      *
      * @param string $which A PHP token type
@@ -148,23 +152,19 @@ abstract class AbstractMatcher
     }
 
     /**
-     * Get current namespace and class (if any) from readline input.
+     * Check whether $token is an operator.
      *
-     * @param array $tokens Tokenized readline input (see token_get_all)
+     * @param mixed $token A PHP token (see token_get_all)
      *
-     * @return string
+     * @return bool
      */
-    protected function getNamespaceAndClass($tokens)
+    public static function isOperator($token)
     {
-        $class = '';
-        while (self::hasToken(
-            array(self::T_NS_SEPARATOR, self::T_STRING),
-            $token = array_pop($tokens)
-        )) {
-            $class = $token[1] . $class;
+        if (!is_string($token)) {
+            return false;
         }
 
-        return $class;
+        return strpos(self::MISC_OPERATORS, $token) !== false;
     }
 
     /**

@@ -112,7 +112,7 @@ class TextStyle extends JsonConfig
     /**
      * Set italic on/off for the text element.
      *
-     * @param  boolean $italic
+     * @param  boolean  $italic
      * @return \Khill\Lavacharts\Configs\TextStyle
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      */

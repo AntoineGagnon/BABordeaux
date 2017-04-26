@@ -19,27 +19,6 @@ use Swift_SendmailTransport as SendmailTransport;
 class TransportManager extends Manager
 {
     /**
-     * Get the default mail driver name.
-     *
-     * @return string
-     */
-    public function getDefaultDriver()
-    {
-        return $this->app['config']['mail.driver'];
-    }
-
-    /**
-     * Set the default mail driver name.
-     *
-     * @param  string $name
-     * @return void
-     */
-    public function setDefaultDriver($name)
-    {
-        $this->app['config']['mail.driver'] = $name;
-    }
-
-    /**
      * Create an instance of the SMTP Swift Transport driver.
      *
      * @return \Swift_SmtpTransport
@@ -133,19 +112,6 @@ class TransportManager extends Manager
     }
 
     /**
-     * Get a fresh Guzzle HTTP client instance.
-     *
-     * @param  array $config
-     * @return \GuzzleHttp\Client
-     */
-    protected function getHttpClient($config)
-    {
-        $guzzleConfig = Arr::get($config, 'guzzle', []);
-
-        return new HttpClient(Arr::add($guzzleConfig, 'connect_timeout', 60));
-    }
-
-    /**
      * Create an instance of the Mandrill Swift Transport driver.
      *
      * @return \Illuminate\Mail\Transport\MandrillTransport
@@ -193,5 +159,39 @@ class TransportManager extends Manager
     protected function createArrayDriver()
     {
         return new ArrayTransport;
+    }
+
+    /**
+     * Get a fresh Guzzle HTTP client instance.
+     *
+     * @param  array  $config
+     * @return \GuzzleHttp\Client
+     */
+    protected function getHttpClient($config)
+    {
+        $guzzleConfig = Arr::get($config, 'guzzle', []);
+
+        return new HttpClient(Arr::add($guzzleConfig, 'connect_timeout', 60));
+    }
+
+    /**
+     * Get the default mail driver name.
+     *
+     * @return string
+     */
+    public function getDefaultDriver()
+    {
+        return $this->app['config']['mail.driver'];
+    }
+
+    /**
+     * Set the default mail driver name.
+     *
+     * @param  string  $name
+     * @return void
+     */
+    public function setDefaultDriver($name)
+    {
+        $this->app['config']['mail.driver'] = $name;
     }
 }

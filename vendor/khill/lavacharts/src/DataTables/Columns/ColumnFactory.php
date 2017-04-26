@@ -52,7 +52,9 @@ class ColumnFactory
         'interval',
         'scope',
         'style',
-        'tooltip'
+        'tooltip',
+        'data',
+        'domain'
     ];
 
     /**
@@ -69,26 +71,14 @@ class ColumnFactory
     ];
 
     /**
-     * Creates a new Column with the same values, while applying the Format.
-     *
-     * @param  \Khill\Lavacharts\DataTables\Columns\Column $column
-     * @param  \Khill\Lavacharts\DataTables\Formats\Format $format
-     * @return \Khill\Lavacharts\DataTables\Columns\Column
-     */
-    public static function applyFormat(Column $column, Format $format)
-    {
-        return ColumnFactory::create($column->getType(), $column->getLabel(), $format, $column->getRole());
-    }
-
-    /**
      * Creates a new column object.
      *
      * @access public
      * @since  3.0.0
-     * @param  string $type Type of column to create.
-     * @param  string $label A label for the column.
+     * @param  string                                      $type Type of column to create.
+     * @param  string                                      $label A label for the column.
      * @param  \Khill\Lavacharts\DataTables\Formats\Format $format Column formatter for the data.
-     * @param  string $role A role for the column to play.
+     * @param  string                                      $role A role for the column to play.
      * @return \Khill\Lavacharts\DataTables\Columns\Column
      * @throws \Khill\Lavacharts\Exceptions\InvalidColumnRole
      * @throws \Khill\Lavacharts\Exceptions\InvalidColumnType
@@ -122,5 +112,17 @@ class ColumnFactory
         $column = new \ReflectionClass('\Khill\Lavacharts\DataTables\Columns\Column');
 
         return $column->newInstanceArgs($columnArgs);
+    }
+
+    /**
+     * Creates a new Column with the same values, while applying the Format.
+     *
+     * @param  \Khill\Lavacharts\DataTables\Columns\Column $column
+     * @param  \Khill\Lavacharts\DataTables\Formats\Format $format
+     * @return \Khill\Lavacharts\DataTables\Columns\Column
+     */
+    public static function applyFormat(Column $column, Format $format)
+    {
+        return ColumnFactory::create($column->getType(), $column->getLabel(), $format, $column->getRole());
     }
 }

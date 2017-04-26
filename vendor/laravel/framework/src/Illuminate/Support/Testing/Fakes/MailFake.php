@@ -20,6 +20,21 @@ class MailFake implements Mailer
     /**
      * Assert if a mailable was sent based on a truth-test callback.
      *
+     * @param  string  $mailable
+     * @param  callable|null  $callback
+     * @return void
+     */
+    public function assertSent($mailable, $callback = null)
+    {
+        PHPUnit::assertTrue(
+            $this->sent($mailable, $callback)->count() > 0,
+            "The expected [{$mailable}] mailable was not sent."
+        );
+    }
+
+    /**
+     * Assert if a mailable was sent based on a truth-test callback.
+     *
      * @param  mixed  $users
      * @param  string  $mailable
      * @param  callable|null  $callback
@@ -58,17 +73,39 @@ class MailFake implements Mailer
     }
 
     /**
-     * Assert if a mailable was sent based on a truth-test callback.
+     * Determine if two given recipient lists match.
+     *
+     * @param  \Illuminate\Support\Collection  $expected
+     * @param  \Illuminate\Support\Collection  $recipients
+     * @return bool
+     */
+    protected function recipientsMatch($expected, $recipients)
+    {
+        $expected = $expected->map(function ($expected) {
+            return is_object($expected) ? $expected->email : $expected;
+        });
+
+        return $recipients->map(function ($recipient) {
+            if (is_array($recipient)) {
+                return $recipient['email'];
+            }
+
+            return is_object($recipient) ? $recipient->email : $recipient;
+        })->diff($expected)->count() === 0;
+    }
+
+    /**
+     * Determine if a mailable was sent based on a truth-test callback.
      *
      * @param  string  $mailable
      * @param  callable|null  $callback
      * @return void
      */
-    public function assertSent($mailable, $callback = null)
+    public function assertNotSent($mailable, $callback = null)
     {
         PHPUnit::assertTrue(
-            $this->sent($mailable, $callback)->count() > 0,
-            "The expected [{$mailable}] mailable was not sent."
+            $this->sent($mailable, $callback)->count() === 0,
+            "The unexpected [{$mailable}] mailable was sent."
         );
     }
 
@@ -119,43 +156,6 @@ class MailFake implements Mailer
     }
 
     /**
-     * Determine if two given recipient lists match.
-     *
-     * @param  \Illuminate\Support\Collection $expected
-     * @param  \Illuminate\Support\Collection $recipients
-     * @return bool
-     */
-    protected function recipientsMatch($expected, $recipients)
-    {
-        $expected = $expected->map(function ($expected) {
-            return is_object($expected) ? $expected->email : $expected;
-        });
-
-        return $recipients->map(function ($recipient) {
-                if (is_array($recipient)) {
-                    return $recipient['email'];
-                }
-
-                return is_object($recipient) ? $recipient->email : $recipient;
-            })->diff($expected)->count() === 0;
-    }
-
-    /**
-     * Determine if a mailable was sent based on a truth-test callback.
-     *
-     * @param  string $mailable
-     * @param  callable|null $callback
-     * @return void
-     */
-    public function assertNotSent($mailable, $callback = null)
-    {
-        PHPUnit::assertTrue(
-            $this->sent($mailable, $callback)->count() === 0,
-            "The unexpected [{$mailable}] mailable was sent."
-        );
-    }
-
-    /**
      * Begin the process of mailing a mailable class instance.
      *
      * @param  mixed  $users
@@ -194,30 +194,6 @@ class MailFake implements Mailer
     }
 
     /**
-     * Get the array of failed recipients.
-     *
-     * @return array
-     */
-    public function failures()
-    {
-        //
-    }
-
-    /**
-     * Queue a new e-mail message for sending.
-     *
-     * @param  string|array $view
-     * @param  array $data
-     * @param  \Closure|string $callback
-     * @param  string|null $queue
-     * @return mixed
-     */
-    public function queue($view, array $data = [], $callback = null, $queue = null)
-    {
-        $this->send($view);
-    }
-
-    /**
      * Send a new message using a view.
      *
      * @param  string|array  $view
@@ -250,5 +226,29 @@ class MailFake implements Mailer
         }
 
         $this->mailables[] = $mailable;
+    }
+
+    /**
+     * Get the array of failed recipients.
+     *
+     * @return array
+     */
+    public function failures()
+    {
+        //
+    }
+
+    /**
+     * Queue a new e-mail message for sending.
+     *
+     * @param  string|array  $view
+     * @param  array  $data
+     * @param  \Closure|string  $callback
+     * @param  string|null  $queue
+     * @return mixed
+     */
+    public function queue($view, array $data = [], $callback = null, $queue = null)
+    {
+        $this->send($view);
     }
 }

@@ -17,7 +17,7 @@ class SendQueuedMailable
     /**
      * Create a new job instance.
      *
-     * @param  \Illuminate\Contracts\Mail\Mailable $mailable
+     * @param  \Illuminate\Contracts\Mail\Mailable  $mailable
      * @return void
      */
     public function __construct(MailableContract $mailable)
@@ -28,7 +28,7 @@ class SendQueuedMailable
     /**
      * Handle the queued job.
      *
-     * @param  \Illuminate\Contracts\Mail\Mailer $mailer
+     * @param  \Illuminate\Contracts\Mail\Mailer  $mailer
      * @return void
      */
     public function handle(MailerContract $mailer)

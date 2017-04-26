@@ -55,17 +55,17 @@ class Column implements \JsonSerializable
      * Creates a new Column with the defined label.
      *
      * @access public
-     * @param  string $type Type of Column
-     * @param  string $label Column label (optional).
+     * @param  string                                      $type Type of Column
+     * @param  string                                      $label Column label (optional).
      * @param  \Khill\Lavacharts\DataTables\Formats\Format $format
-     * @param  string $role Column role (optional).
+     * @param  string                                      $role Column role (optional).
      */
     public function __construct($type, $label = '', Format $format = null, $role = '')
     {
-        $this->type = $type;
-        $this->label = $label;
+        $this->type   = $type;
+        $this->label  = $label;
         $this->format = $format;
-        $this->role = $role;
+        $this->role   = $role;
     }
 
     /**

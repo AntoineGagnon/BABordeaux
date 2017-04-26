@@ -31,7 +31,7 @@ class ChartWrapper extends Wrapper
     /**
      * Builds a ChartWrapper object.
      *
-     * @param  \Khill\Lavacharts\Charts\Chart $chart
+     * @param  \Khill\Lavacharts\Charts\Chart     $chart
      * @param  \Khill\Lavacharts\Values\ElementId $containerId
      */
     public function __construct(Chart $chart, ElementId $containerId)

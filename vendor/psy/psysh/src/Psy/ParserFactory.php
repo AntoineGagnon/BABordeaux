@@ -26,33 +26,13 @@ class ParserFactory
     const PREFER_PHP7 = 'PREFER_PHP7';
 
     /**
-     * New parser instance with given kind.
+     * Possible kinds of parsers for the factory, from PHP parser library.
      *
-     * @param string|null $kind One of class constants (only for PHP parser 2.0 and above)
-     *
-     * @return Parser
+     * @return array
      */
-    public function createParser($kind = null)
+    public static function getPossibleKinds()
     {
-        if ($this->hasKindsSupport()) {
-            $originalFactory = new OriginalParserFactory();
-
-            $kind = $kind ?: $this->getDefaultKind();
-
-            if (!in_array($kind, static::getPossibleKinds())) {
-                throw new \InvalidArgumentException('Unknown parser kind');
-            }
-
-            $parser = $originalFactory->create(constant('PhpParser\ParserFactory::' . $kind));
-        } else {
-            if ($kind !== null) {
-                throw new \InvalidArgumentException('Install PHP Parser v2.x to specify parser kind');
-            }
-
-            $parser = new Parser(new Lexer());
-        }
-
-        return $parser;
+        return array('ONLY_PHP5', 'ONLY_PHP7', 'PREFER_PHP5', 'PREFER_PHP7');
     }
 
     /**
@@ -80,12 +60,32 @@ class ParserFactory
     }
 
     /**
-     * Possible kinds of parsers for the factory, from PHP parser library.
+     * New parser instance with given kind.
      *
-     * @return array
+     * @param string|null $kind One of class constants (only for PHP parser 2.0 and above)
+     *
+     * @return Parser
      */
-    public static function getPossibleKinds()
+    public function createParser($kind = null)
     {
-        return array('ONLY_PHP5', 'ONLY_PHP7', 'PREFER_PHP5', 'PREFER_PHP7');
+        if ($this->hasKindsSupport()) {
+            $originalFactory = new OriginalParserFactory();
+
+            $kind = $kind ?: $this->getDefaultKind();
+
+            if (!in_array($kind, static::getPossibleKinds())) {
+                throw new \InvalidArgumentException('Unknown parser kind');
+            }
+
+            $parser = $originalFactory->create(constant('PhpParser\ParserFactory::' . $kind));
+        } else {
+            if ($kind !== null) {
+                throw new \InvalidArgumentException('Install PHP Parser v2.x to specify parser kind');
+            }
+
+            $parser = new Parser(new Lexer());
+        }
+
+        return $parser;
     }
 }

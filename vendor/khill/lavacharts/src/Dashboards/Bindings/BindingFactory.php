@@ -33,7 +33,7 @@ class BindingFactory
      */
     public static function create($arg1, $arg2)
     {
-        $chartWrapperArrayCheck = Utils::arrayValuesCheck($arg2, 'class', 'ChartWrapper');
+        $chartWrapperArrayCheck   = Utils::arrayValuesCheck($arg2, 'class', 'ChartWrapper');
         $controlWrapperArrayCheck = Utils::arrayValuesCheck($arg1, 'class', 'ControlWrapper');
 
         if ($arg1 instanceof ControlWrapper && $arg2 instanceof ChartWrapper) {

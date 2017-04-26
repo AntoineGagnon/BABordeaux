@@ -70,7 +70,7 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
             array(array("echo ''"),   false),
             array(array('if (1) {}'), false),
 
-            array(array('// closed comment'), false),
+            array(array('// closed comment'),    false),
             array(array('function foo() { /**'), true),
         );
     }
@@ -84,7 +84,7 @@ class CodeCleanerTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('HHVM not supported.');
         }
 
-        $cc = new CodeCleaner();
+        $cc  = new CodeCleaner();
         $res = $cc->clean($lines);
 
         $this->assertFalse($res);

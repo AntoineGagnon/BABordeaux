@@ -10,7 +10,7 @@ namespace App\Http\Controllers;
 
 use App\answer;
 use App\question;
-use App\question_group;
+use App\rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -69,7 +69,6 @@ class QuestionController extends Controller
     {
         if(!Auth::check())
             return redirect()->intended('login');
-        answer::where('question_id', $id)->destroy();
         question::destroy($id);
     }
 
@@ -124,17 +123,30 @@ class QuestionController extends Controller
         $allresultsrequest = $request->all();
         $allkeys = array_keys($allresultsrequest);
         foreach($allkeys as $key){
-            if(ends_with($key,'changed')){
+            if(ends_with($key,'questionchanged')){
                 preg_match_all('!\d+!', $key, $questionIdToChanged);
                 $question = question::find($questionIdToChanged[0][0]);
                 $question->label = $request->input($key);
                 $question->save();
+
+            }
+            if(ends_with($key,'answerchanged')){
+                preg_match_all('!\d+!', $key, $answerIdToChanged);
+                $answer = answer::find($answerIdToChanged[0][0]);
+                $answer->label = $request->input($key);
+                $answer->save();
+
             }
         }
 
         $questions = question::all();
+        $rules = rule::all();
+        $answers = answer::all();
+        foreach($questions as $question) {
+            $question['answers'] = answer::where('question_id', $question->id)->get();
+        }
 
-        return redirect()->action('PollController@adminEditPoll')->with(['questions' => $questions]);
+        return redirect()->action('PollController@adminEditPoll')->with(['questions' => $questions, 'rules' => $rules, 'answers' => $answers]);
     }
 
 }

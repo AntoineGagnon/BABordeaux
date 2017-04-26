@@ -7,7 +7,7 @@ class InvalidColumnFormat extends \Exception
     public function __construct($format)
     {
         parent::__construct(
-            '"' . (string)$format . '" is not a valid format.'
+            '"'. (string) $format . '" is not a valid format.'
         );
     }
 }

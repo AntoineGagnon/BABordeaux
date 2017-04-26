@@ -56,7 +56,7 @@ class Tooltip extends JsonConfig
         parent::__construct($options, $config);
     }
 
-    /**
+	/**
      * Sets whether the tooltip is HTML.
      *
      * @param  bool $isHtml

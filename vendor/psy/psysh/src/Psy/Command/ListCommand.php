@@ -67,6 +67,8 @@ class ListCommand extends ReflectingCommand implements PresenterAware
                 new InputOption('interfaces',  'I', InputOption::VALUE_NONE,     'Display declared interfaces.'),
                 new InputOption('traits',      't', InputOption::VALUE_NONE,     'Display declared traits.'),
 
+                new InputOption('no-inherit',  '',  InputOption::VALUE_NONE,     'Exclude inherited methods, properties and constants.'),
+
                 new InputOption('properties',  'p', InputOption::VALUE_NONE,     'Display class or object properties (public properties by default).'),
                 new InputOption('methods',     'm', InputOption::VALUE_NONE,     'Display class or object methods (public methods by default).'),
 
@@ -141,61 +143,6 @@ HELP
     }
 
     /**
-     * Validate that input options make sense, provide defaults when called without options.
-     *
-     * @throws RuntimeException if options are inconsistent
-     *
-     * @param InputInterface $input
-     */
-    private function validateInput(InputInterface $input)
-    {
-        // grep, invert and insensitive
-        if (!$input->getOption('grep')) {
-            foreach (array('invert', 'insensitive') as $option) {
-                if ($input->getOption($option)) {
-                    throw new RuntimeException('--' . $option . ' does not make sense without --grep');
-                }
-            }
-        }
-
-        if (!$input->getArgument('target')) {
-            // if no target is passed, there can be no properties or methods
-            foreach (array('properties', 'methods') as $option) {
-                if ($input->getOption($option)) {
-                    throw new RuntimeException('--' . $option . ' does not make sense without a specified target.');
-                }
-            }
-
-            foreach (array('globals', 'vars', 'constants', 'functions', 'classes', 'interfaces', 'traits') as $option) {
-                if ($input->getOption($option)) {
-                    return;
-                }
-            }
-
-            // default to --vars if no other options are passed
-            $input->setOption('vars', true);
-        } else {
-            // if a target is passed, classes, functions, etc don't make sense
-            foreach (array('vars', 'globals', 'functions', 'classes', 'interfaces', 'traits') as $option) {
-                if ($input->getOption($option)) {
-                    throw new RuntimeException('--' . $option . ' does not make sense with a specified target.');
-                }
-            }
-
-            foreach (array('constants', 'properties', 'methods') as $option) {
-                if ($input->getOption($option)) {
-                    return;
-                }
-            }
-
-            // default to --constants --properties --methods if no other options are passed
-            $input->setOption('constants', true);
-            $input->setOption('properties', true);
-            $input->setOption('methods', true);
-        }
-    }
-
-    /**
      * Initialize Enumerators.
      */
     protected function initEnumerators()
@@ -222,7 +169,7 @@ HELP
      * Write the list items to $output.
      *
      * @param OutputInterface $output
-     * @param null|array $result List of enumerated items
+     * @param null|array      $result List of enumerated items
      */
     protected function write(OutputInterface $output, array $result = null)
     {
@@ -242,7 +189,7 @@ HELP
      * Items are listed one per line, and include the item signature.
      *
      * @param OutputInterface $output
-     * @param null|array $result List of enumerated items
+     * @param null|array      $result List of enumerated items
      */
     protected function writeLong(OutputInterface $output, array $result = null)
     {
@@ -279,5 +226,60 @@ HELP
     private function formatItemName($item)
     {
         return sprintf('<%s>%s</%s>', $item['style'], OutputFormatter::escape($item['name']), $item['style']);
+    }
+
+    /**
+     * Validate that input options make sense, provide defaults when called without options.
+     *
+     * @throws RuntimeException if options are inconsistent
+     *
+     * @param InputInterface $input
+     */
+    private function validateInput(InputInterface $input)
+    {
+        // grep, invert and insensitive
+        if (!$input->getOption('grep')) {
+            foreach (array('invert', 'insensitive') as $option) {
+                if ($input->getOption($option)) {
+                    throw new RuntimeException('--' . $option . ' does not make sense without --grep');
+                }
+            }
+        }
+
+        if (!$input->getArgument('target')) {
+            // if no target is passed, there can be no properties or methods
+            foreach (array('properties', 'methods', 'no-inherit') as $option) {
+                if ($input->getOption($option)) {
+                    throw new RuntimeException('--' . $option . ' does not make sense without a specified target.');
+                }
+            }
+
+            foreach (array('globals', 'vars', 'constants', 'functions', 'classes', 'interfaces', 'traits') as $option) {
+                if ($input->getOption($option)) {
+                    return;
+                }
+            }
+
+            // default to --vars if no other options are passed
+            $input->setOption('vars', true);
+        } else {
+            // if a target is passed, classes, functions, etc don't make sense
+            foreach (array('vars', 'globals', 'functions', 'classes', 'interfaces', 'traits') as $option) {
+                if ($input->getOption($option)) {
+                    throw new RuntimeException('--' . $option . ' does not make sense with a specified target.');
+                }
+            }
+
+            foreach (array('constants', 'properties', 'methods') as $option) {
+                if ($input->getOption($option)) {
+                    return;
+                }
+            }
+
+            // default to --constants --properties --methods if no other options are passed
+            $input->setOption('constants',  true);
+            $input->setOption('properties', true);
+            $input->setOption('methods',    true);
+        }
     }
 }

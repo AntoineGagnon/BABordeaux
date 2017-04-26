@@ -107,7 +107,7 @@ class SlackAttachment
     /**
      * A plain-text summary of the attachment.
      *
-     * @param  string $fallback
+     * @param  string  $fallback
      * @return $this
      */
     public function fallback($fallback)

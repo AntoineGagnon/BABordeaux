@@ -49,6 +49,21 @@ class Response extends BaseResponse
     }
 
     /**
+     * Morph the given content into JSON.
+     *
+     * @param  mixed   $content
+     * @return string
+     */
+    protected function morphToJson($content)
+    {
+        if ($content instanceof Jsonable) {
+            return $content->toJson();
+        }
+
+        return json_encode($content);
+    }
+
+    /**
      * Determine if the given content should be turned into JSON.
      *
      * @param  mixed  $content
@@ -60,21 +75,6 @@ class Response extends BaseResponse
                $content instanceof ArrayObject ||
                $content instanceof JsonSerializable ||
                is_array($content);
-    }
-
-    /**
-     * Morph the given content into JSON.
-     *
-     * @param  mixed $content
-     * @return string
-     */
-    protected function morphToJson($content)
-    {
-        if ($content instanceof Jsonable) {
-            return $content->toJson();
-        }
-
-        return json_encode($content);
     }
 
     /**

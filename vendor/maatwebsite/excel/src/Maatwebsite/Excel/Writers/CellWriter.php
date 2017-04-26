@@ -67,53 +67,6 @@ class CellWriter {
     }
 
     /**
-     * Set the color style
-     * @param         $styleType
-     * @param string $color
-     * @param boolean $type
-     * @param string $colorType
-     * @return  CellWriter
-     */
-    protected function setColorStyle($styleType, $color, $type = false, $colorType = 'rgb')
-    {
-        // Set the styles
-        $styles = is_array($color) ? $color : [
-            'type' => $type,
-            'color' => [$colorType => str_replace('#', '', $color)]
-        ];
-
-        return $this->setStyle($styleType, $styles);
-    }
-
-    /**
-     * Set style
-     * @param        $styleType
-     * @param string $styles
-     * @return  CellWriter
-     */
-    protected function setStyle($styleType, $styles)
-    {
-        // Get the cell style
-        $style = $this->getCellStyle();
-
-        // Apply style from array
-        $style->applyFromArray([
-            $styleType => $styles
-        ]);
-
-        return $this;
-    }
-
-    /**
-     * Get the cell style
-     * @return \PHPExcel_Style
-     */
-    protected function getCellStyle()
-    {
-        return $this->sheet->getStyle($this->cells);
-    }
-
-    /**
      * Set the font color
      * @param string $color
      * @param string $colorType
@@ -182,13 +135,13 @@ class CellWriter {
     {
         // Set the border styles
         $styles = is_array($top) ? $top : [
-            'top' => [
+            'top'    => [
                 'style' => $top
             ],
-            'left' => [
+            'left'   => [
                 'style' => $left,
             ],
-            'right' => [
+            'right'  => [
                 'style' => $right,
             ],
             'bottom' => [
@@ -243,5 +196,52 @@ class CellWriter {
     {
       $style = $this->getCellStyle()->getAlignment()->setIndent((int)$indent);
       return $this;
+    }
+
+    /**
+     * Set the color style
+     * @param         $styleType
+     * @param string  $color
+     * @param boolean $type
+     * @param string  $colorType
+     * @return  CellWriter
+     */
+    protected function setColorStyle($styleType, $color, $type = false, $colorType = 'rgb')
+    {
+        // Set the styles
+        $styles = is_array($color) ? $color : [
+            'type'  => $type,
+            'color' => [$colorType => str_replace('#', '', $color)]
+        ];
+
+        return $this->setStyle($styleType, $styles);
+    }
+
+    /**
+     * Set style
+     * @param        $styleType
+     * @param string $styles
+     * @return  CellWriter
+     */
+    protected function setStyle($styleType, $styles)
+    {
+        // Get the cell style
+        $style = $this->getCellStyle();
+
+        // Apply style from array
+        $style->applyFromArray([
+            $styleType => $styles
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * Get the cell style
+     * @return \PHPExcel_Style
+     */
+    protected function getCellStyle()
+    {
+        return $this->sheet->getStyle($this->cells);
     }
 }

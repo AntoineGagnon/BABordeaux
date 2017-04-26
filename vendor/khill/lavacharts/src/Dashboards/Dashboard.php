@@ -53,34 +53,6 @@ class Dashboard
     }
 
     /**
-     * Fetch the dashboard's bindings.
-     *
-     * @return array
-     */
-    public function getBindings()
-    {
-        return $this->bindings;
-    }
-
-    /**
-     * Batch add an array of bindings.
-     *
-     * This method can set all bindings at once instead of chaining multiple bind methods.
-     *
-     * @param  array $bindings
-     * @return \Khill\Lavacharts\Dashboards\Dashboard
-     * @throws \Khill\Lavacharts\Exceptions\InvalidBindings
-     */
-    public function setBindings($bindings)
-    {
-        foreach ($bindings as $binding) {
-            $this->bind($binding[0], $binding[1]);
-        }
-
-        return $this;
-    }
-
-    /**
      * Binds ControlWrappers to ChartWrappers in the dashboard.
      * - A OneToOne binding is created if single wrappers are passed.
      * - If a single ControlWrapper is passed with an array of ChartWrappers,
@@ -90,7 +62,7 @@ class Dashboard
      *
      * @uses   \Khill\Lavacharts\Dashboard\Bindings\BindingFactory
      * @param  \Khill\Lavacharts\Dashboards\ControlWrapper|array $controlWraps
-     * @param  \Khill\Lavacharts\Dashboards\ChartWrapper|array $chartWraps
+     * @param  \Khill\Lavacharts\Dashboards\ChartWrapper|array   $chartWraps
      * @return \Khill\Lavacharts\Dashboards\Dashboard
      * @throws \Khill\Lavacharts\Exceptions\InvalidBindings
      */
@@ -99,6 +71,16 @@ class Dashboard
         $this->bindings[] = BindingFactory::create($controlWraps, $chartWraps);
 
         return $this;
+    }
+
+    /**
+     * Fetch the dashboard's bindings.
+     *
+     * @return array
+     */
+    public function getBindings()
+    {
+        return $this->bindings;
     }
 
     /**
@@ -129,5 +111,23 @@ class Dashboard
     public function getLabel()
     {
         return $this->label;
+    }
+
+    /**
+     * Batch add an array of bindings.
+     *
+     * This method can set all bindings at once instead of chaining multiple bind methods.
+     *
+     * @param  array $bindings
+     * @return \Khill\Lavacharts\Dashboards\Dashboard
+     * @throws \Khill\Lavacharts\Exceptions\InvalidBindings
+     */
+    public function setBindings($bindings)
+    {
+        foreach ($bindings as $binding) {
+            $this->bind($binding[0], $binding[1]);
+        }
+
+        return $this;
     }
 }

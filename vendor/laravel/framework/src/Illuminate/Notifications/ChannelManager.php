@@ -44,55 +44,6 @@ class ChannelManager extends Manager implements DispatcherContract, FactoryContr
     }
 
     /**
-     * Format the notifiables into a Collection / array if necessary.
-     *
-     * @param  mixed $notifiables
-     * @return ModelCollection|array
-     */
-    protected function formatNotifiables($notifiables)
-    {
-        if (!$notifiables instanceof Collection && !is_array($notifiables)) {
-            return $notifiables instanceof Model
-                ? new ModelCollection([$notifiables]) : [$notifiables];
-        }
-
-        return $notifiables;
-    }
-
-    /**
-     * Queue the given notification instances.
-     *
-     * @param  mixed $notifiables
-     * @param  array [\Illuminate\Notifications\Channels\Notification]  $notification
-     * @return void
-     */
-    protected function queueNotification($notifiables, $notification)
-    {
-        $notifiables = $this->formatNotifiables($notifiables);
-
-        $bus = $this->app->make(Bus::class);
-
-        $original = clone $notification;
-
-        foreach ($notifiables as $notifiable) {
-            $notificationId = Uuid::uuid4()->toString();
-
-            foreach ($notification->via($notifiable) as $channel) {
-                $notification = clone $original;
-
-                $notification->id = $notificationId;
-
-                $bus->dispatch(
-                    (new SendQueuedNotifications($this->formatNotifiables($notifiable), $notification, [$channel]))
-                        ->onConnection($notification->connection)
-                        ->onQueue($notification->queue)
-                        ->delay($notification->delay)
-                );
-            }
-        }
-    }
-
-    /**
      * Send the given notification immediately.
      *
      * @param  \Illuminate\Support\Collection|array|mixed  $notifiables
@@ -150,6 +101,55 @@ class ChannelManager extends Manager implements DispatcherContract, FactoryContr
     }
 
     /**
+     * Queue the given notification instances.
+     *
+     * @param  mixed  $notifiables
+     * @param  array[\Illuminate\Notifications\Channels\Notification]  $notification
+     * @return void
+     */
+    protected function queueNotification($notifiables, $notification)
+    {
+        $notifiables = $this->formatNotifiables($notifiables);
+
+        $bus = $this->app->make(Bus::class);
+
+        $original = clone $notification;
+
+        foreach ($notifiables as $notifiable) {
+            $notificationId = Uuid::uuid4()->toString();
+
+            foreach ($notification->via($notifiable) as $channel) {
+                $notification = clone $original;
+
+                $notification->id = $notificationId;
+
+                $bus->dispatch(
+                    (new SendQueuedNotifications($this->formatNotifiables($notifiable), $notification, [$channel]))
+                            ->onConnection($notification->connection)
+                            ->onQueue($notification->queue)
+                            ->delay($notification->delay)
+                );
+            }
+        }
+    }
+
+    /**
+     * Format the notifiables into a Collection / array if necessary.
+     *
+     * @param  mixed  $notifiables
+     * @return ModelCollection|array
+     */
+    protected function formatNotifiables($notifiables)
+    {
+        if (! $notifiables instanceof Collection && ! is_array($notifiables)) {
+            return $notifiables instanceof Model
+                            ? new ModelCollection([$notifiables]) : [$notifiables];
+        }
+
+        return $notifiables;
+    }
+
+    /**
      * Get a channel instance.
      *
      * @param  string|null  $name
@@ -158,37 +158,6 @@ class ChannelManager extends Manager implements DispatcherContract, FactoryContr
     public function channel($name = null)
     {
         return $this->driver($name);
-    }
-
-    /**
-     * Get the default channel driver name.
-     *
-     * @return string
-     */
-    public function deliversVia()
-    {
-        return $this->getDefaultDriver();
-    }
-
-    /**
-     * Get the default channel driver name.
-     *
-     * @return string
-     */
-    public function getDefaultDriver()
-    {
-        return $this->defaultChannel;
-    }
-
-    /**
-     * Set the default channel driver name.
-     *
-     * @param  string $channel
-     * @return void
-     */
-    public function deliverVia($channel)
-    {
-        $this->defaultChannel = $channel;
     }
 
     /**
@@ -266,5 +235,36 @@ class ChannelManager extends Manager implements DispatcherContract, FactoryContr
 
             throw $e;
         }
+    }
+
+    /**
+     * Get the default channel driver name.
+     *
+     * @return string
+     */
+    public function getDefaultDriver()
+    {
+        return $this->defaultChannel;
+    }
+
+    /**
+     * Get the default channel driver name.
+     *
+     * @return string
+     */
+    public function deliversVia()
+    {
+        return $this->getDefaultDriver();
+    }
+
+    /**
+     * Set the default channel driver name.
+     *
+     * @param  string  $channel
+     * @return void
+     */
+    public function deliverVia($channel)
+    {
+        $this->defaultChannel = $channel;
     }
 }

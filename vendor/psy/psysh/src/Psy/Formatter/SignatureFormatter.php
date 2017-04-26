@@ -56,6 +56,132 @@ class SignatureFormatter implements Formatter
     }
 
     /**
+     * Print the signature name.
+     *
+     * @param \Reflector $reflector
+     *
+     * @return string Formatted name
+     */
+    public static function formatName(\Reflector $reflector)
+    {
+        return $reflector->getName();
+    }
+
+    /**
+     * Print the method, property or class modifiers.
+     *
+     * Technically this should be a trait. Can't wait for 5.4 :)
+     *
+     * @param \Reflector $reflector
+     *
+     * @return string Formatted modifiers
+     */
+    private static function formatModifiers(\Reflector $reflector)
+    {
+        return implode(' ', array_map(function ($modifier) {
+            return sprintf('<keyword>%s</keyword>', $modifier);
+        }, \Reflection::getModifierNames($reflector->getModifiers())));
+    }
+
+    /**
+     * Format a class signature.
+     *
+     * @param \ReflectionClass $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatClass(\ReflectionClass $reflector)
+    {
+        $chunks = array();
+
+        if ($modifiers = self::formatModifiers($reflector)) {
+            $chunks[] = $modifiers;
+        }
+
+        if (version_compare(PHP_VERSION, '5.4', '>=') && $reflector->isTrait()) {
+            $chunks[] = 'trait';
+        } else {
+            $chunks[] = $reflector->isInterface() ? 'interface' : 'class';
+        }
+
+        $chunks[] = sprintf('<class>%s</class>', self::formatName($reflector));
+
+        if ($parent = $reflector->getParentClass()) {
+            $chunks[] = 'extends';
+            $chunks[] = sprintf('<class>%s</class>', $parent->getName());
+        }
+
+        $interfaces = $reflector->getInterfaceNames();
+        if (!empty($interfaces)) {
+            sort($interfaces);
+
+            $chunks[] = 'implements';
+            $chunks[] = implode(', ', array_map(function ($name) {
+                return sprintf('<class>%s</class>', $name);
+            }, $interfaces));
+        }
+
+        return implode(' ', $chunks);
+    }
+
+    /**
+     * Format a constant signature.
+     *
+     * @param ReflectionConstant $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatConstant(ReflectionConstant $reflector)
+    {
+        $value = $reflector->getValue();
+        $style = self::getTypeStyle($value);
+
+        return sprintf(
+            '<keyword>const</keyword> <const>%s</const> = <%s>%s</%s>',
+            self::formatName($reflector),
+            $style,
+            OutputFormatter::escape(Json::encode($value)),
+            $style
+        );
+    }
+
+    /**
+     * Helper for getting output style for a given value's type.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    private static function getTypeStyle($value)
+    {
+        if (is_int($value) || is_float($value)) {
+            return 'number';
+        } elseif (is_string($value)) {
+            return 'string';
+        } elseif (is_bool($value) || is_null($value)) {
+            return 'bool';
+        } else {
+            return 'strong';
+        }
+    }
+
+    /**
+     * Format a property signature.
+     *
+     * @param \ReflectionProperty $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatProperty(\ReflectionProperty $reflector)
+    {
+        return sprintf(
+            '%s <strong>$%s</strong>',
+            self::formatModifiers($reflector),
+            $reflector->getName()
+        );
+    }
+
+    /**
      * Format a function signature.
      *
      * @param \ReflectionFunction $reflector
@@ -73,15 +199,19 @@ class SignatureFormatter implements Formatter
     }
 
     /**
-     * Print the signature name.
+     * Format a method signature.
      *
-     * @param \Reflector $reflector
+     * @param \ReflectionMethod $reflector
      *
-     * @return string Formatted name
+     * @return string Formatted signature
      */
-    public static function formatName(\Reflector $reflector)
+    private static function formatMethod(\ReflectionMethod $reflector)
     {
-        return $reflector->getName();
+        return sprintf(
+            '%s %s',
+            self::formatModifiers($reflector),
+            self::formatFunction($reflector)
+        );
     }
 
     /**
@@ -139,135 +269,5 @@ class SignatureFormatter implements Formatter
         }
 
         return $params;
-    }
-
-    /**
-     * Helper for getting output style for a given value's type.
-     *
-     * @param mixed $value
-     *
-     * @return string
-     */
-    private static function getTypeStyle($value)
-    {
-        if (is_int($value) || is_float($value)) {
-            return 'number';
-        } elseif (is_string($value)) {
-            return 'string';
-        } elseif (is_bool($value) || is_null($value)) {
-            return 'bool';
-        } else {
-            return 'strong';
-        }
-    }
-
-    /**
-     * Format a class signature.
-     *
-     * @param \ReflectionClass $reflector
-     *
-     * @return string Formatted signature
-     */
-    private static function formatClass(\ReflectionClass $reflector)
-    {
-        $chunks = array();
-
-        if ($modifiers = self::formatModifiers($reflector)) {
-            $chunks[] = $modifiers;
-        }
-
-        if (version_compare(PHP_VERSION, '5.4', '>=') && $reflector->isTrait()) {
-            $chunks[] = 'trait';
-        } else {
-            $chunks[] = $reflector->isInterface() ? 'interface' : 'class';
-        }
-
-        $chunks[] = sprintf('<class>%s</class>', self::formatName($reflector));
-
-        if ($parent = $reflector->getParentClass()) {
-            $chunks[] = 'extends';
-            $chunks[] = sprintf('<class>%s</class>', $parent->getName());
-        }
-
-        $interfaces = $reflector->getInterfaceNames();
-        if (!empty($interfaces)) {
-            sort($interfaces);
-
-            $chunks[] = 'implements';
-            $chunks[] = implode(', ', array_map(function ($name) {
-                return sprintf('<class>%s</class>', $name);
-            }, $interfaces));
-        }
-
-        return implode(' ', $chunks);
-    }
-
-    /**
-     * Print the method, property or class modifiers.
-     *
-     * Technically this should be a trait. Can't wait for 5.4 :)
-     *
-     * @param \Reflector $reflector
-     *
-     * @return string Formatted modifiers
-     */
-    private static function formatModifiers(\Reflector $reflector)
-    {
-        return implode(' ', array_map(function ($modifier) {
-            return sprintf('<keyword>%s</keyword>', $modifier);
-        }, \Reflection::getModifierNames($reflector->getModifiers())));
-    }
-
-    /**
-     * Format a constant signature.
-     *
-     * @param ReflectionConstant $reflector
-     *
-     * @return string Formatted signature
-     */
-    private static function formatConstant(ReflectionConstant $reflector)
-    {
-        $value = $reflector->getValue();
-        $style = self::getTypeStyle($value);
-
-        return sprintf(
-            '<keyword>const</keyword> <const>%s</const> = <%s>%s</%s>',
-            self::formatName($reflector),
-            $style,
-            OutputFormatter::escape(Json::encode($value)),
-            $style
-        );
-    }
-
-    /**
-     * Format a method signature.
-     *
-     * @param \ReflectionMethod $reflector
-     *
-     * @return string Formatted signature
-     */
-    private static function formatMethod(\ReflectionMethod $reflector)
-    {
-        return sprintf(
-            '%s %s',
-            self::formatModifiers($reflector),
-            self::formatFunction($reflector)
-        );
-    }
-
-    /**
-     * Format a property signature.
-     *
-     * @param \ReflectionProperty $reflector
-     *
-     * @return string Formatted signature
-     */
-    private static function formatProperty(\ReflectionProperty $reflector)
-    {
-        return sprintf(
-            '%s <strong>$%s</strong>',
-            self::formatModifiers($reflector),
-            $reflector->getName()
-        );
     }
 }

@@ -14,29 +14,31 @@ class Factory implements ArrayAccess
      * @var \Faker\Generator
      */
     protected $faker;
-    /**
-     * The model definitions in the container.
-     *
-     * @var array
-     */
-    protected $definitions = [];
-    /**
-     * The registered model states.
-     *
-     * @var array
-     */
-    protected $states = [];
 
     /**
      * Create a new factory instance.
      *
-     * @param  \Faker\Generator $faker
+     * @param  \Faker\Generator  $faker
      * @return void
      */
     public function __construct(Faker $faker)
     {
         $this->faker = $faker;
     }
+
+    /**
+     * The model definitions in the container.
+     *
+     * @var array
+     */
+    protected $definitions = [];
+
+    /**
+     * The registered model states.
+     *
+     * @var array
+     */
+    protected $states = [];
 
     /**
      * Create a new factory container.
@@ -50,25 +52,6 @@ class Factory implements ArrayAccess
         $pathToFactories = $pathToFactories ?: database_path('factories');
 
         return (new static($faker))->load($pathToFactories);
-    }
-
-    /**
-     * Load factories from path.
-     *
-     * @param  string $path
-     * @return $this
-     */
-    public function load($path)
-    {
-        $factory = $this;
-
-        if (is_dir($path)) {
-            foreach (Finder::create()->files()->in($path) as $file) {
-                require $file->getRealPath();
-            }
-        }
-
-        return $factory;
     }
 
     /**
@@ -127,18 +110,6 @@ class Factory implements ArrayAccess
     }
 
     /**
-     * Create a builder for the given model.
-     *
-     * @param  string $class
-     * @param  string $name
-     * @return \Illuminate\Database\Eloquent\FactoryBuilder
-     */
-    public function of($class, $name = 'default')
-    {
-        return new FactoryBuilder($class, $name, $this->definitions, $this->states, $this->faker);
-    }
-
-    /**
      * Create an instance of the given model and type and persist it to the database.
      *
      * @param  string  $class
@@ -149,6 +120,37 @@ class Factory implements ArrayAccess
     public function createAs($class, $name, array $attributes = [])
     {
         return $this->of($class, $name)->create($attributes);
+    }
+
+    /**
+     * Load factories from path.
+     *
+     * @param  string  $path
+     * @return $this
+     */
+    public function load($path)
+    {
+        $factory = $this;
+
+        if (is_dir($path)) {
+            foreach (Finder::create()->files()->in($path) as $file) {
+                require $file->getRealPath();
+            }
+        }
+
+        return $factory;
+    }
+
+    /**
+     * Create an instance of the given model.
+     *
+     * @param  string  $class
+     * @param  array  $attributes
+     * @return mixed
+     */
+    public function make($class, array $attributes = [])
+    {
+        return $this->of($class)->make($attributes);
     }
 
     /**
@@ -193,6 +195,18 @@ class Factory implements ArrayAccess
     }
 
     /**
+     * Create a builder for the given model.
+     *
+     * @param  string  $class
+     * @param  string  $name
+     * @return \Illuminate\Database\Eloquent\FactoryBuilder
+     */
+    public function of($class, $name = 'default')
+    {
+        return new FactoryBuilder($class, $name, $this->definitions, $this->states, $this->faker);
+    }
+
+    /**
      * Determine if the given offset exists.
      *
      * @param  string  $offset
@@ -212,18 +226,6 @@ class Factory implements ArrayAccess
     public function offsetGet($offset)
     {
         return $this->make($offset);
-    }
-
-    /**
-     * Create an instance of the given model.
-     *
-     * @param  string $class
-     * @param  array $attributes
-     * @return mixed
-     */
-    public function make($class, array $attributes = [])
-    {
-        return $this->of($class)->make($attributes);
     }
 
     /**

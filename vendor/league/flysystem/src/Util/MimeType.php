@@ -26,21 +26,9 @@ class MimeType
             $finfo = new Finfo(FILEINFO_MIME_TYPE);
 
             return $finfo->buffer($content) ?: null;
-        } catch (ErrorException $e) {
+        } catch( ErrorException $e ) {
             // This is caused by an array to string conversion error.
         }
-    }
-
-    /**
-     * @param string $filename
-     *
-     * @return string
-     */
-    public static function detectByFilename($filename)
-    {
-        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-        return empty($extension) ? 'text/plain' : static::detectByFileExtension($extension);
     }
 
     /**
@@ -63,6 +51,18 @@ class MimeType
         }
 
         return 'text/plain';
+    }
+
+    /**
+     * @param string $filename
+     *
+     * @return string
+     */
+    public static function detectByFilename($filename)
+    {
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        return empty($extension) ? 'text/plain' : static::detectByFileExtension($extension);
     }
 
     /**

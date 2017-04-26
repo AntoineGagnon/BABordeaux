@@ -50,8 +50,7 @@ class ValidFunctionNamePass extends NamespaceAwarePass
             // whether a function is being redefined by static analysis alone.
             if ($this->conditionalScopes === 0) {
                 if (function_exists($name) ||
-                    isset($this->currentScope[strtolower($name)])
-                ) {
+                    isset($this->currentScope[strtolower($name)])) {
                     $msg = sprintf('Cannot redeclare %s()', $name);
                     throw new FatalErrorException($msg, 0, 1, null, $node->getLine());
                 }
@@ -59,14 +58,6 @@ class ValidFunctionNamePass extends NamespaceAwarePass
 
             $this->currentScope[strtolower($name)] = true;
         }
-    }
-
-    private static function isConditional(Node $node)
-    {
-        return $node instanceof IfStmt ||
-            $node instanceof WhileStmt ||
-            $node instanceof DoStmt ||
-            $node instanceof SwitchStmt;
     }
 
     /**
@@ -94,5 +85,13 @@ class ValidFunctionNamePass extends NamespaceAwarePass
                 }
             }
         }
+    }
+
+    private static function isConditional(Node $node)
+    {
+        return $node instanceof IfStmt ||
+            $node instanceof WhileStmt ||
+            $node instanceof DoStmt ||
+            $node instanceof SwitchStmt;
     }
 }

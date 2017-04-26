@@ -5,7 +5,6 @@ namespace Khill\Lavacharts\DataTables\Cells;
 use \Carbon\Carbon;
 use Khill\Lavacharts\Exceptions\InvalidDateTimeFormat;
 use \Khill\Lavacharts\Utils;
-use \Khill\Lavacharts\Exceptions\FailedCarbonParsing;
 use \Khill\Lavacharts\Exceptions\InvalidDateTimeString;
 
 /**
@@ -28,8 +27,8 @@ class DateCell extends Cell
      * Creates a new DateCell object from a Carbon object.
      *
      * @param  \Carbon\Carbon $carbon
-     * @param  string $format
-     * @param  array $options
+     * @param  string         $format
+     * @param  array          $options
      * @throws \Khill\Lavacharts\Exceptions\InvalidFunctionParam
      */
     public function __construct(Carbon $carbon, $format = '', $options = [])
@@ -46,7 +45,6 @@ class DateCell extends Cell
      * @param  string $dateTimeString
      * @param  string $dateTimeFormat
      * @return \Khill\Lavacharts\DataTables\Cells\Cell
-     * @throws \Khill\Lavacharts\Exceptions\FailedCarbonParsing
      * @throws \Khill\Lavacharts\Exceptions\InvalidDateTimeFormat
      * @throws \Khill\Lavacharts\Exceptions\InvalidDateTimeString
      */
@@ -78,12 +76,12 @@ class DateCell extends Cell
     {
         return sprintf(
             'Date(%d,%d,%d,%d,%d,%d)',
-            isset($this->v->year) ? $this->v->year : 'null',
-            isset($this->v->month) ? $this->v->month - 1 : 'null', //silly javascript
-            isset($this->v->day) ? $this->v->day : 'null',
-            isset($this->v->hour) ? $this->v->hour : 'null',
-            isset($this->v->minute) ? $this->v->minute : 'null',
-            isset($this->v->second) ? $this->v->second : 'null'
+            isset($this->v->year)   ? $this->v->year      : 'null',
+            isset($this->v->month)  ? $this->v->month - 1 : 'null', //silly javascript
+            isset($this->v->day)    ? $this->v->day       : 'null',
+            isset($this->v->hour)   ? $this->v->hour      : 'null',
+            isset($this->v->minute) ? $this->v->minute    : 'null',
+            isset($this->v->second) ? $this->v->second    : 'null'
         );
     }
 
@@ -94,6 +92,6 @@ class DateCell extends Cell
      */
     public function jsonSerialize()
     {
-        return (string)$this;
+        return (string) $this;
     }
 }

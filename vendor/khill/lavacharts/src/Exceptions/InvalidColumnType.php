@@ -9,7 +9,7 @@ class InvalidColumnType extends \Exception
         if (is_string($invalidType)) {
             $message = "$invalidType is not a valid column type.";
         } else {
-            $message = gettype($invalidType) . ' is not a valid column type.';
+            $message  = gettype($invalidType) . ' is not a valid column type.';
         }
 
         $message .= ' Must one of [ ' . implode(' | ', $acceptedTypes) . ' ]';

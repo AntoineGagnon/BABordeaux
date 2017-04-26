@@ -29,7 +29,7 @@ class Format extends JsonConfig
      * child object created from this parent object.
      *
      * @param  \Khill\Lavacharts\Options $options
-     * @param  array $config Array of options.
+     * @param  array                     $config Array of options.
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      */
     public function __construct(Options $options, $config)

@@ -17,15 +17,22 @@ abstract class AbstractAdapter implements AdapterInterface
     protected $pathSeparator = '/';
 
     /**
-     * Prefix a path.
+     * Set the path prefix.
      *
-     * @param string $path
+     * @param string $prefix
      *
-     * @return string prefixed path
+     * @return void
      */
-    public function applyPathPrefix($path)
+    public function setPathPrefix($prefix)
     {
-        return $this->getPathPrefix() . ltrim($path, '\\/');
+        $prefix = (string) $prefix;
+
+        if ($prefix === '') {
+            $this->pathPrefix = null;
+            return;
+        }
+
+        $this->pathPrefix = rtrim($prefix, '\\/') . $this->pathSeparator;
     }
 
     /**
@@ -39,22 +46,15 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * Set the path prefix.
+     * Prefix a path.
      *
-     * @param string $prefix
+     * @param string $path
      *
-     * @return void
+     * @return string prefixed path
      */
-    public function setPathPrefix($prefix)
+    public function applyPathPrefix($path)
     {
-        $prefix = (string)$prefix;
-
-        if ($prefix === '') {
-            $this->pathPrefix = null;
-            return;
-        }
-
-        $this->pathPrefix = rtrim($prefix, '\\/') . $this->pathSeparator;
+        return $this->getPathPrefix() . ltrim($path, '\\/');
     }
 
     /**

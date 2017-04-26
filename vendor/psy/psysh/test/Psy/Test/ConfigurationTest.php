@@ -20,6 +20,13 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {
+    private function getConfig($configFile = null)
+    {
+        return new Configuration(array(
+            'configFile' => $configFile ?: __DIR__ . '/../../fixtures/empty.php',
+        ));
+    }
+
     public function testDefaults()
     {
         $config = $this->getConfig();
@@ -31,13 +38,6 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($config->requireSemicolons());
         $this->assertSame(Configuration::COLOR_MODE_AUTO, $config->colorMode());
         $this->assertNull($config->getStartupMessage());
-    }
-
-    private function getConfig($configFile = null)
-    {
-        return new Configuration(array(
-            'configFile' => $configFile ?: __DIR__ . '/../../fixtures/empty.php',
-        ));
     }
 
     public function testGettersAndSetters()
@@ -97,7 +97,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadConfig()
     {
-        $config = $this->getConfig();
+        $config  = $this->getConfig();
         $cleaner = new CodeCleaner();
         $pager   = new PassthruPager(new ConsoleOutput());
         $loop    = new Loop($config);
@@ -111,7 +111,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
             'requireSemicolons' => true,
             'errorLoggingLevel' => E_ERROR | E_WARNING,
             'colorMode'         => Configuration::COLOR_MODE_FORCED,
-            'startupMessage' => 'Psysh is awesome!',
+            'startupMessage'    => 'Psysh is awesome!',
         ));
 
         $this->assertFalse($config->useReadline());
@@ -140,11 +140,6 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(E_ALL & ~E_NOTICE, $config->errorLoggingLevel());
     }
 
-    private function joinPath()
-    {
-        return implode(DIRECTORY_SEPARATOR, func_get_args());
-    }
-
     public function testLoadLocalConfigFile()
     {
         $oldPwd = getenv('PWD');
@@ -171,6 +166,11 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     public function testBaseDirConfigIsDeprecated()
     {
         $config = new Configuration(array('baseDir' => 'fake'));
+    }
+
+    private function joinPath()
+    {
+        return implode(DIRECTORY_SEPARATOR, func_get_args());
     }
 
     public function testConfigIncludes()

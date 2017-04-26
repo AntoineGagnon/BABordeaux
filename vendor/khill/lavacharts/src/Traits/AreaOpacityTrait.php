@@ -19,7 +19,7 @@ trait AreaOpacityTrait
      */
     public function areaOpacity($areaOpacity)
     {
-        if (Utils::between(0.0, $areaOpacity, 1.0) === false) {
+        if (Utils::between(0.0, $areaOpacity, 1.0)  === false) {
             throw new InvalidConfigValue(
                 static::TYPE . '->' . __FUNCTION__,
                 'float',

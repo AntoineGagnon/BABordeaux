@@ -54,6 +54,26 @@ class ConstantEnumerator extends Enumerator
     }
 
     /**
+     * Get defined constants.
+     *
+     * Optionally restrict constants to a given category, e.g. "date".
+     *
+     * @param string $category
+     *
+     * @return array
+     */
+    protected function getConstants($category = null)
+    {
+        if (!$category) {
+            return get_defined_constants();
+        }
+
+        $consts = get_defined_constants(true);
+
+        return isset($consts[$category]) ? $consts[$category] : array();
+    }
+
+    /**
      * Prepare formatted constant array.
      *
      * @param array $constants
@@ -79,25 +99,5 @@ class ConstantEnumerator extends Enumerator
         }
 
         return $ret;
-    }
-
-    /**
-     * Get defined constants.
-     *
-     * Optionally restrict constants to a given category, e.g. "date".
-     *
-     * @param string $category
-     *
-     * @return array
-     */
-    protected function getConstants($category = null)
-    {
-        if (!$category) {
-            return get_defined_constants();
-        }
-
-        $consts = get_defined_constants(true);
-
-        return isset($consts[$category]) ? $consts[$category] : array();
     }
 }

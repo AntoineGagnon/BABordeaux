@@ -78,15 +78,15 @@ class Chart extends JsonConfig
     /**
      * Builds a new chart with the given label.
      *
-     * @param  \Khill\Lavacharts\Values\Label $chartLabel Identifying label for the chart.
+     * @param  \Khill\Lavacharts\Values\Label         $chartLabel Identifying label for the chart.
      * @param  \Khill\Lavacharts\DataTables\DataTable $datatable DataTable used for the chart.
-     * @param  \Khill\Lavacharts\Options $options Options fot the chart.
-     * @param  array $config Array of options to set on the chart.
+     * @param  \Khill\Lavacharts\Options              $options Options fot the chart.
+     * @param  array                                  $config Array of options to set on the chart.
      * @throws \Khill\Lavacharts\Exceptions\InvalidConfigValue
      */
     public function __construct(Label $chartLabel, DataTable $datatable, Options $options, $config = [])
     {
-        $this->label = $chartLabel;
+        $this->label     = $chartLabel;
         $this->datatable = $datatable;
 
         $options->extend($this->chartDefaults);
@@ -159,7 +159,7 @@ class Chart extends JsonConfig
             throw new InvalidConfigValue(
                 static::TYPE . '->' . __FUNCTION__,
                 'array',
-                'who\'s keys are one of ' . Utils::arrayToPipedString($this->defaultEvents)
+                'who\'s keys are one of '.Utils::arrayToPipedString($this->defaultEvents)
             );
         }
 
@@ -216,19 +216,6 @@ class Chart extends JsonConfig
     }
 
     /**
-     * Returns a JSON string representation of the datatable.
-     *
-     * @access public
-     * @since  2.5.0
-     * @throws \Khill\Lavacharts\Exceptions\DataTableNotFound
-     * @return string
-     */
-    public function getDataTableJson()
-    {
-        return json_encode($this->getDataTable());
-    }
-
-    /**
      * Returns the DataTable
      *
      * @access public
@@ -243,6 +230,19 @@ class Chart extends JsonConfig
         }
 
         return $this->datatable;
+    }
+
+    /**
+     * Returns a JSON string representation of the datatable.
+     *
+     * @access public
+     * @since  2.5.0
+     * @throws \Khill\Lavacharts\Exceptions\DataTableNotFound
+     * @return string
+     */
+    public function getDataTableJson()
+    {
+        return json_encode($this->getDataTable());
     }
 
     /**

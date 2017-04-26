@@ -59,15 +59,6 @@ class ExcelServiceProvider extends ServiceProvider {
     }
 
     /**
-     * Set the autosizing settings
-     */
-    public function setAutoSizingSettings()
-    {
-        $method = config('excel.export.autosize-method', PHPExcel_Shared_Font::AUTOSIZE_METHOD_APPROX);
-        PHPExcel_Shared_Font::setAutoSizeMethod($method);
-    }
-
-    /**
      * Register the service provider.
      *
      * @return void
@@ -84,15 +75,27 @@ class ExcelServiceProvider extends ServiceProvider {
     }
 
     /**
-     * Bind other classes
+     * Bind PHPExcel classes
      * @return void
      */
-    protected function bindClasses()
+    protected function bindPHPExcelClass()
     {
-        // Bind the format identifier
-        $this->app->singleton('excel.identifier', function ($app)
+        // Set object
+        $me = $this;
+
+        // Bind the PHPExcel class
+        $this->app->singleton('phpexcel', function () use ($me)
         {
-            return new FormatIdentifier($app['files']);
+            // Set locale
+            $me->setLocale();
+
+            // Set the caching settings
+            $me->setCacheSettings();
+
+            // Init phpExcel
+            $excel = new PHPExcel();
+            $excel->setDefaultProperties();
+            return $excel;
         });
     }
 
@@ -151,48 +154,6 @@ class ExcelServiceProvider extends ServiceProvider {
     }
 
     /**
-     * Bind PHPExcel classes
-     * @return void
-     */
-    protected function bindPHPExcelClass()
-    {
-        // Set object
-        $me = $this;
-
-        // Bind the PHPExcel class
-        $this->app->singleton('phpexcel', function () use ($me) {
-            // Set locale
-            $me->setLocale();
-
-            // Set the caching settings
-            $me->setCacheSettings();
-
-            // Init phpExcel
-            $excel = new PHPExcel();
-            $excel->setDefaultProperties();
-            return $excel;
-        });
-    }
-
-    /**
-     * Set locale
-     */
-    public function setLocale()
-    {
-        $locale = config('app.locale', 'en_us');
-        PHPExcel_Settings::setLocale($locale);
-    }
-
-    /**
-     * Set cache settings
-     * @return Cache
-     */
-    public function setCacheSettings()
-    {
-        return new Cache();
-    }
-
-    /**
      * Bind writers
      * @return void
      */
@@ -229,8 +190,48 @@ class ExcelServiceProvider extends ServiceProvider {
 
             return $excel;
         });
-
+        
         $this->app->alias('phpexcel', PHPExcel::class);
+    }
+
+    /**
+     * Bind other classes
+     * @return void
+     */
+    protected function bindClasses()
+    {
+        // Bind the format identifier
+        $this->app->singleton('excel.identifier', function ($app)
+        {
+            return new FormatIdentifier($app['files']);
+        });
+    }
+
+    /**
+     * Set cache settings
+     * @return Cache
+     */
+    public function setCacheSettings()
+    {
+        return new Cache();
+    }
+
+    /**
+     * Set locale
+     */
+    public function setLocale()
+    {
+        $locale = config('app.locale', 'en_us');
+        PHPExcel_Settings::setLocale($locale);
+    }
+
+    /**
+     * Set the autosizing settings
+     */
+    public function setAutoSizingSettings()
+    {
+        $method = config('excel.export.autosize-method', PHPExcel_Shared_Font::AUTOSIZE_METHOD_APPROX);
+        PHPExcel_Shared_Font::setAutoSizeMethod($method);
     }
 
     /**

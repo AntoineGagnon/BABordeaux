@@ -27,7 +27,7 @@ trait TrendlinesTrait
         $trendlines = [];
 
         foreach ($trendlineConfigArray as $index => $trendlineConfig) {
-            $trendlines[(string)$index] = new Trendline($trendlineConfig);
+            $trendlines[(string) $index] = new Trendline($trendlineConfig);
         }
 
         return $this->setOption(__FUNCTION__, $trendlines);
