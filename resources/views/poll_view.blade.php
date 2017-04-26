@@ -193,7 +193,7 @@
                 data: {id: answer_id},
                 //dataType : 'text'
                 success: function (response) {
-                    alert("Label.id");
+                    alert("label.id");
                     //les trucs à faire au retour
                     console.log("ok submitAnswer");
                 },
