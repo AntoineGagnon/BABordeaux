@@ -97,7 +97,7 @@
                                 </h4>
                             </div>
                             <div class="panel-collapse collapse in ">
-                                <form action="/admin/updateLabel" method="POST">
+                                <form action="/admin/updateArtwork" method="POST">
                                     {{ csrf_field() }}
                                     <div class="panel-collapse collapse in ">
                                         <div class="panel-body editform">
@@ -116,20 +116,12 @@
                                                                 <span class="glyphicon glyphicon-trash"></span> Supprimer
                                                             </button>
                                                         </div>
-                                                        @if($artwork->isVisible == 0)
-                                                        @elseif($artwork->isVisible == 1)
-                                                            <div class="divhidequestion">
-                                                                <button type="button" value="{{$artwork->id}}" class="btnHideQuestion btn btn-warning btn-sm" style="float: right; margin-right: 1%;  margin-left: 1%">
-                                                                    <span class="glyphicon glyphicon-eye-close"></span> Cacher
-                                                                </button>
-                                                            </div>
-                                                        @endif
                                                         <div style=" padding-right: .5em;">
-                                                            <input type="text" class="form-control Questionlabel" name="artwork_{{ $artwork->id }}" value="{{ $artwork->artist }}" style="width: 20%; float: left;"/>
-                                                            <input type="text" class="form-control Questionlabel" name="artwork_{{ $artwork->id }}" value="{{ $artwork->title }}" style="width: 15%;float: left;"/>
-                                                            <input type="number" class="form-control Questionlabel" name="artwork_{{ $artwork->id }}" value="{{ $artwork->date }}" style="width: 8%;float: left;"/>
-                                                            <input type="text" class="form-control Questionlabel" name="artwork_{{ $artwork->id }}" value="{{ $artwork->image_url }}" style="width: 35%; float:left;"/>
-                                                            <input type="text" class="form-control Questionlabel" name="artwork_{{ $artwork->id }}" value="{{ $artwork->type }}" style="width: 10%;"/>
+                                                            <input type="text" class="form-control ArtworkLabel" name="artwork_{{ $artwork->id }}" value="{{ $artwork->artist }}" style="width: 20%; float: left;"/>
+                                                            <input type="text" class="form-control "  value="{{ $artwork->title }}" style="width: 15%;float: left;"/>
+                                                            <input type="number" class="form-control " value="{{ $artwork->date }}" style="width: 8%;float: left;"/>
+                                                            <input type="text" class="form-control " value="{{ $artwork->image_url }}" style="width: 35%; float:left;"/>
+                                                            <input type="text" class="form-control "  value="{{ $artwork->type }}" style="width: 10%;"/>
                                                         </div>
 
                                                         <br>
@@ -153,39 +145,6 @@
     @parent
     <script>
         function initialise() {
-            var countChoice = 0;
-
-            $('select').on('change', function() {
-                if (this.value == "openAnswer") {
-                    $(".choice").css("display", "none");
-                    $("#btnAddChoice").css("display", "none");
-                    $("#btnRemoveChoice").css("display", "none");
-                    $("#choices-group :text").attr('required', false);
-                }
-                if (this.value == "singleChoice" || this.value =="multipleChoice") {
-                    $(".choice").css("display", "inline");
-                    $("#btnAddChoice").css("display", "inline");
-                    $("#btnRemoveChoice").css("display", "inline");
-                    $("#choices-group :text").attr('required', true);
-                }
-
-            });
-            $("#btnAddChoice").click(function(){
-                $('#nb_choices').val( function(i, oldval) {
-                    return ++oldval;
-                });
-                countChoice++;
-                $("#choices-group").append("<input type='text' class='form-control choice' name='choice" + countChoice + "' placeholder='choix' required/>" );
-
-            });
-
-            $("#btnRemoveChoice").click(function(){
-                $("#choices-group input:last-child").remove();
-                countChoice--;
-                $('#nb_choices').val( function(i, oldval) {
-                    return --oldval;
-                });
-            });
 
             $.ajaxSetup({
                 headers: {
@@ -212,84 +171,12 @@
                 };
             });
 
-            //hide question
-            $('.divhidequestion').on("click", ".btnHideQuestion",function(){
-                var question_id = $(this).val();
-                var show_visibility = 0;
-                $.ajax({
-                    type: "POST",
-                    url: '/admin/updateVisibility/'+question_id+'/'+show_visibility,
-                    data: {_id:question_id,_show:show_visibility},
-                    success: function() {
-                        $(".editform").load(location.href + " .editform*","");
-                        console.log("ok hide");
-                    },
-                    error: function(data) {
-                        console.log("error ajax hide: " + data);
-                    }
-                });
-            });
-
-            //show question
-            $('.divshowquestion').on("click", ".btnShowQuestion",function(){
-                var question_id = $(this).val();
-                var show_visibility = 1;
-                $.ajax({
-                    type: "POST",
-                    url: '/admin/updateVisibility/'+question_id+'/'+show_visibility,
-                    data: {_id:question_id,_show:show_visibility},
-                    success: function(data) {
-                        $(".editform").load(location.href + " .editform*","");
-                        console.log("ok show");
-                    },
-                    error: function(data) {
-                        console.log("error ajax show: " + data);
-                    }
-                });
-            });
-
-            //question required ON
-            $('.divrequiredonquestion').on("click", ".btnIsRequiredON",function(){
-                var question_id = $(this).val();
-                var isRequired=1;
-                $.ajax({
-                    type: "POST",
-                    url: '/admin/updateRequired/'+question_id+'/'+isRequired,
-                    data: {_id:question_id,_required:isRequired},
-                    success: function(data) {
-                        $(".editform").load(location.href + " .editform*","");
-                        console.log("ok required ON");
-                    },
-                    error: function(data) {
-                        console.log("error ajax required ON: " + data);
-                    }
-                });
-            });
-
-            //question required OFF
-            $('.divrequiredoffquestion').on("click", ".btnIsRequiredOFF",function(){
-                var question_id = $(this).val();
-                var isRequired=0;
-                $.ajax({
-                    type: "POST",
-                    url: '/admin/updateRequired/'+question_id+'/'+isRequired,
-                    data: {_id:question_id,_required:isRequired},
-                    success: function(data) {
-                        $(".editform").load(location.href + " .editform*","");
-                        console.log("ok required OFF");
-                    },
-                    error: function(data) {
-                        console.log("error ajax required OFF: " + data);
-                    }
-                });
-            });
-
-            function labelChanged(){
+            function artworkChanged(){
                 var name = $(this).attr('name');
-                $(this).attr('name', name + '_changed');
-                console.log("changedlabel");
+                $(this).attr('name', name + '_artworkchanged');
+                console.log("artworkchanged");
             }
-            $(".Questionlabel").on("change", labelChanged);
+            $(".ArtworkLabel").on("change", artworkChanged);
 
 
         }

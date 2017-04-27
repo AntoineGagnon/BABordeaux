@@ -26,11 +26,12 @@ Route::get('admin/exportpollresults','PollController@adminExportPollResults');
 Route::get('admin/resultpoll', 'PollController@adminDisplayPollResults');
 Route::get('admin/resultguestbook', 'GuestbookController@adminDisplayGBResults');
 Route::get('admin/change_password', 'AdminController@changePassword');
-Route::get('artwork/getartworkbyanswer/{answerid}','ArtworkController@getArtworkByID');
 Route::post('admin/postPasswordChange', 'AdminController@postPasswordChange');
 Route::post('admin/updateVisibility/{id}/{show}','QuestionController@updateVisibilityQuestion');
 Route::post('admin/updateRequired/{id}/{required}','QuestionController@updateRequiredQuestion');
-Route::post('/admin/updateLabel','QuestionController@updateLabelQuestion');
+Route::post('admin/updateLabel','QuestionController@updateLabelQuestion');
+Route::post('admin/updateArtwork','ArtworkController@updateArtwork');
+
 
 // Pour les autres fonctions en rapport avec admin
 Route::resource('login', 'LoginController');

@@ -91,4 +91,29 @@ class ArtworkController extends Controller
         artwork::destroy($id);
     }
 
+    /**
+     * Update in database an artwork
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
+     */
+    public function updateArtwork(Request $request){
+        if(!Auth::check())
+            return redirect()->intended('login');
+
+        $allresultsrequest = $request->all();
+        $allkeys = array_keys($allresultsrequest);
+        foreach($allkeys as $key){
+            if(ends_with($key,'_artworkchanged')){
+                preg_match_all('!\d+!', $key, $artworkIdToChanged);
+                $artwork = artwork::find($artworkIdToChanged[0][0]);
+                $artwork->artist = $request->input($key);
+                $artwork->save();
+
+            }
+
+        }
+
+        $artworks = artwork::all();
+        return redirect()->action('ArtworkController@adminEditArtworks')->with(['artworks' => $artworks]);
+    }
 }
