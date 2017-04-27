@@ -103,7 +103,7 @@ class ArtworkController extends Controller
         $allresultsrequest = $request->all();
         $allkeys = array_keys($allresultsrequest);
         foreach($allkeys as $key){
-            if(ends_with($key,'_artworkchanged')){
+            if(ends_with($key,'_artistchanged')){
                 preg_match_all('!\d+!', $key, $artworkIdToChanged);
                 $artwork = artwork::find($artworkIdToChanged[0][0]);
                 $artwork->artist = $request->input($key);
@@ -111,9 +111,40 @@ class ArtworkController extends Controller
 
             }
 
+            if(ends_with($key,'_titlechanged')){
+                preg_match_all('!\d+!', $key, $answerIdToChanged);
+                $artwork = artwork::find($answerIdToChanged[0][0]);
+                $artwork->title = $request->input($key);
+                $artwork->save();
+
+            }
+
+            if(ends_with($key,'_datechanged')){
+                preg_match_all('!\d+!', $key, $answerIdToChanged);
+                $artwork = artwork::find($answerIdToChanged[0][0]);
+                $artwork->date = $request->input($key);
+                $artwork->save();
+
+            }
+
+            if(ends_with($key,'_urlchanged')){
+                preg_match_all('!\d+!', $key, $answerIdToChanged);
+                $artwork = artwork::find($answerIdToChanged[0][0]);
+                $artwork->image_url = $request->input($key);
+                $artwork->save();
+
+            }
+
+            if(ends_with($key,'_typechanged')){
+                preg_match_all('!\d+!', $key, $answerIdToChanged);
+                $artwork = artwork::find($answerIdToChanged[0][0]);
+                $artwork->type = $request->input($key);
+                $artwork->save();
+
+            }
+
         }
 
-        $artworks = artwork::all();
-        return redirect()->action('ArtworkController@adminEditArtworks')->with(['artworks' => $artworks]);
+        return redirect()->action('ArtworkController@adminEditArtworks');
     }
 }

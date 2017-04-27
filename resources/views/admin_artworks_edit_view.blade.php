@@ -117,11 +117,11 @@
                                                             </button>
                                                         </div>
                                                         <div style=" padding-right: .5em;">
-                                                            <input type="text" class="form-control ArtworkLabel" name="artwork_{{ $artwork->id }}" value="{{ $artwork->artist }}" style="width: 20%; float: left;"/>
-                                                            <input type="text" class="form-control "  value="{{ $artwork->title }}" style="width: 15%;float: left;"/>
-                                                            <input type="number" class="form-control " value="{{ $artwork->date }}" style="width: 8%;float: left;"/>
-                                                            <input type="text" class="form-control " value="{{ $artwork->image_url }}" style="width: 35%; float:left;"/>
-                                                            <input type="text" class="form-control "  value="{{ $artwork->type }}" style="width: 10%;"/>
+                                                            <input type="text" class="form-control ArtistLabel" name="artwork_{{ $artwork->id }}" value="{{ $artwork->artist }}" style="width: 20%; float: left;"/>
+                                                            <input type="text" class="form-control TitleLabel" name="artwork_{{ $artwork->id }}" value="{{ $artwork->title }}" style="width: 15%;float: left;"/>
+                                                            <input type="number" class="form-control DateLabel" name="artwork_{{ $artwork->id }}" value="{{ $artwork->date }}" style="width: 8%;float: left;"/>
+                                                            <input type="text" class="form-control UrlChanged" name="artwork_{{ $artwork->id }}" value="{{ $artwork->image_url }}" style="width: 35%; float:left;"/>
+                                                            <input type="text" class="form-control TypeChanged"  name="artwork_{{ $artwork->id }}" value="{{ $artwork->type }}" style="width: 10%;"/>
                                                         </div>
 
                                                         <br>
@@ -171,12 +171,41 @@
                 };
             });
 
-            function artworkChanged(){
+            function artistChanged(){
                 var name = $(this).attr('name');
-                $(this).attr('name', name + '_artworkchanged');
-                console.log("artworkchanged");
+                $(this).attr('name', name + '_artistchanged');
+                console.log("_artistchanged");
             }
-            $(".ArtworkLabel").on("change", artworkChanged);
+            $(".ArtistLabel").on("change", artistChanged);
+
+            function titleChanged(){
+                var name = $(this).attr('name');
+                $(this).attr('name', name + '_titlechanged');
+                console.log("_titlechanged");
+            }
+            $(".TitleLabel").on("change", titleChanged);
+
+            function dateChanged(){
+                var name = $(this).attr('name');
+                $(this).attr('name', name + '_datechanged');
+                console.log("_datechanged");
+            }
+            $(".DateLabel").on("change", dateChanged);
+
+            function urlChanged(){
+                var name = $(this).attr('name');
+                $(this).attr('name', name + '_urlchanged');
+                console.log("_urlchanged");
+            }
+            $(".UrlChanged").on("change", urlChanged);
+
+            function typeChanged(){
+                var name = $(this).attr('name');
+                $(this).attr('name', name + '_typechanged');
+                console.log("_typechanged");
+            }
+            $(".TypeChanged").on("change", typeChanged);
+
 
 
         }
