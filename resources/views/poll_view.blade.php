@@ -102,8 +102,6 @@
         </div>
     </div>
 
-    <!--To put  a facebook and a twitter share buttons-->
-    <div class="sharethis-inline-share-buttons"></div>
 
 @endsection
 

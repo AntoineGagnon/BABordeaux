@@ -44,6 +44,7 @@ class PollController extends Controller
                         $choice = new choice();
                         $choice->question_id = $i;
                         $choice->answer_id = $checkboxChoice;
+                        $answer_id = $checkboxChoice;
                         $choice->submission_id = $sub->id;
                         $choice->save();
                     }
@@ -54,6 +55,7 @@ class PollController extends Controller
                     $choice->answer_id = $value;
                     $choice->submission_id = $sub->id;
                     $choice->save();
+                    $answer_id = $value;
                 } // Open question
                 else {
                     $answer = new answer();
@@ -71,7 +73,15 @@ class PollController extends Controller
             }
         }
 
-        return redirect('/')->with("submissionWorked", true);
+        if(is_null($answer_id)){
+            return redirect('/')->with("submissionWorked", true);
+        }
+        else{
+            $jsonObject = json_decode($this->getArtworkFromAnswer($answer_id),true);
+            $artwork_id = $jsonObject['id'];
+            return redirect('/artwork/' . $artwork_id);
+        }
+
     }
 
     /**
@@ -83,7 +93,7 @@ class PollController extends Controller
     {
         $artworks = artwork::where('id', 5)->get();
 
-        $questions = question::where('is_visible', 1)->get();
+        $questions = question::where('is_visible', 1)->orderBy('question_order','asc')->get();
         foreach ($questions as $question) {
             $question['answers'] = answer::where('question_id', $question->id)->orderBy('answer_order', 'asc')->get();
 
@@ -134,7 +144,7 @@ class PollController extends Controller
 
             if (choice::where('question_id', $question->id)->count() != 0) { // Check only questions with answers
 
-                switch ($question->questionType) {
+                switch ($question->question_type) {
                     case 'multipleChoice':
                         $totalChoices = choice::where('question_id', $question->id)->count();
                         $totalSubmissions = submission::count();
@@ -178,6 +188,8 @@ class PollController extends Controller
         if (!Auth::check())
             return redirect()->intended('login');
 
+        $poll_submission = submission::select('created_at AS Date', 'username AS Auteur', 'text AS Message')->get();
+
         // Generate and return the spreadsheet
         $spreadsheet = Excel::create('resultats_sondage', function ($excel) {
 
@@ -200,10 +212,8 @@ class PollController extends Controller
 
 
         });
-        if ($format == "pdf")
-            $spreadsheet->download('pdf');
-        else
-            $spreadsheet->download('xlsx');
+
+        $spreadsheet->download('xlsx');
     }
 
     public function getArtworkFromAnswer($id)

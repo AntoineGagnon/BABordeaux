@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GuestbookController extends Controller
 {
@@ -60,6 +61,7 @@ class GuestbookController extends Controller
 
     public function destroy($id)
     {
+
         if(!Auth::check())
             return redirect()->intended('login');
 
@@ -77,7 +79,6 @@ class GuestbookController extends Controller
      */
     public function adminExportGuestBookResults($format)
     {
-
         if (!Auth::check())
             return redirect()->intended('login');
 
@@ -99,15 +100,13 @@ class GuestbookController extends Controller
                         'size' => 16,
                     )
                 ));
-                $sheet->fromArray($guestbook_submission);
-                //$sheet->loadView('admin_guestbook_results')->with('guestbook_submissions',$guestbook_submission);
+                //$sheet->fromArray($guestbook_submission);
+                $sheet->loadView('admin_guestbook_results')->with('guestbook_submissions',$guestbook_submission);
             });
 
 
         });
-        if ($format == "pdf")
-            $spreadsheet->download('pdf');
-        else
-            $spreadsheet->download('xlsx');
+
+        $spreadsheet->download('xlsx');
     }
 }

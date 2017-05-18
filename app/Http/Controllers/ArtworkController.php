@@ -45,6 +45,10 @@ class ArtworkController extends Controller
         //return view('');
     }
 
+    public function show($id){
+        return view('display_final_artwork',['artwork' => artwork::find($id)]);
+    }
+
     public function regexpTester()
     {
 

@@ -4,7 +4,7 @@
 
     <div class="panel panel-primary notranslate">
         <div class="panel-heading">
-            <h1>Soumissions du livre d'or</h1>
+            <h1>Résultats du questionnaire</h1>
         </div>
 
         <div class="panel-body">
@@ -18,17 +18,17 @@
                                 {{$question->label}} </div>
                         </div>
                         <div class="panel-body text-center">
-                            @if($question->questionType == 'singleChoice')
+                            @if($question->question_type == 'singleChoice')
 
                                 @piechart(strval($question->id), 'chart_' . $question->id,true)
 
-                            @elseif($question->questionType == 'multipleChoice')
+                            @elseif($question->question_type == 'multipleChoice')
 
                                 Nombre moyen de réponses par utilisateur = {{$question->average}}
 
                                 @piechart(strval($question->id), 'chart_' . $question->id,true)
 
-                            @elseif($question->questionType == 'openAnswer')
+                            @elseif($question->question_type == 'openAnswer')
                                 <ul class="list-group">
                                     @foreach($question->answers as $answer)
                                         <li class="list-group-item">{{$answer->label}}</li>
@@ -47,7 +47,13 @@
 
 
 @section('post-js')
-    $(".spoiler-trigger").click(function() {
-    $(this).parent().next().collapse('toggle');
-    });
+    @parent
+    <script>
+        $(document).ready(function(){
+            $(".spoiler-trigger").click(function() {
+                $(this).parent().next().collapse('toggle');
+            });
+        });
+
+    </script>
 @endsection
