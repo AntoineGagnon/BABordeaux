@@ -1,7 +1,10 @@
-# Laravel
-Projet créé avec Laravel, supposé représenter un site de sondage pour un musée.
+# Projet Universitaire
+Problématique: Rendre numérique et plus ludique un sondage, à l'origine en version papier, sur les visiteurs du Musée des Beaux-Arts de Bordeaux 
 
-## Utilisation du projet
+## Laravel
+Projet créé avec Laravel, représentant un site de sondage pour un musée.
+
+### Utilisation du projet
 Une fois laravel installé et le projet cloné, n'oubliez pas de lancer les commandes:
 
 php artisan migrate
