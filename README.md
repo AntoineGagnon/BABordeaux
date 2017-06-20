@@ -13,3 +13,20 @@ php artisan db:seed
 Pour créer et remplir votre base de données.
 
 Si votre configuration de base de donnée n'est pas bonne, renommez .env.example en .env et modifiez les informations.
+
+## Screenshots
+
+#### Vue Sondage
+![your_artwork](https://github.com/AntoineGagnon/BABordeaux/blob/master/screenshots/sondage_1.png)
+![your_artwork](https://github.com/AntoineGagnon/BABordeaux/blob/master/screenshots/sondage_2.png)
+![your_artwork](https://github.com/AntoineGagnon/BABordeaux/blob/master/screenshots/your_artwork.png)
+
+#### Affichage Résultats et soumissions livre d'or
+![your_artwork](https://github.com/AntoineGagnon/BABordeaux/blob/master/screenshots/results_display_1.png)
+![your_artwork](https://github.com/AntoineGagnon/BABordeaux/blob/master/screenshots/livre_or_1.png)
+
+#### Admin panel
+![your_artwork](https://github.com/AntoineGagnon/BABordeaux/blob/master/screenshots/admin_panel.png)
+![your_artwork](https://github.com/AntoineGagnon/BABordeaux/blob/master/screenshots/edition_sondage.png)
+![your_artwork](https://github.com/AntoineGagnon/BABordeaux/blob/master/screenshots/edition_oeuvres.png)
+![your_artwork](https://github.com/AntoineGagnon/BABordeaux/blob/master/screenshots/rules.png)
