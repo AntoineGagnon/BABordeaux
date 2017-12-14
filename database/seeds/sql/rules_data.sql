@@ -1,6 +1,6 @@
 
 
-INSERT INTO `rules` (`id`, `label`, `attribute`, `regexp`,rule_type) VALUES
+INSERT INTO 'rules' ('id', 'label', 'attribute', 'regexp',rule_type) VALUES
 (3, 'Date moins 1500', 'date', 'lessthan 1500','number'),
 (9, 'Entre 1500 et 1650', 'date', 'between 1500 1650','number'),
 (10, 'Entre 1650 et 1750', 'date', 'between 1650 1750','number'),
