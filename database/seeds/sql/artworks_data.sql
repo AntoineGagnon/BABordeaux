@@ -1,4 +1,4 @@
--- phpMyAdmin SQL Dump
+ artworks-- phpMyAdmin SQL Dump
 -- version 4.5.1
 -- http://www.phpmyadmin.net
 --
@@ -21,7 +21,7 @@ SET time_zone = "+00:00";
 --
 
 --
--- Contenu de la table 'artworks'
+-- Contenu de la table  artworks
 --
 
 INSERT INTO  artworks  ( id ,  artist ,  born_died ,  title ,  date ,  technique ,  location ,  image_url ,  type ,  form ,  school ,  timeframe ) VALUES
@@ -232,7 +232,7 @@ INSERT INTO  artworks  ( id ,  artist ,  born_died ,  title ,  date ,  technique
 (235, 'BYSS, Johann Rudolf', '(b. 1660, Solothurn, d. 1738, Würzburg)', 'Ceiling fresco', '1713', 'Fresco', 'Schloss Weissenstein, Pommersfelden', 'http://www.wga.hu/art/b/byss/1weisse2.jpg', 'painting', 'mythological', 'Swiss', '1701-1750'),
 (236, 'BYSS, Johann Rudolf', '(b. 1660, Solothurn, d. 1738, Würzburg)', 'Flowers in a Vase in a Stone Niche', '1693', 'Oil on copper, 18 x 13 cm', 'Private collection', 'http://www.wga.hu/art/b/byss/flowers.jpg', 'painting', 'still-life', 'Swiss', '1701-1750'),
 (237, 'CAIN, Auguste Nicolas', '(b. 1822, Paris, d. 1894, Paris)', 'Pheasants', '1860', 'Sand cast bronze, 11 x 17 cm', 'Private collection', 'http://www.wga.hu/art/c/cain/pheasant.jpg', 'sculpture', 'other', 'French', '1851-1900');
-INSERT INTO 'artworks' ('id', 'artist', 'born_died', 'title', 'date', 'technique', 'location', 'image_url', 'type', 'form', 'school', 'timeframe') VALUES
+INSERT INTO  artworks (id, artist, born_died, title, date, technique, location, image_url, type, form, school, timeframe) VALUES
 (238, 'CAIN, Auguste Nicolas', '(b. 1822, Paris, d. 1894, Paris)', 'Rooster', '1860', 'Sand cast bronze, height 26 cm', 'Private collection', 'http://www.wga.hu/art/c/cain/rooster.jpg', 'sculpture', 'other', 'French', '1851-1900'),
 (239, 'CALVAERT, Denys', '(b. 1540, Antwerpen, d. 1619, Bologna)', 'Conversion of Saul', '1580', 'Oil on canvas, 92 x 133 cm', 'Private collection', 'http://www.wga.hu/art/c/calvaert/conversi.jpg', 'painting', 'religious', 'Flemish', '1551-1600'),
 (242, 'CAMPEN, Jacob van', '(b. 1596, Haarlem, d. 1657, Amersfoort)', 'Exterior view', '1648', 'Photo', 'Town Hall, Amsterdam', 'http://www.wga.hu/art/c/campen/amsterd1.jpg', 'architecture', 'other', 'Dutch', '1601-1650'),
@@ -432,7 +432,7 @@ INSERT INTO 'artworks' ('id', 'artist', 'born_died', 'title', 'date', 'technique
 (494, 'GIRARD, Dominique', '(1680-1738)', 'General view', '1728', 'Photo', 'Schloss Augustusburg, Brühl', 'http://www.wga.hu/art/g/girard/bruhl.jpg', 'architecture', 'other', 'French', '1701-1750'),
 (495, 'GIRARDON, François', '(b. 1628, Troyes, d. 1715, Paris)', 'Saturn or Winter Fountain', '1672', 'Lead and gilt', 'Garden of the Château, Versailles', 'http://www.wga.hu/art/g/girardon/fountain.jpg', 'sculpture', 'mythological', 'French', '1651-1700'),
 (497, 'GLESKER, Justus', '(b. ca. 1615, Hamelin, d. 1678, Frankfurt)', 'Crucifixion group', '1648', 'Wood, regilded, height of Christ 220 cm', 'Cathedral, Bamberg', 'http://www.wga.hu/art/g/glesker/crucifix.jpg', 'sculpture', 'religious', 'German', '1601-1650');
-INSERT INTO 'artworks' ('id', 'artist', 'born_died', 'title', 'date', 'technique', 'location', 'image_url', 'type', 'form', 'school', 'timeframe') VALUES
+INSERT INTO  artworks (id, artist, born_died, title, date, technique, location, image_url, type, form, school, timeframe) VALUES
 (498, 'GLESKER, Justus', '(b. ca. 1615, Hamelin, d. 1678, Frankfurt)', 'Mater Dolorosa from the Crucifixion group', '1648', 'Wood, regilded', 'Cathedral, Bamberg', 'http://www.wga.hu/art/g/glesker/crucifiz.jpg', 'sculpture', 'religious', 'German', '1601-1650'),
 (499, 'GLESKER, Justus', '(b. ca. 1615, Hamelin, d. 1678, Frankfurt)', 'St Sebastian', '1640', 'Ivory, height of the figure 36 cm', 'Museo degli Argenti, Palazzo Pitti, Florence', 'http://www.wga.hu/art/g/glesker/sebastia.jpg', 'sculpture', 'religious', 'German', '1601-1650'),
 (501, 'GOENEUTTE, Norbert', '(b. 1854, Paris, d. 1894, Auvers-sur-Oise)', 'Harbour of Honfleur', '1881', 'Oil on canvas, 38 x 46 cm', 'Private collection', 'http://www.wga.hu/art/g/goeneutt/harbour.jpg', 'painting', 'landscape', 'French', '1851-1900'),
@@ -636,7 +636,7 @@ INSERT INTO 'artworks' ('id', 'artist', 'born_died', 'title', 'date', 'technique
 (743, 'MASTER of the Brunswick Monogram', '(active 1525-1550 in Antwerp)', 'Abraham Leading his Son Isaac to the Sacrifice', '1535', 'Wood, 40 x 32 cm', 'Musée du Louvre, Paris', 'http://www.wga.hu/art/m/master/brunswic/abraham.jpg', 'painting', 'religious', 'Flemish', '1501-1550'),
 (744, 'MASTER of the Brunswick Monogram', '(active 1525-1550 in Antwerp)', 'Road to Calvary', '1535', 'Wood, 70 x 84 cm', 'Musée du Louvre, Paris', 'http://www.wga.hu/art/m/master/brunswic/calvary1.jpg', 'painting', 'religious', 'Flemish', '1501-1550'),
 (745, 'MASTER of the Brunswick Monogram', '(active 1525-1550 in Antwerp)', 'Calvary', '1550', 'Oil on panel, 29 x 38 cm', 'Private collection', 'http://www.wga.hu/art/m/master/brunswic/calvary2.jpg', 'painting', 'religious', 'Flemish', '1501-1550');
-INSERT INTO 'artworks' ('id', 'artist', 'born_died', 'title', 'date', 'technique', 'location', 'image_url', 'type', 'form', 'school', 'timeframe') VALUES
+INSERT INTO  artworks (id, artist, born_died, title, date, technique, location, image_url, type, form, school, timeframe) VALUES
 (746, 'MASTER of the Castello Nativity', '(active 1445-1475 in Florence)', 'Madonna and Child Enthroned', '1470', 'Oil and gold on panel, 88 x 58 cm', 'Private collection', 'http://www.wga.hu/art/m/master/castello/madonna4.jpg', 'painting', 'religious', 'Italian', '1401-1450'),
 (747, 'MASTER of the Legend of Saint Ursula (I)', '(active 1480-1500 in Bruges)', 'Head of Christ', '1490', 'Oil and gold on oak panel, 43 x 33 cm', 'Private collection', 'http://www.wga.hu/art/m/master/legend1/8head.jpg', 'painting', 'religious', 'Flemish', '1451-1500'),
 (748, 'MASTER of the Pesaro Crucifix', '(active 1380-1400 in Venice)', 'Virgin and Child Enthroned', '1400', 'Tempera on panel, gold ground, shaped top, 73 x 45 cm', 'Private collection', 'http://www.wga.hu/art/m/master/pesaro/virgin_c.jpg', 'painting', 'religious', 'Italian', '1351-1400'),
@@ -837,7 +837,7 @@ INSERT INTO 'artworks' ('id', 'artist', 'born_died', 'title', 'date', 'technique
 (989, 'SANGALLO, Antonio da, the Elder', '(b. ca. 1455, Firenze, d. 1534, Firenze)', 'Madonna di San Biagio: View of the exterior', '1518', 'Photo', 'Madonna di San Biagio, Montepulciano', 'http://www.wga.hu/art/s/sangallo/antonio1/montepu0.jpg', 'architecture', 'religious', 'Italian', '1451-1500'),
 (990, 'SANGALLO, Antonio da, the Younger', '(b. 1483, Firenze, d. 1546, Firenze)', 'Palazzo Farnese: Façade (detail)', '1517', 'Photo', 'Piazza Farnese, Rome', 'http://www.wga.hu/art/s/sangallo/antonio2/3farnese.jpg', 'architecture', 'other', 'Italian', '1501-1550'),
 (991, 'SANGALLO, Antonio da, the Younger', '(b. 1483, Firenze, d. 1546, Firenze)', 'Palazzo Farnese: Façade', '1517', 'Photo', 'Piazza Farnese, Rome', 'http://www.wga.hu/art/s/sangallo/antonio2/4farnese.jpg', 'architecture', 'other', 'Italian', '1501-1550');
-INSERT INTO 'artworks' ('id', 'artist', 'born_died', 'title', 'date', 'technique', 'location', 'image_url', 'type', 'form', 'school', 'timeframe') VALUES
+INSERT INTO  artworks (id, artist, born_died, title, date, technique, location, image_url, type, form, school, timeframe) VALUES
 (993, 'SANMICHELI, Michele', '(b. 1484, Verona, d. 1559, Verona)', 'Porta del Palio', '1542', 'Photo', 'Verona', 'http://www.wga.hu/art/s/sanmiche/1porta.jpg', 'architecture', 'other', 'Italian', '1501-1550'),
 (994, 'SANMICHELI, Michele', '(b. 1484, Verona, d. 1559, Verona)', 'Porta del Palio', '1542', 'Photo', 'Verona', 'http://www.wga.hu/art/s/sanmiche/1porta1.jpg', 'architecture', 'other', 'Italian', '1501-1550'),
 (995, 'SANSOVINO, Jacopo', '(b. 1486, Firenze, d. 1570, Venezia)', 'Palazzo Corner della Ca'' Grande: Façade', '1533', 'Photo', 'Canal Grande, Venice', 'http://www.wga.hu/art/s/sansovin/jacopo/1/corner.jpg', 'architecture', 'other', 'Italian', '1501-1550'),
@@ -1038,7 +1038,7 @@ INSERT INTO 'artworks' ('id', 'artist', 'born_died', 'title', 'date', 'technique
 (1240, 'WOOD, John the Elder', '(b. 1704, Bath, d. 1754, Bath)', 'Exterior view', '1729', 'Photo', 'Queen''s Square, Bath', 'http://www.wga.hu/art/w/wood/father/queens1.jpg', 'architecture', 'other', 'English', '1701-1750'),
 (1241, 'WOOD, John the Elder', '(b. 1704, Bath, d. 1754, Bath)', 'Exterior view', '1729', 'Photo', 'Queen''s Square, Bath', 'http://www.wga.hu/art/w/wood/father/queens2.jpg', 'architecture', 'other', 'English', '1701-1750'),
 (1242, 'WOOD, John the Younger', '(b. 1728, Bath, d. 1782, Batheaston)', 'General view', '1767', 'Photo', 'Royal Crescent, Bath', 'http://www.wga.hu/art/w/wood/son/crescen1.jpg', 'architecture', 'other', 'English', '1751-1800');
-INSERT INTO 'artworks' ('id', 'artist', 'born_died', 'title', 'date', 'technique', 'location', 'image_url', 'type', 'form', 'school', 'timeframe') VALUES
+INSERT INTO 'artworks' (id, artist, born_died, title, date, technique, location, image_url, type, form, school, timeframe) VALUES
 (1243, 'WOOD, John the Younger', '(b. 1728, Bath, d. 1782, Batheaston)', 'General view', '1767', 'Photo', 'Royal Crescent, Bath', 'http://www.wga.hu/art/w/wood/son/crescen2.jpg', 'architecture', 'other', 'English', '1751-1800'),
 (1245, 'WREN, Christopher', '(b. 1632, East Knoyle, d. 1723, London)', 'Exterior view', '1695', 'Photo', 'Hospital, Greenwich', 'http://www.wga.hu/art/w/wren/greenwic.jpg', 'architecture', 'other', 'English', '1651-1700'),
 (1246, 'WREN, Christopher', '(b. 1632, East Knoyle, d. 1723, London)', 'Exterior view', '1690', 'Photo', 'Hampton Court Palace, Richmond upon Thames', 'http://www.wga.hu/art/w/wren/hampton1.jpg', 'architecture', 'other', 'English', '1651-1700'),
