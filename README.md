@@ -14,6 +14,9 @@ Pour créer et remplir votre base de données.
 
 Si votre configuration de base de donnée n'est pas bonne, renommez .env.example en .env et modifiez les informations.
 
+# Demo
+Vous pouvez voir une version de notre demo [ici](https://ba-bordeaux.herokuapp.com/). Certaines images peuvent ne pas s'afficher, la base de donnée utilisée pour les oeuvres d'arts n'étant pas gérée par nous même pour ce projet.
+
 ## Screenshots
 
 #### Vue Sondage
