@@ -11,6 +11,10 @@
 |
 */
 
+if (App::environment('production')) {
+    URL::forceScheme('https');
+}
+
 Route::post('/getArtworkFromAnswer/{id}', 'PollController@getArtworkFromAnswer');
 Route::resource('/', 'PollController');
 Route::resource('poll','PollController');
