@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <title class="notranslate">Musée des Beaux Arts Bordeaux</title>
-    <meta name="_token" content="{{ csrf_token() }}"> 
+    <meta name="_token" content="{{ csrf_token() }}">
 
     <!--<meta property="og:url"                content=url du site en ligne>-->
     <meta property="og:type"               content="website" />
@@ -15,11 +15,11 @@
     <meta name="twitter:description" content="Répondez à ce sondage du musée des beaux arts de Bordeaux pour le découvrir">
     <!--<meta name="twitter:image" content=url de l'image à afficher />-->
     <meta name="twitter:card" content="summary_large_image">
- 
+
 
     <script type="text/javascript" src="{{ asset('js/jquery-3.1.1.slim.min.js') }}"></script>
     <!-- CSS And JavaScript -->
-    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{asset('css/style.css')}}">
     <script type="text/javascript" src="{{ asset('js/app.js') }}"></script>
 
