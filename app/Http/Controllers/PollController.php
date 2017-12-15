@@ -244,6 +244,9 @@ class PollController extends Controller
                 }
             }
         }
+        if($results->isEmpty()){
+            $results = artwork::random();
+        }
 
         $json = $results->random()->toJson();
         return $json;
