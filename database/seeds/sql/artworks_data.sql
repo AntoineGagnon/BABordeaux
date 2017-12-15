@@ -1,4 +1,4 @@
- artworks-- phpMyAdmin SQL Dump
+-- artworks-- phpMyAdmin SQL Dump
 -- version 4.5.1
 -- http://www.phpmyadmin.net
 --
@@ -1038,7 +1038,7 @@ INSERT INTO  artworks (id, artist, born_died, title, date, technique, location, 
 (1240, 'WOOD, John the Elder', '(b. 1704, Bath, d. 1754, Bath)', 'Exterior view', '1729', 'Photo', 'Queen''s Square, Bath', 'http://www.wga.hu/art/w/wood/father/queens1.jpg', 'architecture', 'other', 'English', '1701-1750'),
 (1241, 'WOOD, John the Elder', '(b. 1704, Bath, d. 1754, Bath)', 'Exterior view', '1729', 'Photo', 'Queen''s Square, Bath', 'http://www.wga.hu/art/w/wood/father/queens2.jpg', 'architecture', 'other', 'English', '1701-1750'),
 (1242, 'WOOD, John the Younger', '(b. 1728, Bath, d. 1782, Batheaston)', 'General view', '1767', 'Photo', 'Royal Crescent, Bath', 'http://www.wga.hu/art/w/wood/son/crescen1.jpg', 'architecture', 'other', 'English', '1751-1800');
-INSERT INTO 'artworks' (id, artist, born_died, title, date, technique, location, image_url, type, form, school, timeframe) VALUES
+INSERT INTO artworks (id, artist, born_died, title, date, technique, location, image_url, type, form, school, timeframe) VALUES
 (1243, 'WOOD, John the Younger', '(b. 1728, Bath, d. 1782, Batheaston)', 'General view', '1767', 'Photo', 'Royal Crescent, Bath', 'http://www.wga.hu/art/w/wood/son/crescen2.jpg', 'architecture', 'other', 'English', '1751-1800'),
 (1245, 'WREN, Christopher', '(b. 1632, East Knoyle, d. 1723, London)', 'Exterior view', '1695', 'Photo', 'Hospital, Greenwich', 'http://www.wga.hu/art/w/wren/greenwic.jpg', 'architecture', 'other', 'English', '1651-1700'),
 (1246, 'WREN, Christopher', '(b. 1632, East Knoyle, d. 1723, London)', 'Exterior view', '1690', 'Photo', 'Hampton Court Palace, Richmond upon Thames', 'http://www.wga.hu/art/w/wren/hampton1.jpg', 'architecture', 'other', 'English', '1651-1700'),
