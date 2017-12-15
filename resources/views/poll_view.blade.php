@@ -134,7 +134,6 @@
         function updateProgressBar() {
             var progressBar = $('.progress-bar');
             var value = Math.ceil(((page + 1) / {{$questions->count()}}  ) * 100);
-            console.log(value);
             progressBar.css('width', value + '%').attr('aria-valuenow', value);
             progressBar.text(value + "%");
         }

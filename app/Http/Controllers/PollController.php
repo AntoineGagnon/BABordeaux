@@ -223,7 +223,7 @@ class PollController extends Controller
 
         if (!is_null($rule)) {
             if ($rule->rule_type == 'text') {
-                $results = artwork::whereRaw($rule->attribute . ' REGEXP ' . '\'' . $rule->regexp . '\'')->get();
+                $results = artwork::whereRaw($rule->attribute . ' ~ ' . '\'' . $rule->regexp . '\'')->get();
             } else {
 
                 if (str_contains($rule->regexp, "between")) {

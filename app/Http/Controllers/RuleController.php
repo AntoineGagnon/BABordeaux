@@ -45,7 +45,7 @@ class RuleController extends Controller
             case "contains":
                 $rule->rule_type = 'text';
                 $regex->find($value);
-                $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
+                $results = artwork::whereRaw($attribute . ' ~ ' . '\'' . $regex->compile() . '\'')->get();
                 $rule->regexp = $regex->compile();
 
                 break;
@@ -55,7 +55,7 @@ class RuleController extends Controller
                 $regex->anything()
                     ->anythingBut($value)
                     ->anything();
-                $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
+                $results = artwork::whereRaw($attribute . ' ~ ' . '\'' . $regex->compile() . '\'')->get();
                 $rule->regexp = $regex->compile();
 
                 break;
@@ -64,7 +64,7 @@ class RuleController extends Controller
 
                 $regex->startOfLine()
                     ->then($value);
-                $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
+                $results = artwork::whereRaw($attribute . ' ~ ' . '\'' . $regex->compile() . '\'')->get();
                 $rule->regexp = $regex->compile();
 
                 break;
@@ -73,7 +73,7 @@ class RuleController extends Controller
 
                 $regex->endOfLine()
                     ->add($value);
-                $results = artwork::whereRaw($attribute . ' REGEXP ' . '\'' . $regex->compile() . '\'')->get();
+                $results = artwork::whereRaw($attribute . ' ~ ' . '\'' . $regex->compile() . '\'')->get();
                 $rule->regexp = $regex->compile();
 
                 break;
