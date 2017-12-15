@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- Contenu de la table 'artworks'
 --
 
-INSERT INTO 'artworks' ('id', 'artist', 'born_died', 'title', 'date', 'technique', 'location', 'image_url', 'type', 'form', 'school', 'timeframe') VALUES
+INSERT INTO  artworks  ( id ,  artist ,  born_died ,  title ,  date ,  technique ,  location ,  image_url ,  type ,  form ,  school ,  timeframe ) VALUES
 (1, 'ADAM, Robert', '(b. 1728, Kirkcaldy, d. 1792, London)', 'Exterior view', '1760', 'Photo', 'Kedleston Hall, Derbyshire', 'http://www.wga.hu/art/a/adam2/kedlesto.jpg', 'architecture', 'other', 'Scottish', '1751-1800'),
 (2, 'ADAM, Robert', '(b. 1728, Kirkcaldy, d. 1792, London)', 'Interior view', '1763', 'Photo', 'Syon House, Middlesex', 'http://www.wga.hu/art/a/adam2/syon1.jpg', 'architecture', 'interior', 'Scottish', '1751-1800'),
 (3, 'ADAM, Robert', '(b. 1728, Kirkcaldy, d. 1792, London)', 'Interior view', '1763', 'Photo', 'Syon House, Middlesex', 'http://www.wga.hu/art/a/adam2/syon2.jpg', 'architecture', 'interior', 'Scottish', '1751-1800'),
