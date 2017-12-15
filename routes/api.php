@@ -17,5 +17,5 @@ use Illuminate\Http\Request;
     return $request->user();
 })->middleware('auth:api');*/
 if (App::environment('production')) {
-    URL::forceScheme('https');
+    URL::forceSchema('https');
 }

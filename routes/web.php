@@ -12,7 +12,7 @@
 */
 
 if (App::environment('production')) {
-    URL::forceScheme('https');
+    URL::forceSchema('https');
 }
 
 Route::post('/getArtworkFromAnswer/{id}', 'PollController@getArtworkFromAnswer');
